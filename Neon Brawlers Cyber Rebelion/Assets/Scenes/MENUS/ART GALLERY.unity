@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 312775671}
   - component: {fileID: 312775670}
   m_Layer: 5
-  m_Name: Button
+  m_Name: MENU
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -145,17 +145,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 312775668}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 567630143}
-  m_Father: {fileID: 1983137412980253102}
+  m_Father: {fileID: 6644096517443842517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 39.9, y: -35.200012}
+  m_AnchoredPosition: {x: 39.899902, y: -35.19995}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &312775670
@@ -446,7 +446,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: MAIN MENU
+  m_text: MENU
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -908,7 +908,6 @@ RectTransform:
   m_Children:
   - {fileID: 6644096517443842517}
   - {fileID: 3286693424642277700}
-  - {fileID: 312775669}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1361,6 +1360,10 @@ MonoBehaviour:
     thumbnail: {fileID: 21300000, guid: 1626fe5782db56c47936a4c356d6e53b, type: 3}
     fullImage: {fileID: 21300000, guid: 1626fe5782db56c47936a4c356d6e53b, type: 3}
     description: Victoria Gaytan
+  - artName: NPC's
+    thumbnail: {fileID: 21300000, guid: 2da6c0c543b34a44096dd32502c4e908, type: 3}
+    fullImage: {fileID: 21300000, guid: 2da6c0c543b34a44096dd32502c4e908, type: 3}
+    description: "Julio Le\xF3n"
   previewPanel: {fileID: 7671253004939456238}
   previewImage: {fileID: 7580119769782796584}
   previewTitle: {fileID: 4658367081712074430}
@@ -1601,7 +1604,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 5.000061, y: -55}
+  m_AnchoredPosition: {x: 5, y: -55}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &5215344363056904082
@@ -1733,6 +1736,7 @@ RectTransform:
   m_Children:
   - {fileID: 3670414096146629612}
   - {fileID: 3173024340522851638}
+  - {fileID: 312775669}
   m_Father: {fileID: 1983137412980253102}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
