@@ -2,6 +2,13 @@
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// VERSIÓN MEJORADA - LoreManager con mejor sincronización
+/// Cambios principales:
+/// - Mejor manejo de sincronización con InventoryUIManager
+/// - Validaciones adicionales
+/// - Fix en actualización de highlight al cerrar
+/// </summary>
 public class LoreManager : MonoBehaviour
 {
     #region Singleton
@@ -32,6 +39,9 @@ public class LoreManager : MonoBehaviour
     [SerializeField] private KeyCode teclaCerrar = KeyCode.Escape;
     [SerializeField] private KeyCode teclaToggleAudio = KeyCode.Return; // Enter para reproducir/pausar
 
+    [Header("=== DEBUG ===")]
+    [SerializeField] private bool logsDetallados = false;
+
     private ItemData itemActual;
     private bool panelAbierto = false;
     private bool audioPausado = false;
@@ -51,6 +61,40 @@ public class LoreManager : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
             audioSource.loop = false;
+        }
+
+        // ✅ NUEVO: Validación de componentes
+        ValidarComponentes();
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Valida que todos los componentes necesarios estén asignados
+    /// </summary>
+    private void ValidarComponentes()
+    {
+        bool todoCorrecto = true;
+
+        if (panelLoreDetalle == null)
+        {
+            Debug.LogError("[LoreManager] ❌ panelLoreDetalle no asignado");
+            todoCorrecto = false;
+        }
+
+        if (textoNombre == null)
+        {
+            Debug.LogWarning("[LoreManager] ⚠️ textoNombre no asignado");
+            todoCorrecto = false;
+        }
+
+        if (textoDescripcion == null)
+        {
+            Debug.LogWarning("[LoreManager] ⚠️ textoDescripcion no asignado");
+            todoCorrecto = false;
+        }
+
+        if (todoCorrecto && logsDetallados)
+        {
+            Debug.Log("[LoreManager] ✅ Todos los componentes asignados correctamente");
         }
     }
 
@@ -74,6 +118,9 @@ public class LoreManager : MonoBehaviour
         ActualizarTextoBotonAudio();
     }
 
+    /// <summary>
+    /// ✅ MEJORADO: Abre el panel con mejor validación
+    /// </summary>
     public void AbrirPanelLore(ItemData item)
     {
         if (item == null)
@@ -87,14 +134,18 @@ public class LoreManager : MonoBehaviour
         panelLoreDetalle.SetActive(true);
 
         // Mostrar info
-        textoNombre.text = item.nombreDisplay;
-        textoDescripcion.text = item.descripcionLore;
+        if (textoNombre != null)
+        {
+            textoNombre.text = item.nombreDisplay;
+        }
+
+        if (textoDescripcion != null)
+        {
+            textoDescripcion.text = item.descripcionLore;
+        }
 
         // ✅ OCULTAR HIGHLIGHT
-        if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.highlightObject != null)
-        {
-            InventoryUIManager.Instance.highlightObject.SetActive(false);
-        }
+        OcultarHighlightInventario();
 
         // Reproducir audio automáticamente si existe
         if (item.audioLore != null && audioSource != null)
@@ -102,16 +153,26 @@ public class LoreManager : MonoBehaviour
             audioSource.clip = item.audioLore;
             audioSource.Play();
             audioPausado = false;
-            Debug.Log($"[LoreManager] Reproduciendo audio: {item.audioLore.name}");
+
+            if (logsDetallados)
+            {
+                Debug.Log($"[LoreManager] Reproduciendo audio: {item.audioLore.name}");
+            }
         }
-        else
+        else if (logsDetallados)
         {
             Debug.LogWarning($"[LoreManager] Item '{item.nombreDisplay}' no tiene audio asignado");
         }
 
-        Debug.Log($"[LoreManager] Panel abierto para: {item.nombreDisplay}");
+        if (logsDetallados)
+        {
+            Debug.Log($"[LoreManager] Panel abierto para: {item.nombreDisplay}");
+        }
     }
 
+    /// <summary>
+    /// ✅ MEJORADO: Cierre del panel con mejor sincronización
+    /// </summary>
     public void CerrarPanel()
     {
         panelAbierto = false;
@@ -126,14 +187,51 @@ public class LoreManager : MonoBehaviour
         audioPausado = false;
         itemActual = null;
 
-        if (InventoryUIManager.Instance != null)
-        {
-            InventoryUIManager.Instance.ActualizarHighlightPublico();
-        }
+        // ✅ REACTIVAR HIGHLIGHT (solo si el inventario está abierto)
+        ReactivarHighlightInventario();
 
-        Debug.Log("[LoreManager] Panel cerrado");
+        if (logsDetallados)
+        {
+            Debug.Log("[LoreManager] Panel cerrado");
+        }
     }
 
+    /// <summary>
+    /// ✅ NUEVO: Método separado para ocultar highlight (más robusto)
+    /// </summary>
+    private void OcultarHighlightInventario()
+    {
+        if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.highlightObject != null)
+        {
+            InventoryUIManager.Instance.highlightObject.SetActive(false);
+
+            if (logsDetallados)
+            {
+                Debug.Log("[LoreManager] Highlight del inventario ocultado");
+            }
+        }
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Método separado para reactivar highlight (más robusto)
+    /// </summary>
+    private void ReactivarHighlightInventario()
+    {
+        if (InventoryUIManager.Instance != null)
+        {
+            // Solo actualizar si el inventario está abierto
+            InventoryUIManager.Instance.ActualizarHighlightPublico();
+
+            if (logsDetallados)
+            {
+                Debug.Log("[LoreManager] Highlight del inventario reactivado");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Toggle de reproducción de audio (STOP y PLAY desde inicio)
+    /// </summary>
     private void ToggleAudio()
     {
         if (itemActual == null || itemActual.audioLore == null || audioSource == null)
@@ -146,8 +244,12 @@ public class LoreManager : MonoBehaviour
         if (audioSource.isPlaying)
         {
             audioSource.Stop();
-            audioPausado = true; // Usamos esta variable como "audio detenido"
-            Debug.Log("[LoreManager] Audio detenido");
+            audioPausado = true;
+
+            if (logsDetallados)
+            {
+                Debug.Log("[LoreManager] Audio detenido");
+            }
         }
         // Si NO está sonando → REPRODUCIR desde el inicio
         else
@@ -155,14 +257,22 @@ public class LoreManager : MonoBehaviour
             audioSource.clip = itemActual.audioLore;
             audioSource.Play();
             audioPausado = false;
-            Debug.Log("[LoreManager] Audio reproduciendo desde el inicio");
+
+            if (logsDetallados)
+            {
+                Debug.Log("[LoreManager] Audio reproduciendo desde el inicio");
+            }
         }
     }
+
+    /// <summary>
+    /// Actualiza el texto del botón de audio (opcional)
+    /// </summary>
     private void ActualizarTextoBotonAudio()
     {
         if (textoBotonAudio == null) return;
 
-        if (audioSource.isPlaying)
+        if (audioSource != null && audioSource.isPlaying)
         {
             textoBotonAudio.text = "DETENER [ENTER]";
         }
@@ -171,8 +281,40 @@ public class LoreManager : MonoBehaviour
             textoBotonAudio.text = "REPRODUCIR [ENTER]";
         }
     }
+
+    /// <summary>
+    /// Verifica si el panel está abierto
+    /// </summary>
     public bool PanelEstaAbierto()
     {
         return panelAbierto;
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Detiene el audio si está sonando (útil para transiciones de escena)
+    /// </summary>
+    public void DetenerAudio()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Stop();
+            audioPausado = false;
+        }
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Obtiene el item actualmente mostrado (útil para debugging)
+    /// </summary>
+    public ItemData ObtenerItemActual()
+    {
+        return itemActual;
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Verifica si hay audio reproduciéndose
+    /// </summary>
+    public bool AudioReproduciendose()
+    {
+        return audioSource != null && audioSource.isPlaying;
     }
 }

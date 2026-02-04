@@ -3,8 +3,11 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Sistema de inspección 3D integrado con inventario
-/// Usa RenderTexture para mostrar el modelo en UI
+/// VERSIÓN MEJORADA - InspectSystem con mejor sincronización
+/// Cambios principales:
+/// - Mejor manejo de sincronización con InventoryUIManager
+/// - Validaciones adicionales
+/// - Fix en actualización de highlight al cerrar
 /// </summary>
 public class InspectSystem : MonoBehaviour
 {
@@ -46,6 +49,9 @@ public class InspectSystem : MonoBehaviour
     [Header("=== KEYBINDS ===")]
     [SerializeField] private KeyCode teclaCerrar = KeyCode.Escape;
 
+    [Header("=== DEBUG ===")]
+    [SerializeField] private bool logsDetallados = false;
+
     // Variables internas
     private GameObject modeloActual;
     private ItemData itemActual;
@@ -77,6 +83,52 @@ public class InspectSystem : MonoBehaviour
         {
             luzModelo.enabled = false;
         }
+
+        // ✅ NUEVO: Validación de componentes
+        ValidarComponentes();
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Valida que todos los componentes necesarios estén asignados
+    /// </summary>
+    private void ValidarComponentes()
+    {
+        bool todoCorrecto = true;
+
+        if (panelInspector == null)
+        {
+            Debug.LogError("[InspectSystem] ❌ panelInspector no asignado");
+            todoCorrecto = false;
+        }
+
+        if (imagenRender == null)
+        {
+            Debug.LogWarning("[InspectSystem] ⚠️ imagenRender no asignado");
+            todoCorrecto = false;
+        }
+
+        if (camaraRender == null)
+        {
+            Debug.LogWarning("[InspectSystem] ⚠️ camaraRender no asignado");
+            todoCorrecto = false;
+        }
+
+        if (renderTexture == null)
+        {
+            Debug.LogWarning("[InspectSystem] ⚠️ renderTexture no asignado");
+            todoCorrecto = false;
+        }
+
+        if (puntoSpawn == null)
+        {
+            Debug.LogWarning("[InspectSystem] ⚠️ puntoSpawn no asignado");
+            todoCorrecto = false;
+        }
+
+        if (todoCorrecto && logsDetallados)
+        {
+            Debug.Log("[InspectSystem] ✅ Todos los componentes asignados correctamente");
+        }
     }
 
     private void Update()
@@ -89,7 +141,7 @@ public class InspectSystem : MonoBehaviour
             CerrarPanel();
         }
 
-        // Rotación con mouse (tu lógica original)
+        // Rotación con mouse
         if (modeloActual != null)
         {
             if (Input.GetMouseButtonDown(0))
@@ -124,6 +176,7 @@ public class InspectSystem : MonoBehaviour
 
     /// <summary>
     /// Abre el inspector con un item del inventario
+    /// ✅ MEJORADO: Mejor validación y manejo de errores
     /// </summary>
     public void AbrirInspector(ItemData item)
     {
@@ -150,10 +203,7 @@ public class InspectSystem : MonoBehaviour
         }
 
         // ✅ OCULTAR HIGHLIGHT
-        if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.highlightObject != null)
-        {
-            InventoryUIManager.Instance.highlightObject.SetActive(false);
-        }
+        OcultarHighlightInventario();
 
         // Activar cámara y luz
         if (camaraRender != null)
@@ -166,37 +216,55 @@ public class InspectSystem : MonoBehaviour
         }
 
         // Instanciar modelo
-        if (puntoSpawn != null)
+        InstanciarModelo(item);
+
+        if (logsDetallados)
         {
-            // Destruir modelo anterior si existe
-            if (modeloActual != null)
-            {
-                Destroy(modeloActual);
-            }
-
-            modeloActual = Instantiate(item.modelo3D, puntoSpawn.position, Quaternion.identity);
-            modeloActual.transform.SetParent(puntoSpawn);
-            modeloActual.transform.localPosition = Vector3.zero;
-            modeloActual.transform.localRotation = Quaternion.identity;
-
-            Renderer[] renderers = modeloActual.GetComponentsInChildren<Renderer>();
-            foreach (Renderer renderer in renderers)
-            {
-                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                renderer.receiveShadows = false;
-            }
-
-            // Resetear zoom
-            currentZoom = 4f;
-            if (camaraRender != null)
-            {
-                camaraRender.transform.localPosition = new Vector3(0, 0, -currentZoom);
-            }
+            Debug.Log($"[InspectSystem] Inspector abierto para: {item.nombreDisplay}");
         }
-
-        Debug.Log($"[InspectSystem] Inspector abierto para: {item.nombreDisplay}");
     }
 
+    /// <summary>
+    /// ✅ NUEVO: Método separado para instanciar el modelo (más limpio)
+    /// </summary>
+    private void InstanciarModelo(ItemData item)
+    {
+        if (puntoSpawn == null)
+        {
+            Debug.LogError("[InspectSystem] puntoSpawn no asignado, no se puede instanciar modelo");
+            return;
+        }
+
+        // Destruir modelo anterior si existe
+        if (modeloActual != null)
+        {
+            Destroy(modeloActual);
+        }
+
+        modeloActual = Instantiate(item.modelo3D, puntoSpawn.position, Quaternion.identity);
+        modeloActual.transform.SetParent(puntoSpawn);
+        modeloActual.transform.localPosition = Vector3.zero;
+        modeloActual.transform.localRotation = Quaternion.identity;
+
+        // Desactivar sombras (optimización para render texture)
+        Renderer[] renderers = modeloActual.GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+        }
+
+        // Resetear zoom
+        currentZoom = 4f;
+        if (camaraRender != null)
+        {
+            camaraRender.transform.localPosition = new Vector3(0, 0, -currentZoom);
+        }
+    }
+
+    /// <summary>
+    /// ✅ MEJORADO: Cierre del panel con mejor sincronización
+    /// </summary>
     public void CerrarPanel()
     {
         panelAbierto = false;
@@ -221,13 +289,47 @@ public class InspectSystem : MonoBehaviour
 
         itemActual = null;
 
-        // ✅ REACTIVAR HIGHLIGHT
+        // ✅ REACTIVAR HIGHLIGHT (solo si el inventario está abierto)
+        ReactivarHighlightInventario();
+
+        if (logsDetallados)
+        {
+            Debug.Log("[InspectSystem] Inspector cerrado");
+        }
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Método separado para ocultar highlight (más robusto)
+    /// </summary>
+    private void OcultarHighlightInventario()
+    {
+        if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.highlightObject != null)
+        {
+            InventoryUIManager.Instance.highlightObject.SetActive(false);
+
+            if (logsDetallados)
+            {
+                Debug.Log("[InspectSystem] Highlight del inventario ocultado");
+            }
+        }
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Método separado para reactivar highlight (más robusto)
+    /// </summary>
+    private void ReactivarHighlightInventario()
+    {
         if (InventoryUIManager.Instance != null)
         {
+            // Solo actualizar si el inventario está abierto
+            // El InventoryUIManager se encargará de mostrar/ocultar según corresponda
             InventoryUIManager.Instance.ActualizarHighlightPublico();
-        }
 
-        Debug.Log("[InspectSystem] Inspector cerrado");
+            if (logsDetallados)
+            {
+                Debug.Log("[InspectSystem] Highlight del inventario reactivado");
+            }
+        }
     }
 
     /// <summary>
@@ -236,5 +338,28 @@ public class InspectSystem : MonoBehaviour
     public bool PanelEstaAbierto()
     {
         return panelAbierto;
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Método para cambiar configuración de zoom en runtime
+    /// </summary>
+    public void ConfigurarZoom(float min, float max, float velocidad)
+    {
+        zoomMin = min;
+        zoomMax = max;
+        zoomSpeed = velocidad;
+        currentZoom = Mathf.Clamp(currentZoom, zoomMin, zoomMax);
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Resetear zoom a valor por defecto
+    /// </summary>
+    public void ResetearZoom()
+    {
+        currentZoom = 4f;
+        if (camaraRender != null)
+        {
+            camaraRender.transform.localPosition = new Vector3(0, 0, -currentZoom);
+        }
     }
 }

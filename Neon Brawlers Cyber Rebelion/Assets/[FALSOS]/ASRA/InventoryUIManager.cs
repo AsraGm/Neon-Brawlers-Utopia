@@ -1,11 +1,17 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
-/// InventoryUIManager (Singleton Maestro)
-/// Controla TODO el sistema de inventario estilo Dead Space
+/// VERSIÓN MEJORADA - InventoryUIManager con todas las correcciones
+/// Cambios principales:
+/// - Métodos ObtenerItemsIDs(), LimpiarInventario(), AgregarItemPorID() implementados
+/// - Sistema de ItemDatabase para cargar items por ID
+/// - Fix en navegación del tab MISIÓN
+/// - Sincronización mejorada con LoreManager/InspectSystem
+/// - Validaciones adicionales
 /// </summary>
 public class InventoryUIManager : MonoBehaviour
 {
@@ -37,13 +43,34 @@ public class InventoryUIManager : MonoBehaviour
     [Tooltip("Content del ScrollView de BdD")]
     [SerializeField] private Transform contentBdD;
 
+    [Header("=== SCROLL VIEWS ===")]
+    [Tooltip("ScrollRect del panel LLAVES")]
+    [SerializeField] private ScrollRect scrollRectLLAVES;
+
+    [Tooltip("ScrollRect del panel BdD")]
+    [SerializeField] private ScrollRect scrollRectBdD;
+
     [Header("=== HIGHLIGHT ===")]
     public GameObject highlightObject;
     [SerializeField] private Color colorHighlight = new Color(0, 1, 1, 0.3f);
+    [SerializeField] private float escalaHighlight = 1.1f;
+
+    [Header("=== BOTONES TABS ===")]
+    [SerializeField] private Button botonLLAVES;
+    [SerializeField] private Button botonMISION;
+    [SerializeField] private Button botonBdD;
+
+    [Header("=== COLORES TABS ===")]
+    [SerializeField] private Color colorTabActivo = new Color(0, 1, 1, 1); // Cyan
+    [SerializeField] private Color colorTabInactivo = new Color(0.5f, 0.5f, 0.5f, 1); // Gris
 
     [Header("=== CONFIGURACIÓN GRID ===")]
     [SerializeField] private int columnasGrid = 5;
     [SerializeField] private float tamañoSlot = 80f;
+
+    [Header("=== ITEM DATABASE ===")]
+    [Tooltip("ScriptableObject que contiene TODOS los items del juego")]
+    [SerializeField] private ItemDatabase itemDatabase;
 
     [Header("=== KEYBINDS ===")]
     public KeyCode teclaAbrir = KeyCode.I;
@@ -67,9 +94,58 @@ public class InventoryUIManager : MonoBehaviour
     private List<GameObject> slotsLLAVES = new List<GameObject>();
     private List<GameObject> slotsBdD = new List<GameObject>();
 
-    // Navegación
+    // Navegación - ✅ FIX: Ahora maneja correctamente el tab MISIÓN
     private int indiceSeleccionado = 0;
-    private List<GameObject> slotsActuales => tabActual == TabActual.LLAVES ? slotsLLAVES : slotsBdD;
+    private List<GameObject> slotsActuales
+    {
+        get
+        {
+            switch (tabActual)
+            {
+                case TabActual.LLAVES:
+                    return slotsLLAVES;
+                case TabActual.BdD:
+                    return slotsBdD;
+                case TabActual.MISION:
+                default:
+                    return new List<GameObject>(); // Lista vacía para MISIÓN (sin navegación)
+            }
+        }
+    }
+
+    private ScrollRect scrollActual
+    {
+        get
+        {
+            switch (tabActual)
+            {
+                case TabActual.LLAVES:
+                    return scrollRectLLAVES;
+                case TabActual.BdD:
+                    return scrollRectBdD;
+                default:
+                    return null;
+            }
+        }
+    }
+    private Transform contentActual
+    {
+        get
+        {
+            switch (tabActual)
+            {
+                case TabActual.LLAVES:
+                    return contentLLAVES;
+                case TabActual.BdD:
+                    return contentBdD;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private float tiempoUltimoInput = 0f;
+    private float cooldownInput = 0.15f; // Tiempo mínimo entre inputs
 
     private enum TabActual { LLAVES, MISION, BdD }
     #endregion
@@ -77,12 +153,19 @@ public class InventoryUIManager : MonoBehaviour
     #region Inicialización
     private void Start()
     {
+        if (itemDatabase == null)
+        {
+            Debug.LogWarning("[InventoryUI] ⚠️ ItemDatabase no asignado. El sistema de guardado/carga no funcionará correctamente. Por favor asigna un ItemDatabase en el Inspector.");
+        }
+
         // Obtener todos los slots existentes
         ObtenerSlots();
 
         // Crear highlight si no existe
         if (highlightObject == null)
             CrearHighlightPlaceholder();
+
+        ConfigurarBotonesTabs();
 
         // Cerrar inventario al inicio
         CerrarInventario();
@@ -110,13 +193,18 @@ public class InventoryUIManager : MonoBehaviour
     private void CrearHighlightPlaceholder()
     {
         highlightObject = new GameObject("Highlight");
-        highlightObject.transform.SetParent(canvasInventario.transform);
+
+        highlightObject.transform.SetParent(contentLLAVES, false);
 
         Image img = highlightObject.AddComponent<Image>();
         img.color = colorHighlight;
+        img.raycastTarget = false; // ✅ No bloquear clicks
 
         RectTransform rt = highlightObject.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(tamañoSlot, tamañoSlot);
+        rt.sizeDelta = new Vector2(escalaHighlight, escalaHighlight);
+        rt.anchorMin = new Vector2(0, 1);
+        rt.anchorMax = new Vector2(0, 1);
+        rt.pivot = new Vector2(0.5f, 0.5f);
 
         highlightObject.SetActive(false);
     }
@@ -137,6 +225,7 @@ public class InventoryUIManager : MonoBehaviour
         // Solo procesar inputs si está abierto
         if (!inventarioAbierto) return;
 
+        // ✅ MEJORADO: No procesar inputs si hay paneles abiertos
         if ((LoreManager.Instance != null && LoreManager.Instance.PanelEstaAbierto()) ||
          (InspectSystem.Instance != null && InspectSystem.Instance.PanelEstaAbierto()))
         {
@@ -147,21 +236,50 @@ public class InventoryUIManager : MonoBehaviour
         if (Input.GetKeyDown(teclaCambiarTab))
             CambiarTab();
 
+        if (Time.time - tiempoUltimoInput < cooldownInput)
+            return;
+
         // Navegación (solo si NO estamos en MISIÓN)
         if (tabActual != TabActual.MISION)
         {
-            if (Input.GetKeyDown(teclaArriba)) Navegar(-columnasGrid);
-            if (Input.GetKeyDown(teclaAbajo)) Navegar(columnasGrid);
-            if (Input.GetKeyDown(teclaIzquierda)) Navegar(-1);
-            if (Input.GetKeyDown(teclaDerecha)) Navegar(1);
+            bool inputDetectado = false;
+
+            if (Input.GetKeyDown(teclaArriba))
+            {
+                Navegar(-columnasGrid);
+                inputDetectado = true;
+            }
+            else if (Input.GetKeyDown(teclaAbajo))
+            {
+                Navegar(columnasGrid);
+                inputDetectado = true;
+            }
+            else if (Input.GetKeyDown(teclaIzquierda))
+            {
+                Navegar(-1);
+                inputDetectado = true;
+            }
+            else if (Input.GetKeyDown(teclaDerecha))
+            {
+                Navegar(1);
+                inputDetectado = true;
+            }
+
+            if (inputDetectado)
+                tiempoUltimoInput = Time.time;
 
             if (Input.GetKeyDown(teclaSeleccionar))
                 SeleccionarItem();
         }
     }
+
     public void ActualizarHighlightPublico()
     {
-        ActualizarHighlight();
+        // ✅ NUEVO: Solo actualizar si el inventario está abierto
+        if (inventarioAbierto)
+        {
+            ActualizarHighlight();
+        }
     }
 
     public void AbrirInventario()
@@ -172,10 +290,20 @@ public class InventoryUIManager : MonoBehaviour
         // Mostrar tab actual
         MostrarTab(tabActual);
 
-        // Posicionar highlight
-        ActualizarHighlight();
+        indiceSeleccionado = 0; // Resetear al abrir
+
+        StartCoroutine(ActualizarHighlightConDelay());
+
+        ActualizarEstadoBotones();
 
         Debug.Log("[InventoryUI] Inventario abierto");
+    }
+
+    private System.Collections.IEnumerator ActualizarHighlightConDelay()
+    {
+        yield return null; // Esperar 1 frame
+        ActualizarHighlight();
+        HacerScrollAlSlot();
     }
 
     public void CerrarInventario()
@@ -191,14 +319,19 @@ public class InventoryUIManager : MonoBehaviour
     #region Sistema de Tabs
     private void CambiarTab()
     {
-        // Ciclar: LLAVES → MISION → BdD → LLAVES
-        tabActual = (TabActual)(((int)tabActual + 1) % 3);
-
-        MostrarTab(tabActual);
-        indiceSeleccionado = 0; // Resetear selección
-        ActualizarHighlight();
-
-        Debug.Log($"[InventoryUI] Cambiado a tab: {tabActual}");
+        // Ciclar entre tabs: LLAVES -> MISIÓN -> BdD -> LLAVES
+        switch (tabActual)
+        {
+            case TabActual.LLAVES:
+                CambiarATab(TabActual.MISION);
+                break;
+            case TabActual.MISION:
+                CambiarATab(TabActual.BdD);
+                break;
+            case TabActual.BdD:
+                CambiarATab(TabActual.LLAVES);
+                break;
+        }
     }
 
     private void MostrarTab(TabActual tab)
@@ -208,7 +341,7 @@ public class InventoryUIManager : MonoBehaviour
         panelMISION.SetActive(false);
         panelBdD.SetActive(false);
 
-        // Mostrar el activo
+        // Mostrar solo el activo
         switch (tab)
         {
             case TabActual.LLAVES:
@@ -216,7 +349,7 @@ public class InventoryUIManager : MonoBehaviour
                 break;
             case TabActual.MISION:
                 panelMISION.SetActive(true);
-                highlightObject.SetActive(false); // No hay highlight en misión
+                highlightObject.SetActive(false); // No hay navegación en MISIÓN
                 break;
             case TabActual.BdD:
                 panelBdD.SetActive(true);
@@ -225,39 +358,81 @@ public class InventoryUIManager : MonoBehaviour
     }
     #endregion
 
-    #region Sistema de Highlight y Navegación
+    #region Navegación
     private void Navegar(int direccion)
     {
-        int nuevoIndice = indiceSeleccionado + direccion;
+        if (slotsActuales.Count == 0) return;
 
-        // Limitar dentro de rango
-        if (nuevoIndice < 0) nuevoIndice = 0;
-        if (nuevoIndice >= slotsActuales.Count) nuevoIndice = slotsActuales.Count - 1;
+        indiceSeleccionado += direccion;
 
-        indiceSeleccionado = nuevoIndice;
+        // Wrap-around
+        if (indiceSeleccionado < 0)
+            indiceSeleccionado = slotsActuales.Count - 1;
+        else if (indiceSeleccionado >= slotsActuales.Count)
+            indiceSeleccionado = 0;
+
         ActualizarHighlight();
+        HacerScrollAlSlot();
     }
 
     private void ActualizarHighlight()
     {
-        if (tabActual == TabActual.MISION)
+        if (tabActual == TabActual.MISION || slotsActuales.Count == 0)
         {
             highlightObject.SetActive(false);
             return;
         }
 
-        if (slotsActuales.Count == 0)
+        if (highlightObject.transform.parent != contentActual)
         {
-            highlightObject.SetActive(false);
-            return;
+            highlightObject.transform.SetParent(contentActual, false);
         }
 
         highlightObject.SetActive(true);
 
-        // Posicionar sobre el slot seleccionado
         GameObject slotSeleccionado = slotsActuales[indiceSeleccionado];
-        highlightObject.transform.position = slotSeleccionado.transform.position;
+        RectTransform slotRect = slotSeleccionado.GetComponent<RectTransform>();
+        RectTransform highlightRect = highlightObject.GetComponent<RectTransform>();
+
+        highlightRect.anchoredPosition = slotRect.anchoredPosition;
         highlightObject.transform.SetAsLastSibling(); // Dibujarse encima
+        highlightObject.transform.localScale = Vector3.one * escalaHighlight;
+    }
+
+    private void HacerScrollAlSlot()
+    {
+        if (scrollActual == null || slotsActuales.Count == 0) return;
+        if (indiceSeleccionado >= slotsActuales.Count) return;
+
+        // Forzar actualización de layout
+        Canvas.ForceUpdateCanvases();
+
+        GameObject slotSeleccionado = slotsActuales[indiceSeleccionado];
+        RectTransform slotRect = slotSeleccionado.GetComponent<RectTransform>();
+        RectTransform contentRect = scrollActual.content;
+        RectTransform viewportRect = scrollActual.viewport;
+
+        if (slotRect == null || contentRect == null || viewportRect == null) return;
+
+        int filaActual = indiceSeleccionado / columnasGrid;
+
+        float alturaFila = slotRect.rect.height +
+                           contentRect.GetComponent<GridLayoutGroup>().spacing.y;
+
+        float targetYPos = filaActual * alturaFila;
+
+        // Obtener dimensiones
+        float viewportHeight = viewportRect.rect.height;
+        float contentHeight = contentRect.rect.height;
+        float maxScroll = contentHeight - viewportHeight;
+
+        if (maxScroll > 0)
+        {
+            float normalizedPos = Mathf.Clamp01(targetYPos / maxScroll);
+
+            // Unity usa 1 = arriba, 0 = abajo
+            scrollActual.verticalNormalizedPosition = 1f - normalizedPos;
+        }
     }
 
     private void SeleccionarItem()
@@ -304,10 +479,14 @@ public class InventoryUIManager : MonoBehaviour
     /// </summary>
     public void AgregarItem(ItemData item)
     {
-        if (item == null) return;
+        if (item == null)
+        {
+            Debug.LogWarning("[InventoryUI] Intentando agregar item null");
+            return;
+        }
 
         // Agregar según tipo
-        if (item.tipo == TipoItem.Item_Normal)
+        if (item.tipo == TipoItem.ItemNormal)
         {
             if (!itemsLLAVES.Contains(item))
             {
@@ -316,7 +495,7 @@ public class InventoryUIManager : MonoBehaviour
             }
         }
 
-        if (item.tipo == TipoItem.Item_Lore)
+        if (item.tipo == TipoItem.ItemLore)
         {
             if (!itemsBdD.Contains(item))
             {
@@ -327,9 +506,82 @@ public class InventoryUIManager : MonoBehaviour
 
         Debug.Log($"[InventoryUI] Item agregado: {item.itemID}");
 
-        //// Notificar al ObjetivoManager
-        //if (ObjetivoManager.Instance != null)
-        //ObjetivoManager.Instance.ItemRecolectado(item.itemID);
+        // Notificar al ObjetivoManager
+        if (ObjetivoManager.Instance != null)
+            ObjetivoManager.Instance.ItemRecolectado(item.itemID);
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Obtiene la lista de IDs de todos los items en el inventario
+    /// Usado por GameManager para guardar checkpoints
+    /// </summary>
+    public List<string> ObtenerItemsIDs()
+    {
+        List<string> ids = new List<string>();
+
+        // Agregar items de LLAVES
+        foreach (var item in itemsLLAVES)
+        {
+            if (item != null && !string.IsNullOrEmpty(item.itemID))
+            {
+                ids.Add(item.itemID);
+            }
+        }
+
+        // Agregar items de BdD (evitar duplicados)
+        foreach (var item in itemsBdD)
+        {
+            if (item != null && !string.IsNullOrEmpty(item.itemID) && !ids.Contains(item.itemID))
+            {
+                ids.Add(item.itemID);
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Limpia todo el inventario
+    /// Usado por GameManager antes de cargar checkpoint
+    /// </summary>
+    public void LimpiarInventario()
+    {
+        itemsLLAVES.Clear();
+        itemsBdD.Clear();
+        ActualizarVisualesLLAVES();
+        ActualizarVisualesBdD();
+
+        Debug.Log("[InventoryUI] Inventario limpiado");
+    }
+
+    /// <summary>
+    /// ✅ NUEVO: Agrega un item por su ID desde el ItemDatabase
+    /// Usado por GameManager al cargar checkpoint
+    /// </summary>
+    public void AgregarItemPorID(string itemID)
+    {
+        if (string.IsNullOrEmpty(itemID))
+        {
+            Debug.LogWarning("[InventoryUI] Intentando agregar item con ID vacío");
+            return;
+        }
+
+        if (itemDatabase == null)
+        {
+            Debug.LogError("[InventoryUI] ❌ No hay ItemDatabase asignado. No se puede cargar el item: " + itemID);
+            return;
+        }
+
+        ItemData item = itemDatabase.ObtenerItemPorID(itemID);
+
+        if (item != null)
+        {
+            AgregarItem(item);
+        }
+        else
+        {
+            Debug.LogWarning($"[InventoryUI] Item con ID '{itemID}' no encontrado en ItemDatabase");
+        }
     }
 
     private void ActualizarVisualesLLAVES()
@@ -382,6 +634,79 @@ public class InventoryUIManager : MonoBehaviour
     {
         return itemsLLAVES.Any(item => item.itemID == itemID) ||
                itemsBdD.Any(item => item.itemID == itemID);
+    }
+    #endregion
+
+    #region Sistema de Botones Tabs
+    /// <summary>
+    /// Configura los listeners de los botones de tabs
+    /// </summary>
+    private void ConfigurarBotonesTabs()
+    {
+        if (botonLLAVES != null)
+        {
+            botonLLAVES.onClick.AddListener(() => CambiarATab(TabActual.LLAVES));
+        }
+
+        if (botonMISION != null)
+        {
+            botonMISION.onClick.AddListener(() => CambiarATab(TabActual.MISION));
+        }
+
+        if (botonBdD != null)
+        {
+            botonBdD.onClick.AddListener(() => CambiarATab(TabActual.BdD));
+        }
+    }
+
+    /// <summary>
+    /// Cambia a un tab específico (llamado por botones o teclado)
+    /// </summary>
+    private void CambiarATab(TabActual nuevoTab)
+    {
+        tabActual = nuevoTab;
+        MostrarTab(tabActual);
+        indiceSeleccionado = 0; // Resetear selección
+        ActualizarHighlight();
+        HacerScrollAlSlot();
+        ActualizarEstadoBotones();
+
+        Debug.Log($"[InventoryUI] Cambiado a tab: {tabActual}");
+    }
+
+    /// <summary>
+    /// Actualiza el color de los botones según el tab activo
+    /// </summary>
+    private void ActualizarEstadoBotones()
+    {
+        TextMeshProUGUI texto = botonLLAVES.GetComponentInChildren<TextMeshProUGUI>();
+        if (texto != null)
+        {
+            texto.fontStyle = tabActual == TabActual.LLAVES ? FontStyles.Bold : FontStyles.Normal;
+        }
+
+        botonLLAVES.transform.localScale = tabActual == TabActual.LLAVES ? Vector3.one * 1.1f : Vector3.one;
+        // Restablecer todos a inactivo
+        if (botonLLAVES != null)
+        {
+            ColorBlock colors = botonLLAVES.colors;
+            colors.normalColor = tabActual == TabActual.LLAVES ? colorTabActivo : colorTabInactivo;
+            botonLLAVES.colors = colors;
+        }
+
+        if (botonMISION != null)
+        {
+            ColorBlock colors = botonMISION.colors;
+            colors.normalColor = tabActual == TabActual.MISION ? colorTabActivo : colorTabInactivo;
+            botonMISION.colors = colors;
+        }
+
+        if (botonBdD != null)
+        {
+            ColorBlock colors = botonBdD.colors;
+            colors.normalColor = tabActual == TabActual.BdD ? colorTabActivo : colorTabInactivo;
+            botonBdD.colors = colors;
+        }
     }
     #endregion
 }
