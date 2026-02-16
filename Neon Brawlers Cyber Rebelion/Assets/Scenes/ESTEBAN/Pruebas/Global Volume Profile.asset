@@ -17,6 +17,7 @@ MonoBehaviour:
   - {fileID: 1308261304268140742}
   - {fileID: 8497741849328337983}
   - {fileID: 7158616023920271265}
+  - {fileID: 6635376244534854750}
 --- !u!114 &1308261304268140742
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -31,6 +32,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.ChromaticAberration
   active: 1
   intensity:
+    m_OverrideState: 1
+    m_Value: 0
+--- !u!114 &6635376244534854750
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221518ef91623a7438a71fef23660601, type: 3}
+  m_Name: WhiteBalance
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.WhiteBalance
+  active: 1
+  temperature:
+    m_OverrideState: 1
+    m_Value: 0
+  tint:
     m_OverrideState: 1
     m_Value: 0
 --- !u!114 &7158616023920271265
