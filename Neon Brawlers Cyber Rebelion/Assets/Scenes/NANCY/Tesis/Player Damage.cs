@@ -11,7 +11,7 @@ public class PlayerDamage : MonoBehaviour
 
         if (vida <= 0)
         {
-            transform.position = new Vector3(11, 0, 11);
+            transform.position = new Vector3(20, 5, 142);
         }
     }
 }
