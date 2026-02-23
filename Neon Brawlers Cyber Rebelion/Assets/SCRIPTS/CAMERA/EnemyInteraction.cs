@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class EnemyInteraction : MonoBehaviour
 {
-    [Header("Referencias")]
-    public Transform enemyLookAt;     // Empty hijo del enemigo
 
     [Header("Cámara")]
     [SerializeField] private float enemyFOV = 30f;
@@ -28,7 +26,12 @@ public class EnemyInteraction : MonoBehaviour
         if (!obstacleInteraction.PlayerInObstacle) return;
 
         enemyInside = true;
-        EnterEnemyMode();
+
+            Transform lookAt = other.transform.Find("EnemyLookAt");
+
+        if (lookAt != null)
+            Debug.Log("Si detecta que hay un look at");
+        EnterEnemyMode(lookAt);
     }
 
     private void OnTriggerExit(Collider other)
@@ -44,12 +47,11 @@ public class EnemyInteraction : MonoBehaviour
         return other.gameObject.layer == LayerMask.NameToLayer("Enemy");
     }
 
-    void EnterEnemyMode()
+    void EnterEnemyMode(Transform dynamicLookAt)
     {
-        if (cam == null || enemyLookAt == null) return;
+        if (cam == null) return;
 
-        cam.SetCustomFollow(enemyLookAt, enemyFOV);
-
+        cam.SetCustomFollow(dynamicLookAt, enemyFOV);
         postFX?.StartEnemyFX();
     }
 
