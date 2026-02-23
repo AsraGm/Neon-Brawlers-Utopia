@@ -20,15 +20,15 @@ public class InspectSystem : MonoBehaviour
 
     [Header("=== REFERENCIAS UI ===")]
     [SerializeField] private GameObject panelInspector;
-    [SerializeField] private RawImage imagenRender; // Donde se muestra el modelo
+    [SerializeField] private RawImage imagenRender;
     [SerializeField] private TextMeshProUGUI textoNombreItem;
     [SerializeField] private Button botonCerrar;
 
     [Header("=== RENDER 3D ===")]
     [SerializeField] private Camera camaraRender;
     [SerializeField] private RenderTexture renderTexture;
-    [SerializeField] private Transform puntoSpawn; // Donde aparece el modelo
-    [SerializeField] private Light luzModelo; // Luz para iluminar el modelo
+    [SerializeField] private Transform puntoSpawn;
+    [SerializeField] private Light luzModelo;
 
     [Header("=== ROTACIÓN ===")]
     [SerializeField] private float rotationSpeed = 100f;
@@ -45,120 +45,76 @@ public class InspectSystem : MonoBehaviour
     [Header("=== DEBUG ===")]
     [SerializeField] private bool logsDetallados = false;
 
-    // Variables internas
     private GameObject modeloActual;
     private ItemData itemActual;
     private bool panelAbierto = false;
-    private Vector3 previousMousePosition;
 
     private void Start()
     {
         CerrarPanel();
 
-        // Configurar botón
         if (botonCerrar != null)
             botonCerrar.onClick.AddListener(CerrarPanel);
 
-        // Configurar RenderTexture en la imagen
         if (imagenRender != null && renderTexture != null)
-        {
             imagenRender.texture = renderTexture;
-        }
 
-        // Desactivar cámara de render al inicio
         if (camaraRender != null)
-        {
             camaraRender.enabled = false;
-        }
 
-        // Desactivar luz al inicio
         if (luzModelo != null)
-        {
             luzModelo.enabled = false;
-        }
 
         ValidarComponentes();
     }
 
     private void ValidarComponentes()
     {
-        bool todoCorrecto = true;
-
-        if (panelInspector == null)
-        {
-            Debug.LogError("[InspectSystem] ❌ panelInspector no asignado");
-            todoCorrecto = false;
-        }
-
-        if (imagenRender == null)
-        {
-            Debug.LogWarning("[InspectSystem] ⚠️ imagenRender no asignado");
-            todoCorrecto = false;
-        }
-
-        if (camaraRender == null)
-        {
-            Debug.LogWarning("[InspectSystem] ⚠️ camaraRender no asignado");
-            todoCorrecto = false;
-        }
-
-        if (renderTexture == null)
-        {
-            Debug.LogWarning("[InspectSystem] ⚠️ renderTexture no asignado");
-            todoCorrecto = false;
-        }
-
-        if (puntoSpawn == null)
-        {
-            Debug.LogWarning("[InspectSystem] ⚠️ puntoSpawn no asignado");
-            todoCorrecto = false;
-        }
-
-        if (todoCorrecto && logsDetallados)
-        {
-            Debug.Log("[InspectSystem] ✅ Todos los componentes asignados correctamente");
-        }
+        if (panelInspector == null) Debug.LogError("[InspectSystem] panelInspector no asignado");
+        if (imagenRender == null) Debug.LogWarning("[InspectSystem] imagenRender no asignado");
+        if (camaraRender == null) Debug.LogWarning("[InspectSystem] camaraRender no asignado");
+        if (renderTexture == null) Debug.LogWarning("[InspectSystem] renderTexture no asignado");
+        if (puntoSpawn == null) Debug.LogWarning("[InspectSystem] puntoSpawn no asignado");
     }
 
     private void Update()
     {
         if (!panelAbierto) return;
 
-        // Cerrar con tecla
         if (Input.GetKeyDown(teclaCerrar))
-        {
             CerrarPanel();
-        }
 
-        // Rotación con mouse
+        // ✅ ROTACIÓN: mantén Alt presionado y mueve el mouse
         if (modeloActual != null)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                previousMousePosition = Input.mousePosition;
-            }
+            bool altPresionado = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
 
-            if (Input.GetMouseButton(0))
+            if (altPresionado)
             {
-                Vector3 deltaMousePosition = Input.mousePosition - previousMousePosition;
-                float rotationX = deltaMousePosition.y * rotationSpeed * Time.deltaTime;
-                float rotationY = -deltaMousePosition.x * rotationSpeed * Time.deltaTime;
+                // Bloquear cursor para que no se salga de la pantalla al rotar
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
 
-                Quaternion rotation = Quaternion.Euler(rotationX, rotationY, 0f);
+                float rotX = Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime;
+                float rotY = -Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime;
+
+                Quaternion rotation = Quaternion.Euler(rotX, rotY, 0f);
                 modeloActual.transform.rotation = rotation * modeloActual.transform.rotation;
-
-                previousMousePosition = Input.mousePosition;
+            }
+            else
+            {
+                // Restaurar cursor normal cuando no está rotando
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
             }
         }
 
-        // Zoom con scroll
+        // Zoom con scroll (sigue funcionando igual)
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0f && camaraRender != null)
         {
             currentZoom -= scroll * zoomSpeed;
             currentZoom = Mathf.Clamp(currentZoom, zoomMin, zoomMax);
-
-            // Mover cámara hacia adelante/atrás
             camaraRender.transform.localPosition = new Vector3(0, 0, -currentZoom);
         }
     }
@@ -181,84 +137,61 @@ public class InspectSystem : MonoBehaviour
         panelAbierto = true;
         panelInspector.SetActive(true);
 
-        // Mostrar nombre
         if (textoNombreItem != null)
-        {
             textoNombreItem.text = item.nombreDisplay;
-        }
 
         OcultarHighlightInventario();
 
-        // Activar cámara y luz
-        if (camaraRender != null)
-        {
-            camaraRender.enabled = true;
-        }
-        if (luzModelo != null)
-        {
-            luzModelo.enabled = true;
-        }
+        if (camaraRender != null) camaraRender.enabled = true;
+        if (luzModelo != null) luzModelo.enabled = true;
 
-        // Instanciar modelo
         InstanciarModelo(item);
 
         if (logsDetallados)
-        {
             Debug.Log($"[InspectSystem] Inspector abierto para: {item.nombreDisplay}");
-        }
     }
 
     private void InstanciarModelo(ItemData item)
     {
         if (puntoSpawn == null)
         {
-            Debug.LogError("[InspectSystem] puntoSpawn no asignado, no se puede instanciar modelo");
+            Debug.LogError("[InspectSystem] puntoSpawn no asignado");
             return;
         }
 
-        // Destruir modelo anterior si existe
         if (modeloActual != null)
-        {
             Destroy(modeloActual);
-        }
 
         modeloActual = Instantiate(item.modelo3D, puntoSpawn.position, Quaternion.identity);
         modeloActual.transform.SetParent(puntoSpawn);
         modeloActual.transform.localPosition = Vector3.zero;
         modeloActual.transform.localRotation = Quaternion.identity;
 
-        // Desactivar sombras (optimización para render texture)
         Renderer[] renderers = modeloActual.GetComponentsInChildren<Renderer>();
-        foreach (Renderer renderer in renderers)
+        foreach (Renderer r in renderers)
         {
-            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            renderer.receiveShadows = false;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
         }
 
-        // Resetear zoom
         currentZoom = 4f;
         if (camaraRender != null)
-        {
             camaraRender.transform.localPosition = new Vector3(0, 0, -currentZoom);
-        }
     }
 
     public void CerrarPanel()
     {
         panelAbierto = false;
+
+        // Restaurar cursor siempre al cerrar
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         panelInspector.SetActive(false);
 
-        // Desactivar cámara y luz
-        if (camaraRender != null)
-        {
-            camaraRender.enabled = false;
-        }
-        if (luzModelo != null)
-        {
-            luzModelo.enabled = false;
-        }
+        if (camaraRender != null) camaraRender.enabled = false;
+        if (luzModelo != null) luzModelo.enabled = false;
 
-        // Destruir modelo
         if (modeloActual != null)
         {
             Destroy(modeloActual);
@@ -266,47 +199,25 @@ public class InspectSystem : MonoBehaviour
         }
 
         itemActual = null;
-
         ReactivarHighlightInventario();
 
         if (logsDetallados)
-        {
             Debug.Log("[InspectSystem] Inspector cerrado");
-        }
     }
 
     private void OcultarHighlightInventario()
     {
         if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.highlightObject != null)
-        {
             InventoryUIManager.Instance.highlightObject.SetActive(false);
-
-            if (logsDetallados)
-            {
-                Debug.Log("[InspectSystem] Highlight del inventario ocultado");
-            }
-        }
     }
 
     private void ReactivarHighlightInventario()
     {
         if (InventoryUIManager.Instance != null)
-        {
-            // Solo actualizar si el inventario está abierto
-            // El InventoryUIManager se encargará de mostrar/ocultar según corresponda
             InventoryUIManager.Instance.ActualizarHighlightPublico();
-
-            if (logsDetallados)
-            {
-                Debug.Log("[InspectSystem] Highlight del inventario reactivado");
-            }
-        }
     }
 
-    public bool PanelEstaAbierto()
-    {
-        return panelAbierto;
-    }
+    public bool PanelEstaAbierto() => panelAbierto;
 
     public void ConfigurarZoom(float min, float max, float velocidad)
     {
@@ -320,8 +231,6 @@ public class InspectSystem : MonoBehaviour
     {
         currentZoom = 4f;
         if (camaraRender != null)
-        {
             camaraRender.transform.localPosition = new Vector3(0, 0, -currentZoom);
-        }
     }
 }

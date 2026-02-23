@@ -45,10 +45,6 @@ public class ObjetivoManager : MonoBehaviour
             Debug.LogWarning("[ObjetivoManager] No hay misiones asignadas en el array");
             return;
         }
-
-        // ✅ NUEVO: NO cargar la primera misión automáticamente
-        // Esperar a que GameManager cargue el estado guardado
-        // (se cargará en CargarEstadoMision o se usará la misión 0 por defecto)
     }
 
     /// <summary>
@@ -59,7 +55,6 @@ public class ObjetivoManager : MonoBehaviour
         // Verificar si completamos todas las misiones
         if (index < 0 || index >= misiones.Length)
         {
-            MostrarMisionesCompletadas();
             return;
         }
 
@@ -85,9 +80,9 @@ public class ObjetivoManager : MonoBehaviour
 
         if (mostrarLogsDetallados)
         {
-            Debug.Log($"[ObjetivoManager] ✅ Misión #{misionActual.misionID} cargada: '{misionActual.textoObjetivo}'");
-            Debug.Log($"[ObjetivoManager] 📝 Qué hacer: '{misionActual.textoQueHacer}'");
-            Debug.Log($"[ObjetivoManager] 🎯 Item requerido: '{misionActual.itemRequeridoID}'");
+            Debug.Log($"[ObjetivoManager] Misión #{misionActual.misionID} cargada: '{misionActual.textoObjetivo}'");
+            Debug.Log($"[ObjetivoManager] Qué hacer: '{misionActual.textoQueHacer}'");
+            Debug.Log($"[ObjetivoManager] Item requerido: '{misionActual.itemRequeridoID}'");
         }
     }
 
@@ -128,37 +123,10 @@ public class ObjetivoManager : MonoBehaviour
     /// </summary>
     private void CompletarMision()
     {
-        Debug.Log($"[ObjetivoManager] 🎉 ¡MISIÓN COMPLETADA! #{misionActual.misionID}: '{misionActual.textoObjetivo}'");
-
-        // Pasar a la siguiente misión
         if (misionActual.siguienteMisionID >= 0)
         {
             CargarMision(misionActual.siguienteMisionID);
         }
-        else
-        {
-            // Era la última misión
-            MostrarMisionesCompletadas();
-        }
-    }
-
-    /// <summary>
-    /// Muestra mensaje de todas las misiones completadas
-    /// </summary>
-    private void MostrarMisionesCompletadas()
-    {
-        if (textoObjetivo != null)
-        {
-            textoObjetivo.text = "¡MISIÓN COMPLETADA!";
-        }
-
-        if (textoQueHacer != null)
-        {
-            textoQueHacer.text = "Has completado todas las misiones disponibles.";
-        }
-
-        Debug.Log("[ObjetivoManager] 🏆 ¡TODAS LAS MISIONES COMPLETADAS!");
-        misionActual = null;
     }
 
     /// <summary>

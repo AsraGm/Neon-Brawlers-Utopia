@@ -1,13 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// ✅ VERSIÓN ACTUALIZADA - GameManager con restauración completa de items físicos
-/// NUEVAS CARACTERÍSTICAS:
-/// - Registro de todos los ItemRecolectable del mundo
-/// - Restauración física de items al cargar checkpoint
-/// - Sistema completo de persistencia de estado del mundo
-/// </summary>
 public class GameManager : MonoBehaviour
 {
     #region Singleton
@@ -45,13 +38,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Control de Estado del Juego
-    public enum EstadoJuego
-    {
-        Menu,
-        Jugando,
-        Pausado,
-        GameOver
-    }
+    public enum EstadoJuego { Menu, Jugando, Pausado, GameOver }
 
     [Header("Estado del Juego")]
     public EstadoJuego estadoActual = EstadoJuego.Menu;
@@ -62,7 +49,6 @@ public class GameManager : MonoBehaviour
     public void CambiarEstado(EstadoJuego nuevoEstado)
     {
         if (estadoActual == nuevoEstado) return;
-
         estadoActual = nuevoEstado;
         OnCambioEstado?.Invoke(nuevoEstado);
 
@@ -70,8 +56,6 @@ public class GameManager : MonoBehaviour
         {
             case EstadoJuego.Menu:
             case EstadoJuego.GameOver:
-                Time.timeScale = 0f;
-                break;
             case EstadoJuego.Pausado:
                 Time.timeScale = 0f;
                 break;
@@ -85,10 +69,7 @@ public class GameManager : MonoBehaviour
 
     public void PausarJuego(bool pausar)
     {
-        if (pausar)
-            CambiarEstado(EstadoJuego.Pausado);
-        else
-            CambiarEstado(EstadoJuego.Jugando);
+        CambiarEstado(pausar ? EstadoJuego.Pausado : EstadoJuego.Jugando);
     }
     #endregion
 
@@ -124,17 +105,14 @@ public class GameManager : MonoBehaviour
     private DatosCheckpoint checkpointActual;
     private DatosCheckpoint checkpointUltimoGuardado;
 
-    // ✅ NUEVO: Variables para sistema de items recolectados
     private HashSet<string> itemsRecolectadosEnEstaPartida = new HashSet<string>();
-
-    // ✅ NUEVO: Diccionario de todos los items físicos del mundo
     private Dictionary<string, ItemRecolectable> todosLosItemsDelMundo = new Dictionary<string, ItemRecolectable>();
 
-    /// <summary>
-    /// Guarda el estado actual del juego en un checkpoint
-    /// </summary>
     public void GuardarCheckpoint()
     {
+        // Re-buscar jugador por si cambió de escena
+        if (jugador == null) BuscarJugador();
+
         if (jugador == null)
         {
             Debug.LogError("[GameManager] No hay referencia al jugador para guardar checkpoint");
@@ -147,56 +125,40 @@ public class GameManager : MonoBehaviour
             rotacionJugador = jugador.rotation
         };
 
-        // Guardar vida del jugador
-        var playerHealth = jugador.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
+        //Usar PlayerDamage en lugar de PlayerHealth
+        var playerDamage = jugador.GetComponent<PlayerDamage>();
+        if (playerDamage != null)
         {
-            checkpointActual.vidaJugador = playerHealth.vidaActual;
-            checkpointActual.vidaMaximaJugador = playerHealth.vidaMaxima;
+            checkpointActual.vidaJugador = playerDamage.vida;
+            checkpointActual.vidaMaximaJugador = 100f; // ajusta si tienes vida máxima definida
         }
 
-        // Guardar inventario completo
         if (InventoryUIManager.Instance != null)
         {
             checkpointActual.inventario = new List<string>(InventoryUIManager.Instance.ObtenerItemsIDs());
             Debug.Log($"[GameManager] Inventario guardado: {checkpointActual.inventario.Count} items");
         }
 
-        // ✅ NUEVO: Guardar lista de items recolectados del mundo
         checkpointActual.itemsRecolectados = new List<string>(itemsRecolectadosEnEstaPartida);
         Debug.Log($"[GameManager] Items recolectados guardados: {checkpointActual.itemsRecolectados.Count}");
 
-        // Guardar misión actual
         if (ObjetivoManager.Instance != null)
         {
             checkpointActual.indiceMisionActual = ObjetivoManager.Instance.ObtenerIndiceMisionActual();
-            Debug.Log($"[GameManager] Misión actual guardada: #{checkpointActual.indiceMisionActual}");
         }
 
-        // Clonar para el último guardado
         checkpointUltimoGuardado = ClonearCheckpoint(checkpointActual);
+        Debug.Log($"[GameManager] Checkpoint guardado - Posición: {checkpointActual.posicionJugador}");
 
-        Debug.Log($"[GameManager] ✅ Checkpoint guardado - Posición: {checkpointActual.posicionJugador}, Vida: {checkpointActual.vidaJugador}/{checkpointActual.vidaMaximaJugador}");
-
-        // Guardar persistente
         if (autoGuardarEnCheckpoint)
-        {
             GuardarJuegoPersistente();
-        }
     }
 
-    /// <summary>
-    /// Clona un checkpoint de forma profunda
-    /// </summary>
     private DatosCheckpoint ClonearCheckpoint(DatosCheckpoint origen)
     {
-        if (origen == null)
-        {
-            Debug.LogWarning("[GameManager] Intentando clonar checkpoint null");
-            return null;
-        }
+        if (origen == null) return null;
 
-        var clon = new DatosCheckpoint
+        return new DatosCheckpoint
         {
             posicionJugador = origen.posicionJugador,
             rotacionJugador = origen.rotacionJugador,
@@ -207,13 +169,8 @@ public class GameManager : MonoBehaviour
             itemsRecolectados = new List<string>(origen.itemsRecolectados),
             indiceMisionActual = origen.indiceMisionActual
         };
-
-        return clon;
     }
 
-    /// <summary>
-    /// Carga el último checkpoint guardado CON RESTAURACIÓN COMPLETA
-    /// </summary>
     public void CargarCheckpoint()
     {
         if (checkpointUltimoGuardado == null)
@@ -222,285 +179,169 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        //Re-buscar jugador por si cambió de escena
+        if (jugador == null) BuscarJugador();
+
         if (jugador == null)
         {
             Debug.LogError("[GameManager] No hay referencia al jugador para cargar checkpoint");
             return;
         }
 
-        // Restaurar posición y rotación
         jugador.position = checkpointUltimoGuardado.posicionJugador;
         jugador.rotation = checkpointUltimoGuardado.rotacionJugador;
 
-        // Restaurar vida AL VALOR DEL CHECKPOINT
-        var playerHealth = jugador.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
+        //Usar PlayerDamage en lugar de PlayerHealth
+        var playerDamage = jugador.GetComponent<PlayerDamage>();
+        if (playerDamage != null)
         {
-            playerHealth.EstablecerVida(
-                checkpointUltimoGuardado.vidaJugador,
-                checkpointUltimoGuardado.vidaMaximaJugador
-            );
-            playerHealth.ResetearEstadoMuerte();
-            Debug.Log($"[GameManager] Vida restaurada: {checkpointUltimoGuardado.vidaJugador}/{checkpointUltimoGuardado.vidaMaximaJugador}");
+            playerDamage.vida = checkpointUltimoGuardado.vidaJugador;
+            Debug.Log($"[GameManager] Vida restaurada: {playerDamage.vida}");
         }
 
-        // Restaurar inventario
         if (InventoryUIManager.Instance != null && checkpointUltimoGuardado.inventario != null)
         {
             InventoryUIManager.Instance.LimpiarInventario();
-
             foreach (string itemID in checkpointUltimoGuardado.inventario)
-            {
                 InventoryUIManager.Instance.AgregarItemPorID(itemID);
-            }
 
             Debug.Log($"[GameManager] Inventario restaurado: {checkpointUltimoGuardado.inventario.Count} items");
         }
 
-        // ✅ NUEVO: Restaurar items recolectados del mundo
         if (checkpointUltimoGuardado.itemsRecolectados != null)
-        {
             RestaurarItemsRecolectados(checkpointUltimoGuardado.itemsRecolectados);
-        }
 
-        // ✅ NUEVO: Restaurar estado FÍSICO de los objetos en el mundo
         RestaurarEstadoFisicoItems();
 
-        // Restaurar misión
         if (ObjetivoManager.Instance != null)
-        {
             ObjetivoManager.Instance.CargarEstadoMision(checkpointUltimoGuardado.indiceMisionActual);
-        }
 
-        Debug.Log("[GameManager] 🔄 Checkpoint cargado completamente");
+        Debug.Log("[GameManager] Checkpoint cargado completamente");
     }
+    #endregion
 
-    // ==========================================
-    // ✅ NUEVO: Métodos para sistema de items recolectados
-    // ==========================================
-
-    /// <summary>
-    /// Registra un item como recolectado
-    /// </summary>
+    #region Sistema de Items Recolectados
     public void RegistrarItemRecolectado(string itemID, string nombreObjeto)
     {
         string identificador = $"{itemID}_{nombreObjeto}";
         itemsRecolectadosEnEstaPartida.Add(identificador);
-
         Debug.Log($"[GameManager] Item registrado como recolectado: {identificador}");
     }
 
-    /// <summary>
-    /// Verifica si un item ya fue recolectado
-    /// </summary>
     public bool ItemFueRecolectado(string itemID, string nombreObjeto)
     {
         string identificador = $"{itemID}_{nombreObjeto}";
         return itemsRecolectadosEnEstaPartida.Contains(identificador);
     }
 
-    /// <summary>
-    /// Restaura la lista de items recolectados desde un checkpoint
-    /// </summary>
     private void RestaurarItemsRecolectados(List<string> itemsRecolectados)
     {
         itemsRecolectadosEnEstaPartida.Clear();
-
-        foreach (string identificador in itemsRecolectados)
-        {
-            itemsRecolectadosEnEstaPartida.Add(identificador);
-        }
+        foreach (string id in itemsRecolectados)
+            itemsRecolectadosEnEstaPartida.Add(id);
 
         Debug.Log($"[GameManager] Items recolectados restaurados: {itemsRecolectadosEnEstaPartida.Count}");
     }
 
-    // ==========================================
-    // ✅ NUEVO: Sistema de Restauración de Items Físicos
-    // ==========================================
-
-    /// <summary>
-    /// Registra un ItemRecolectable en el diccionario global
-    /// </summary>
     public void RegistrarItemEnMundo(string identificador, ItemRecolectable item)
     {
-        if (string.IsNullOrEmpty(identificador))
-        {
-            Debug.LogWarning("[GameManager] Intentando registrar item con identificador vacío");
-            return;
-        }
+        if (string.IsNullOrEmpty(identificador)) return;
 
         if (todosLosItemsDelMundo.ContainsKey(identificador))
-        {
-            Debug.LogWarning($"[GameManager] Item '{identificador}' ya estaba registrado. Reemplazando...");
             todosLosItemsDelMundo[identificador] = item;
-        }
         else
-        {
             todosLosItemsDelMundo.Add(identificador, item);
-            Debug.Log($"[GameManager] Item registrado en mundo: {identificador}");
-        }
+
+        Debug.Log($"[GameManager] Item registrado en mundo: {identificador}");
     }
 
-    /// <summary>
-    /// Elimina un item del registro
-    /// </summary>
     public void DesregistrarItemEnMundo(string identificador)
     {
         if (todosLosItemsDelMundo.ContainsKey(identificador))
-        {
             todosLosItemsDelMundo.Remove(identificador);
-            Debug.Log($"[GameManager] Item desregistrado: {identificador}");
-        }
     }
 
-    /// <summary>
-    /// Restaura el estado físico de TODOS los items del mundo basándose en el checkpoint
-    /// </summary>
     private void RestaurarEstadoFisicoItems()
     {
-        if (checkpointUltimoGuardado == null)
-        {
-            Debug.LogWarning("[GameManager] No hay checkpoint para restaurar items físicos");
-            return;
-        }
+        if (checkpointUltimoGuardado == null) return;
 
-        Debug.Log("[GameManager] 🔄 Iniciando restauración de items físicos...");
-        Debug.Log($"[GameManager] Total items en mundo: {todosLosItemsDelMundo.Count}");
-        Debug.Log($"[GameManager] Items en checkpoint: {checkpointUltimoGuardado.itemsRecolectados.Count}");
-
-        int itemsReactivados = 0;
-        int itemsDesactivados = 0;
+        int reactivados = 0, desactivados = 0;
 
         foreach (var kvp in todosLosItemsDelMundo)
         {
-            string identificador = kvp.Key;
             ItemRecolectable item = kvp.Value;
+            if (item == null || item.gameObject == null) continue;
 
-            if (item == null || item.gameObject == null)
+            bool estabaRecolectado = checkpointUltimoGuardado.itemsRecolectados.Contains(kvp.Key);
+
+            if (estabaRecolectado)
             {
-                Debug.LogWarning($"[GameManager] Item '{identificador}' es null, saltando...");
-                continue;
-            }
-
-            // Verificar si este item estaba recolectado en el checkpoint
-            bool estabaRecolectadoEnCheckpoint = checkpointUltimoGuardado.itemsRecolectados.Contains(identificador);
-
-            if (estabaRecolectadoEnCheckpoint)
-            {
-                // Este item SÍ estaba recolectado → DESACTIVAR
-                if (item.gameObject.activeSelf)
-                {
-                    item.gameObject.SetActive(false);
-                    itemsDesactivados++;
-                    Debug.Log($"[GameManager] ❌ Item desactivado: {identificador}");
-                }
+                if (item.gameObject.activeSelf) { item.gameObject.SetActive(false); desactivados++; }
             }
             else
             {
-                // Este item NO estaba recolectado → ACTIVAR
-                if (!item.gameObject.activeSelf)
-                {
-                    item.gameObject.SetActive(true);
-                    item.ResetearEstado();
-                    itemsReactivados++;
-                    Debug.Log($"[GameManager] ✅ Item reactivado: {identificador}");
-                }
+                if (!item.gameObject.activeSelf) { item.gameObject.SetActive(true); item.ResetearEstado(); reactivados++; }
             }
         }
 
-        Debug.Log($"[GameManager] 🔄 Restauración completa: {itemsReactivados} items reactivados, {itemsDesactivados} desactivados");
+        Debug.Log($"[GameManager] Restauración: {reactivados} reactivados, {desactivados} desactivados");
     }
     #endregion
 
     #region Guardado Persistente
     public void GuardarJuegoPersistente()
     {
-        if (checkpointUltimoGuardado == null)
-        {
-            Debug.LogWarning("[GameManager] No hay checkpoint para guardar");
-            return;
-        }
+        if (checkpointUltimoGuardado == null) return;
 
-        // Guardar posición
         PlayerPrefs.SetFloat(KEY_POSICION_X, checkpointUltimoGuardado.posicionJugador.x);
         PlayerPrefs.SetFloat(KEY_POSICION_Y, checkpointUltimoGuardado.posicionJugador.y);
         PlayerPrefs.SetFloat(KEY_POSICION_Z, checkpointUltimoGuardado.posicionJugador.z);
-
-        // Guardar rotación
         PlayerPrefs.SetFloat(KEY_ROTACION_X, checkpointUltimoGuardado.rotacionJugador.x);
         PlayerPrefs.SetFloat(KEY_ROTACION_Y, checkpointUltimoGuardado.rotacionJugador.y);
         PlayerPrefs.SetFloat(KEY_ROTACION_Z, checkpointUltimoGuardado.rotacionJugador.z);
         PlayerPrefs.SetFloat(KEY_ROTACION_W, checkpointUltimoGuardado.rotacionJugador.w);
-
-        // Guardar vida
         PlayerPrefs.SetFloat(KEY_VIDA, checkpointUltimoGuardado.vidaJugador);
         PlayerPrefs.SetFloat(KEY_VIDA_MAXIMA, checkpointUltimoGuardado.vidaMaximaJugador);
-
-        // Guardar inventario
-        string inventarioString = string.Join(",", checkpointUltimoGuardado.inventario);
-        PlayerPrefs.SetString(KEY_INVENTARIO, inventarioString);
-
-        // Guardar items recolectados
-        string itemsRecolectadosString = string.Join(",", checkpointUltimoGuardado.itemsRecolectados);
-        PlayerPrefs.SetString(KEY_ITEMS_RECOLECTADOS, itemsRecolectadosString);
-
-        // Guardar misión actual
+        PlayerPrefs.SetString(KEY_INVENTARIO, string.Join(",", checkpointUltimoGuardado.inventario));
+        PlayerPrefs.SetString(KEY_ITEMS_RECOLECTADOS, string.Join(",", checkpointUltimoGuardado.itemsRecolectados));
         PlayerPrefs.SetInt(KEY_MISION_ACTUAL, checkpointUltimoGuardado.indiceMisionActual);
-
-        // Marcar que hay datos guardados
         PlayerPrefs.SetInt(KEY_HAY_GUARDADO, 1);
-
         PlayerPrefs.Save();
-        Debug.Log("[GameManager] 💾 Juego guardado persistentemente");
+
+        Debug.Log("[GameManager] Juego guardado persistentemente");
     }
 
     public void CargarJuegoPersistente()
     {
-        if (!HayDatosGuardados())
+        if (!HayDatosGuardados()) return;
+
+        checkpointUltimoGuardado = new DatosCheckpoint
         {
-            Debug.LogWarning("[GameManager] No hay datos guardados para cargar");
-            return;
-        }
+            posicionJugador = new Vector3(
+                PlayerPrefs.GetFloat(KEY_POSICION_X),
+                PlayerPrefs.GetFloat(KEY_POSICION_Y),
+                PlayerPrefs.GetFloat(KEY_POSICION_Z)
+            ),
+            rotacionJugador = new Quaternion(
+                PlayerPrefs.GetFloat(KEY_ROTACION_X),
+                PlayerPrefs.GetFloat(KEY_ROTACION_Y),
+                PlayerPrefs.GetFloat(KEY_ROTACION_Z),
+                PlayerPrefs.GetFloat(KEY_ROTACION_W)
+            ),
+            vidaJugador = PlayerPrefs.GetFloat(KEY_VIDA),
+            vidaMaximaJugador = PlayerPrefs.GetFloat(KEY_VIDA_MAXIMA),
+            indiceMisionActual = PlayerPrefs.GetInt(KEY_MISION_ACTUAL, 0)
+        };
 
-        checkpointUltimoGuardado = new DatosCheckpoint();
+        string inventarioStr = PlayerPrefs.GetString(KEY_INVENTARIO);
+        if (!string.IsNullOrEmpty(inventarioStr))
+            checkpointUltimoGuardado.inventario = new List<string>(inventarioStr.Split(','));
 
-        // Cargar posición
-        float x = PlayerPrefs.GetFloat(KEY_POSICION_X);
-        float y = PlayerPrefs.GetFloat(KEY_POSICION_Y);
-        float z = PlayerPrefs.GetFloat(KEY_POSICION_Z);
-        checkpointUltimoGuardado.posicionJugador = new Vector3(x, y, z);
+        string itemsStr = PlayerPrefs.GetString(KEY_ITEMS_RECOLECTADOS, "");
+        if (!string.IsNullOrEmpty(itemsStr))
+            checkpointUltimoGuardado.itemsRecolectados = new List<string>(itemsStr.Split(','));
 
-        // Cargar rotación
-        float rotX = PlayerPrefs.GetFloat(KEY_ROTACION_X);
-        float rotY = PlayerPrefs.GetFloat(KEY_ROTACION_Y);
-        float rotZ = PlayerPrefs.GetFloat(KEY_ROTACION_Z);
-        float rotW = PlayerPrefs.GetFloat(KEY_ROTACION_W);
-        checkpointUltimoGuardado.rotacionJugador = new Quaternion(rotX, rotY, rotZ, rotW);
-
-        // Cargar vida
-        checkpointUltimoGuardado.vidaJugador = PlayerPrefs.GetFloat(KEY_VIDA);
-        checkpointUltimoGuardado.vidaMaximaJugador = PlayerPrefs.GetFloat(KEY_VIDA_MAXIMA);
-
-        // Cargar inventario
-        string inventarioString = PlayerPrefs.GetString(KEY_INVENTARIO);
-        if (!string.IsNullOrEmpty(inventarioString))
-        {
-            checkpointUltimoGuardado.inventario = new List<string>(inventarioString.Split(','));
-        }
-
-        // Cargar items recolectados
-        string itemsRecolectadosString = PlayerPrefs.GetString(KEY_ITEMS_RECOLECTADOS, "");
-        if (!string.IsNullOrEmpty(itemsRecolectadosString))
-        {
-            checkpointUltimoGuardado.itemsRecolectados = new List<string>(itemsRecolectadosString.Split(','));
-        }
-
-        // Cargar misión actual
-        checkpointUltimoGuardado.indiceMisionActual = PlayerPrefs.GetInt(KEY_MISION_ACTUAL, 0);
-
-        Debug.Log("[GameManager] 📂 Juego cargado desde guardado persistente");
-
-        // Aplicar datos cargados
+        Debug.Log("[GameManager] Juego cargado desde guardado persistente");
         CargarCheckpoint();
     }
 
@@ -508,7 +349,7 @@ public class GameManager : MonoBehaviour
     {
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
-        Debug.Log("[GameManager] 🗑️ Datos guardados eliminados");
+        Debug.Log("[GameManager] Datos guardados eliminados");
     }
 
     public bool HayDatosGuardados()
@@ -520,20 +361,12 @@ public class GameManager : MonoBehaviour
     #region Auto-Guardado
     private void OnApplicationPause(bool pauseStatus)
     {
-        if (pauseStatus && autoGuardarAlCerrar)
-        {
-            Debug.Log("[GameManager] 💾 Auto-guardado: Aplicación pausada");
-            GuardarJuegoPersistente();
-        }
+        if (pauseStatus && autoGuardarAlCerrar) GuardarJuegoPersistente();
     }
 
     private void OnApplicationQuit()
     {
-        if (autoGuardarAlCerrar)
-        {
-            Debug.Log("[GameManager] 💾 Auto-guardado: Aplicación cerrándose");
-            GuardarJuegoPersistente();
-        }
+        if (autoGuardarAlCerrar) GuardarJuegoPersistente();
     }
     #endregion
 
@@ -541,27 +374,28 @@ public class GameManager : MonoBehaviour
     private void InicializarSistema()
     {
         Debug.Log("[GameManager] Sistema inicializado correctamente");
-
-        if (jugador == null)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                jugador = player.transform;
-            }
-            else
-            {
-                Debug.LogWarning("[GameManager] No se encontró objeto con tag 'Player'");
-            }
-        }
+        BuscarJugador();
 
         if (cargarCheckpointAlIniciar && HayDatosGuardados())
-        {
             StartCoroutine(CargarCheckpointAlIniciarCorrutina());
+        else
+            StartCoroutine(InicializarPrimeraMisionCorrutina());
+    }
+
+    // FIX: Método separado para buscar jugador, reutilizable
+    private void BuscarJugador()
+    {
+        if (jugador != null) return;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            jugador = player.transform;
+            Debug.Log("[GameManager] Jugador encontrado automáticamente");
         }
         else
         {
-            StartCoroutine(InicializarPrimeraMisionCorrutina());
+            Debug.LogWarning("[GameManager] No se encontró objeto con tag 'Player'");
         }
     }
 
@@ -575,15 +409,10 @@ public class GameManager : MonoBehaviour
     {
         yield return null;
         if (ObjetivoManager.Instance != null)
-        {
             ObjetivoManager.Instance.InicializarPrimeraMision();
-        }
     }
 
-    public void ReiniciarNivel()
-    {
-        CargarCheckpoint();
-    }
+    public void ReiniciarNivel() { CargarCheckpoint(); }
 
     public void AsignarJugador(Transform jugadorTransform)
     {
@@ -596,18 +425,9 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            GuardarCheckpoint();
-        }
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            CargarCheckpoint();
-        }
-        if (Input.GetKeyDown(KeyCode.F3))
-        {
-            BorrarDatosGuardados();
-        }
+        if (Input.GetKeyDown(KeyCode.F1)) GuardarCheckpoint();
+        if (Input.GetKeyDown(KeyCode.F2)) CargarCheckpoint();
+        if (Input.GetKeyDown(KeyCode.F3)) BorrarDatosGuardados();
 #endif
     }
 
@@ -617,51 +437,23 @@ public class GameManager : MonoBehaviour
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(checkpointUltimoGuardado.posicionJugador, 1f);
-            Gizmos.DrawLine(
-                checkpointUltimoGuardado.posicionJugador,
-                checkpointUltimoGuardado.posicionJugador + Vector3.up * 2f
-            );
-
-            Vector3 forward = checkpointUltimoGuardado.rotacionJugador * Vector3.forward;
-            Gizmos.DrawLine(
-                checkpointUltimoGuardado.posicionJugador,
-                checkpointUltimoGuardado.posicionJugador + forward * 1.5f
-            );
         }
     }
     #endregion
 
     #region Reseteo
-    public void BorrarCheckpoint()
-    {
-        if (PlayerPrefs.HasKey("CheckpointGuardado"))
-        {
-            PlayerPrefs.DeleteKey("CheckpointGuardado");
-            PlayerPrefs.DeleteKey("CheckpointPosX");
-            PlayerPrefs.DeleteKey("CheckpointPosY");
-            PlayerPrefs.DeleteKey("CheckpointPosZ");
-            PlayerPrefs.DeleteKey("CheckpointRotY");
-            PlayerPrefs.DeleteKey("CheckpointHealth");
-            PlayerPrefs.DeleteKey("CheckpointMisionActual");
-            PlayerPrefs.DeleteKey("CheckpointInventarioJSON");
-            PlayerPrefs.Save();
-
-            Debug.Log("[GameManager] 💾 Checkpoint borrado");
-        }
-        else
-        {
-            Debug.Log("[GameManager] No hay checkpoint guardado para borrar");
-        }
-    }
-
-    /// <summary>
-    /// ✅ Limpia el registro de items recolectados (útil para DevTools)
-    /// </summary>
     public void LimpiarRegistroItems()
     {
         itemsRecolectadosEnEstaPartida.Clear();
         todosLosItemsDelMundo.Clear();
-        Debug.Log("[GameManager] 🌍 Registro de items recolectados limpiado");
+        Debug.Log("[GameManager] Registro de items limpiado");
+    }
+
+    public void BorrarCheckpoint()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        Debug.Log("[GameManager] Checkpoint borrado");
     }
     #endregion
 }
