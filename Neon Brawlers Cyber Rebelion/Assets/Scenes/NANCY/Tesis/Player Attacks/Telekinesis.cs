@@ -127,7 +127,6 @@ public class Telekinesis : MonoBehaviour
         yield return new WaitForSeconds(maxHoldTime);
         if (currentRb)
         {
-            Debug.Log("Tiempo máximo de telekinesis alcanzado");
             ThrowObject();
         }
     }
