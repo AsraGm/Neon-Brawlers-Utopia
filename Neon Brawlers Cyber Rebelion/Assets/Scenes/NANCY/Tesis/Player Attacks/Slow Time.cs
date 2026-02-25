@@ -1,14 +1,16 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SlowTime : MonoBehaviour
 {
     [Header("Time Slow Settings")]
     [SerializeField] private float slowMotionScale = 0.2f;
     [SerializeField] private float slowMotionDuration = 5f;
-    [SerializeField] private KeyCode activationKey = KeyCode.E;
 
     [Header("Cooldown")]
     [SerializeField] private float cooldownTime = 10f;
+
+    [SerializeField] private Image cooldownUi;
 
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
@@ -30,6 +32,8 @@ public class SlowTime : MonoBehaviour
                 DeactivateSlowMotion();
             }
         }
+
+        cooldownUi.fillAmount = cooldownTimer / cooldownTime;
     }
 
     public void UseSlowTime()

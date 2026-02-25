@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Telekinesis : MonoBehaviour
 {
@@ -8,13 +9,14 @@ public class Telekinesis : MonoBehaviour
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float throwForce = 20f;
     [SerializeField] private float cooldownTime = 2f;
-    [SerializeField] private KeyCode manipulateKey = KeyCode.E;
     [SerializeField] private Camera playerCamera;
 
     [Header("Hold Point")]
     [SerializeField] private Transform holdPosition;
     [SerializeField] private float holdDistance = 3f;
     [SerializeField] private float holdHeight = 1.5f;
+
+    [SerializeField] private Image cooldownUi;
 
     private Rigidbody currentRb;
     private EnemyPatrol currentEnemy;
@@ -27,6 +29,8 @@ public class Telekinesis : MonoBehaviour
         if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
 
         if (currentRb) MoveObject();
+
+        cooldownUi.fillAmount = cooldownTimer / cooldownTime;
     }
 
     void UpdateHoldPosition()
@@ -81,7 +85,7 @@ public class Telekinesis : MonoBehaviour
         currentRb = nearest.GetComponent<Rigidbody>(); // Obtener el Rigidbody del objeto más cercano
         currentEnemy = nearest.GetComponent<EnemyPatrol>();
 
-        if (currentRb) 
+        if (currentRb)
         {
             if (currentEnemy != null)
             {

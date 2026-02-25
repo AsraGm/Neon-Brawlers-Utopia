@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ElectromagneticWave : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class ElectromagneticWave : MonoBehaviour
 
     [Header("Capas")]
     [SerializeField] private LayerMask enemyLayer;
+
+    [SerializeField] private Image cooldownUi;
 
     private bool isCooldown = false;
     private float cooldownTimer = 0f;
@@ -23,6 +26,8 @@ public class ElectromagneticWave : MonoBehaviour
                 isCooldown = false;
             }
         }
+
+        cooldownUi.fillAmount = cooldownTimer / cooldown;
     }
 
     public void ActivarOnda()
