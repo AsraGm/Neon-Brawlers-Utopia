@@ -10,13 +10,13 @@ public class DronAttack : MonoBehaviour
 
     [SerializeField] private LayerMask EnemyLayer;
     [SerializeField] private LayerMask obstructionMask;
-    private Transform player;
+    private GameObject player;
     [SerializeField] private float delayTimeDamage = 3f;
     private EnemyPatrol enemyPatrol;
 
     private void Start()
     {
-        player = GameObject.Find("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player");
         enemyPatrol = GetComponent<EnemyPatrol>();
     }
 

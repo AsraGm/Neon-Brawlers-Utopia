@@ -26,7 +26,16 @@ public class RobotAttack : MonoBehaviour
 
         if (other.CompareTag("Player") && enemyPatrol.canAttack)
         {
-            other.GetComponent<PlayerDamage>().Die(damage);
+            PlayerDamage playerDamage = other.GetComponent<PlayerDamage>();
+
+            if (playerDamage != null)
+            {
+                playerDamage.Die(damage);
+            }
+            else
+            {
+                Debug.LogWarning("PlayerDamage component not found on " + other.gameObject.name);
+            }
         }
     }
 

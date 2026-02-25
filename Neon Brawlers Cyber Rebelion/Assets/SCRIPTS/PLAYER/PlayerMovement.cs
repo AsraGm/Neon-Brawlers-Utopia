@@ -27,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
     float snapSpeed;
     bool inObstacle;
 
+    Animator anim;
+
 
     // referencia al script de la cámara
     public ThirdPersonCam camScript;
@@ -35,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        anim = GetComponent<Animator>();
 
         // establecemos que la velocidad actual es la walk desde el inicio
         currentSpeed = walkSpeed;
@@ -48,6 +51,8 @@ public class PlayerMovement : MonoBehaviour
         ReadInput();
 
         RunPlayer();
+
+        UpdateAnimations();
 
         if (!inObstacle)
         {
@@ -97,10 +102,12 @@ public class PlayerMovement : MonoBehaviour
     {
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
+
         rb.AddForce
         (
             moveDirection.normalized * currentSpeed * 10f,
             ForceMode.Force
+
         );
     }
 
@@ -113,6 +120,18 @@ public class PlayerMovement : MonoBehaviour
 
         // avisamos a la cámara
         camScript.SetRunning(isRunning);
+    }
+
+    private void UpdateAnimations()
+    {
+        if (anim == null) return;
+
+        bool isMoving = moveInput.magnitude > 0.1f;
+        bool isRunning = Keyboard.current.leftShiftKey.isPressed && isMoving;
+
+        // Actualizar parámetros de animación usando hash para mejor rendimiento
+        anim.SetBool("Walk", isMoving);
+        anim.SetBool("Running", isRunning);
     }
 
     void HandleObstacleMovement()

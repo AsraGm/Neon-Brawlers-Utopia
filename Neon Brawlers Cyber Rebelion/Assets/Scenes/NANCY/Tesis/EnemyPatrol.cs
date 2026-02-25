@@ -28,7 +28,7 @@ public class EnemyPatrol : MonoBehaviour
     public bool isStunned /*{ get; private set; }*/ = false;
     public bool isChasing /*{ get; private set; }*/ = false;
     private bool isWaiting = false;
-    private Transform player;
+    private GameObject player;
     private Coroutine idleCoroutine;
     private RobotAttack robotAttack;
     public bool alertedByDrone = false;
@@ -52,7 +52,7 @@ public class EnemyPatrol : MonoBehaviour
             agent.autoBraking = true;
             UpdateDestination();
         }
-        player = GameObject.Find("Player").transform;
+        player = GameObject.FindWithTag("Player");
         robotAttack = GetComponent<RobotAttack>();
     }
 
@@ -72,13 +72,13 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         HandleRotation();
-    } 
+    }
 
     void CheckChaseRange()
     {
         if (player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
         bool playerInRange = distanceToPlayer <= chaseRadius;
 
         if (alertedByDrone || (playerInRange && fieldOfView != null && fieldOfView.canSeePlayer))
@@ -129,9 +129,9 @@ public class EnemyPatrol : MonoBehaviour
 
     void ChasePlayer()
     {
-        if (Vector3.Distance(agent.destination, player.position) > 1f)
+        if (Vector3.Distance(agent.destination, player.transform.position) > 1f)
         {
-            agent.SetDestination(player.position);
+            agent.SetDestination(player.transform.position);
         }
     }
 
