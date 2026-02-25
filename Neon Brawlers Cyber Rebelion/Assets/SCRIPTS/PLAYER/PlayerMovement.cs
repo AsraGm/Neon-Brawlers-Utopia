@@ -102,13 +102,14 @@ public class PlayerMovement : MonoBehaviour
     {
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
+        rb.AddForce(10f * currentSpeed * moveDirection.normalized, ForceMode.Force);
 
-        rb.AddForce
-        (
-            moveDirection.normalized * currentSpeed * 10f,
-            ForceMode.Force
-
-        );
+        // Solo rotar cuando camina hacia adelante
+        if (moveInput.y > 0.1f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+        }
     }
 
     private void RunPlayer()
@@ -126,12 +127,29 @@ public class PlayerMovement : MonoBehaviour
     {
         if (anim == null) return;
 
-        bool isMoving = moveInput.magnitude > 0.1f;
-        bool isRunning = Keyboard.current.leftShiftKey.isPressed && isMoving;
+        bool isRunning = Keyboard.current.leftShiftKey.isPressed && moveInput.magnitude > 0.1f;
+        float multiplier = isRunning ? 2f : 1f;
 
-        // Actualizar parámetros de animación usando hash para mejor rendimiento
-        anim.SetBool("Walk", isMoving);
-        anim.SetBool("Running", isRunning);
+        float targetX;
+        float targetY;
+
+        // Si hay input hacia adelante, ignorar X para que rote en lugar de strafear
+        if (moveInput.y > 0.1f)
+        {
+            targetX = 0f;
+            targetY = moveInput.y * multiplier;
+        }
+        else
+        {
+            targetX = moveInput.x * multiplier;
+            targetY = moveInput.y * multiplier;
+        }
+
+        float currentX = Mathf.Lerp(anim.GetFloat("X"), targetX, Time.deltaTime * 10f);
+        float currentY = Mathf.Lerp(anim.GetFloat("Y"), targetY, Time.deltaTime * 10f);
+
+        anim.SetFloat("X", currentX);
+        anim.SetFloat("Y", currentY);
     }
 
     void HandleObstacleMovement()
