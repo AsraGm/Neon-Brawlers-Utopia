@@ -13,52 +13,33 @@ public class ElectromagneticWave : MonoBehaviour
 
     [SerializeField] private Image cooldownUi;
 
-    private bool isCooldown = false;
-    private float cooldownTimer = 0f;
-
     private void Update()
     {
-        if (isCooldown)
-        {
-            cooldownTimer -= Time.deltaTime;
-            if (cooldownTimer <= 0f)
-            {
-                isCooldown = false;
-            }
-        }
-
-        cooldownUi.fillAmount = cooldownTimer / cooldown;
+        cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
     }
 
     public void ActivarOnda()
     {
-        if (isCooldown)
+        if (HabilidadesManager.instance.cooldownTimer > 0f)
         {
             Debug.Log("Espera cooldown");
             return;
         }
 
-        Collider[] enemigos = Physics.OverlapSphere(transform.position, waveRange, enemyLayer);
+        HabilidadesManager.instance.Cooldown(cooldown);
 
+        Collider[] enemigos = Physics.OverlapSphere(transform.position, waveRange, enemyLayer);
         Debug.Log($"Enemigos detectados: {enemigos.Length}");
 
         foreach (Collider col in enemigos)
         {
             EnemyPatrol enemy = col.GetComponentInChildren<EnemyPatrol>();
-
             if (enemy == null)
-            {
                 enemy = col.GetComponentInParent<EnemyPatrol>();
-            }
 
             if (enemy != null)
-            {
                 enemy.ApplyStun(stunDuration);
-            }
         }
-
-        isCooldown = true;
-        cooldownTimer = cooldown;
     }
 
     void OnDrawGizmosSelected()
@@ -69,11 +50,10 @@ public class ElectromagneticWave : MonoBehaviour
 
     public bool EstaCooldown()
     {
-        return isCooldown;
+        return HabilidadesManager.instance.cooldownTimer > 0f;
     }
-
     public float GetCooldownRestante()
     {
-        return cooldownTimer;
+        return HabilidadesManager.instance.cooldownTimer;
     }
 }

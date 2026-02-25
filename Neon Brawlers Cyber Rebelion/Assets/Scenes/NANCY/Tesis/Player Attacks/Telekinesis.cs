@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.UI;
 
 public class Telekinesis : MonoBehaviour
@@ -10,6 +11,7 @@ public class Telekinesis : MonoBehaviour
     [SerializeField] private float throwForce = 20f;
     [SerializeField] private float cooldownTime = 2f;
     [SerializeField] private Camera playerCamera;
+    [SerializeField] private float maxHoldTime = 4f;
 
     [Header("Hold Point")]
     [SerializeField] private Transform holdPosition;
@@ -20,17 +22,14 @@ public class Telekinesis : MonoBehaviour
 
     private Rigidbody currentRb;
     private EnemyPatrol currentEnemy;
-    private float cooldownTimer;
 
     void Update()
     {
         UpdateHoldPosition();
 
-        if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
-
         if (currentRb) MoveObject();
 
-        cooldownUi.fillAmount = cooldownTimer / cooldownTime;
+        cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
     }
 
     void UpdateHoldPosition()
@@ -49,9 +48,10 @@ public class Telekinesis : MonoBehaviour
 
     public void StartTelekinesis()
     {
-        if (cooldownTimer <= 0 && !currentRb)
+        if (HabilidadesManager.instance.cooldownTimer <= 0 && !currentRb)
         {
             GrabNearestObject();
+            StartCoroutine(ForceDronRelease());
         }
     }
 
@@ -119,7 +119,17 @@ public class Telekinesis : MonoBehaviour
         }
 
         currentRb = null;
-        cooldownTimer = cooldownTime;
+        HabilidadesManager.instance.Cooldown(cooldownTime);
+    }
+
+    private IEnumerator ForceDronRelease()
+    {
+        yield return new WaitForSeconds(maxHoldTime);
+        if (currentRb)
+        {
+            Debug.Log("Tiempo máximo de telekinesis alcanzado");
+            ThrowObject();
+        }
     }
 
     void OnDrawGizmosSelected()

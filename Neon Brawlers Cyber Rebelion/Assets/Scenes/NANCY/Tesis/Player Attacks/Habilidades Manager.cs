@@ -8,6 +8,9 @@ public class HabilidadesManager : MonoBehaviour
     private int selectedAbility = 0;
     [SerializeField] private bool[] unlockedAbilities = { false, false, false };
 
+    public float cooldown;
+    public float cooldownTimer = 0;
+
     void Start()
     {
         if (instance == null)
@@ -22,6 +25,11 @@ public class HabilidadesManager : MonoBehaviour
 
     void Update()
     {
+        if (cooldownTimer > 0)
+        {
+            cooldownTimer -= Time.unscaledDeltaTime;
+        }
+
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
             selectedAbility = 0;
@@ -75,12 +83,18 @@ public class HabilidadesManager : MonoBehaviour
         }
     }
 
-    void AbilityRelease()
+    private void AbilityRelease()
     {
         if (selectedAbility == 2)
         {
             GetComponent<Telekinesis>()?.StopTelekinesis();
         }
+    }
+
+    public void Cooldown(float cooldownTime)
+    {
+        cooldownTimer = cooldownTime; 
+        cooldown = cooldownTime;
     }
 
     //para desbloquear habilidades

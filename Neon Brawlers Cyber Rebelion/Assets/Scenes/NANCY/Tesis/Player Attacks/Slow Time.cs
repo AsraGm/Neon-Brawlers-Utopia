@@ -14,15 +14,9 @@ public class SlowTime : MonoBehaviour
 
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
-    private float cooldownTimer = 0f;
 
     private void Update()
     {
-        if (cooldownTimer > 0)
-        {
-            cooldownTimer -= Time.unscaledDeltaTime;
-        }
-
         if (isSlowMotionActive)
         {
             slowMotionTimer -= Time.unscaledDeltaTime;
@@ -33,18 +27,18 @@ public class SlowTime : MonoBehaviour
             }
         }
 
-        cooldownUi.fillAmount = cooldownTimer / cooldownTime;
+        cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
     }
 
     public void UseSlowTime()
     {
-        if (cooldownTimer <= 0 && !isSlowMotionActive)
+        if (HabilidadesManager.instance.cooldownTimer <= 0 && !isSlowMotionActive)
         {
             ActivateSlowMotion();
         }
-        else if (cooldownTimer > 0)
+        else if (HabilidadesManager.instance.cooldownTimer > 0)
         {
-            Debug.Log($"Slow Motion en cooldown: {cooldownTimer:F1}s");
+            Debug.Log($"Slow Motion en cooldown: {HabilidadesManager.instance.cooldownTimer}");
         }
     }
 
@@ -55,6 +49,8 @@ public class SlowTime : MonoBehaviour
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
+        HabilidadesManager.instance.Cooldown(cooldownTime);
+
         Debug.Log("Slow Motion Activado");
     }
 
@@ -63,7 +59,6 @@ public class SlowTime : MonoBehaviour
         isSlowMotionActive = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
-        cooldownTimer = cooldownTime;
 
         Debug.Log("Slow Motion Desactivado");
     }

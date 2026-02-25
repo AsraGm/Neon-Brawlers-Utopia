@@ -40223,8 +40223,9 @@ MonoBehaviour:
   detectionRadius: 7.27
   moveSpeed: 10
   throwForce: 180
-  cooldownTime: 5
+  cooldownTime: 6
   playerCamera: {fileID: 6306965011625230355}
+  maxHoldTime: 4
   holdPosition: {fileID: 234546052}
   holdDistance: 6
   holdHeight: 1.5
@@ -40243,7 +40244,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ElectromagneticWave
   waveRange: 7.25
   stunDuration: 4
-  cooldown: 8
+  cooldown: 5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 2560
@@ -40284,6 +40285,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HabilidadesManager
   unlockedAbilities: 010101
+  cooldown: 0
+  cooldownTimer: 0
 --- !u!114 &5732519930564589462
 MonoBehaviour:
   m_ObjectHideFlags: 0
