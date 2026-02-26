@@ -12,6 +12,10 @@ public class SlowTime : MonoBehaviour
 
     [SerializeField] private Image cooldownUi;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip slowTimeClip;
+
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
 
@@ -46,8 +50,15 @@ public class SlowTime : MonoBehaviour
     {
         isSlowMotionActive = true;
         slowMotionTimer = slowMotionDuration;
+
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        // Sonido one-shot
+        if (audioSource && slowTimeClip)
+        {
+            audioSource.PlayOneShot(slowTimeClip);
+        }
 
         HabilidadesManager.instance.Cooldown(cooldownTime);
 

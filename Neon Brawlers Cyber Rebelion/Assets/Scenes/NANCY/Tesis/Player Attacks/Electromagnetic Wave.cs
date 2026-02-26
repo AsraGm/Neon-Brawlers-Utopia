@@ -13,6 +13,10 @@ public class ElectromagneticWave : MonoBehaviour
 
     [SerializeField] private Image cooldownUi;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip electromagneticWaveClip;
+
     private void Update()
     {
         cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
@@ -27,6 +31,12 @@ public class ElectromagneticWave : MonoBehaviour
         }
 
         HabilidadesManager.instance.Cooldown(cooldown);
+
+        // Reproducir sonido una sola vez
+        if (audioSource && electromagneticWaveClip)
+        {
+            audioSource.PlayOneShot(electromagneticWaveClip);
+        }
 
         Collider[] enemigos = Physics.OverlapSphere(transform.position, waveRange, enemyLayer);
         Debug.Log($"Enemigos detectados: {enemigos.Length}");

@@ -20,6 +20,10 @@ public class Telekinesis : MonoBehaviour
 
     [SerializeField] private Image cooldownUi;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip telekinesisLoop;
+
     private Rigidbody currentRb;
     private EnemyPatrol currentEnemy;
 
@@ -28,6 +32,12 @@ public class Telekinesis : MonoBehaviour
         UpdateHoldPosition();
 
         if (currentRb) MoveObject();
+
+        // por si el objeto desaparece o lo que sea, se detiene el loop.
+        if (!currentRb && audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
 
         cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
     }
@@ -98,6 +108,14 @@ public class Telekinesis : MonoBehaviour
 
             currentRb.linearVelocity = Vector3.zero;
             currentRb.angularVelocity = Vector3.zero;
+
+            // INICIAR LOOP
+            if (audioSource && telekinesisLoop)
+            {
+                audioSource.clip = telekinesisLoop;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
         }
 
 
@@ -117,7 +135,11 @@ public class Telekinesis : MonoBehaviour
             currentRb.AddForce(playerCamera.transform.forward * throwForce * 10, ForceMode.Impulse);
             currentEnemy = null;
         }
-
+        //  DETENER LOOP
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
         currentRb = null;
         HabilidadesManager.instance.Cooldown(cooldownTime);
     }

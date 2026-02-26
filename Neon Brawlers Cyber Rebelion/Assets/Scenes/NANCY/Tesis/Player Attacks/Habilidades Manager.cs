@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,8 @@ public class HabilidadesManager : MonoBehaviour
 
     public float cooldown;
     public float cooldownTimer = 0;
+
+    public AudioSource audio_source;
 
     void Start()
     {
