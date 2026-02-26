@@ -10,13 +10,13 @@ public class DronAttack : MonoBehaviour
 
     [SerializeField] private LayerMask EnemyLayer;
     [SerializeField] private LayerMask obstructionMask;
-    private GameObject player;
+    private Transform player;
     [SerializeField] private float delayTimeDamage = 3f;
     private EnemyPatrol enemyPatrol;
 
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.Find("Player").transform;
         enemyPatrol = GetComponent<EnemyPatrol>();
     }
 
@@ -52,7 +52,7 @@ public class DronAttack : MonoBehaviour
                     EnemyPatrol patrolScript = col.GetComponent<EnemyPatrol>();
 
                     if (patrolScript != null)
-                    {    
+                    {
                         patrolScript.alertedByDrone = true;
                     }
                 }

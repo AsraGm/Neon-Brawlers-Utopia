@@ -28,7 +28,7 @@ public class EnemyPatrol : MonoBehaviour
     public bool isStunned /*{ get; private set; }*/ = false;
     public bool isChasing /*{ get; private set; }*/ = false;
     private bool isWaiting = false;
-    private GameObject player;
+    private Transform player;
     private Coroutine idleCoroutine;
     private RobotAttack robotAttack;
     public bool alertedByDrone = false;
@@ -52,7 +52,7 @@ public class EnemyPatrol : MonoBehaviour
             agent.autoBraking = true;
             UpdateDestination();
         }
-        player = GameObject.FindWithTag("Player");
+        player = GameObject.Find("Player").transform;
         robotAttack = GetComponent<RobotAttack>();
     }
 
