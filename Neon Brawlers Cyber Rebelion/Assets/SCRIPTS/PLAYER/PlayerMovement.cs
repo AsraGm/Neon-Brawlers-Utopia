@@ -27,6 +27,10 @@ public class PlayerMovement : MonoBehaviour
     float snapSpeed;
     bool inObstacle;
 
+    // para las escaleras
+    private bool onStairs;
+    private RaycastHit stairsHit;
+
     Animator anim;
 
 
@@ -56,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (!inObstacle)
         {
-            SpeedControl();
+            //SpeedControl();
             rb.linearDamping = grounded ? groundDrag : 0f;
         }
         else
@@ -102,9 +106,50 @@ public class PlayerMovement : MonoBehaviour
     {
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
-        rb.AddForce(10f * currentSpeed * moveDirection.normalized, ForceMode.Force);
+        if (moveDirection.magnitude < 0.1f)
+            return;
 
-        // Solo rotar cuando camina hacia adelante
+        if (onStairs)
+        {
+            if (Physics.Raycast(transform.position, Vector3.down, out stairsHit, playerHeight * 0.6f, whatIsGround))
+            {
+                Vector3 slopeDir = Vector3.ProjectOnPlane(moveDirection, stairsHit.normal).normalized;
+
+                float stairSpeed = walkSpeed;
+
+                // Si va cuesta arriba, aplicar boost
+                if (slopeDir.y > 0.01f)
+                {
+                    stairSpeed *= 2f; // se puede ajustar la velocidad al subir escaleras 
+                }
+
+                Vector3 targetVelocity = slopeDir * stairSpeed;
+
+                //mantener la Y actual excepto si es positiva
+                float yVel = rb.linearVelocity.y;
+
+                if (yVel > 0f)
+                    yVel = 0f;
+
+                rb.linearVelocity = new Vector3(
+                    targetVelocity.x,
+                    yVel,
+                    targetVelocity.z
+                );
+            }
+        }
+        else
+        {
+            // Movimiento normal fuera de escaleras
+            Vector3 targetVelocity = moveDirection.normalized * currentSpeed;
+
+            rb.linearVelocity = new Vector3(
+                targetVelocity.x,
+                rb.linearVelocity.y,
+                targetVelocity.z
+            );
+        }
+
         if (moveInput.y > 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
@@ -115,11 +160,15 @@ public class PlayerMovement : MonoBehaviour
     private void RunPlayer()
     {
         bool isMoving = moveInput.magnitude > 0.1f;
-        bool isRunning = Keyboard.current.leftShiftKey.isPressed && isMoving;
+
+        // Si está en escaleras, no puede correr
+        bool isRunning = !onStairs &&
+                         Keyboard.current.leftShiftKey.isPressed &&
+                         isMoving;
 
         currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        // avisamos a la cámara
+        // avisamos a la camara
         camScript.SetRunning(isRunning);
     }
 
@@ -178,15 +227,35 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private void SpeedControl()
-    {
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+    //private void SpeedControl()
+    //{
+    //    Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
-        if (flatVel.magnitude > currentSpeed)
+    //    if (flatVel.magnitude > currentSpeed)
+    //    {
+    //        Vector3 limitedVel = flatVel.normalized * currentSpeed;
+    //        rb.linearVelocity =
+    //            new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+    //    }
+    //}
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Stairs"))
         {
-            Vector3 limitedVel = flatVel.normalized * currentSpeed;
-            rb.linearVelocity =
-                new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            onStairs = true;
+
+            // Forzar volver a caminar
+            currentSpeed = walkSpeed;
+            camScript.SetRunning(false);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Stairs"))
+        {
+            onStairs = false;
         }
     }
 

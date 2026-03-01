@@ -242,8 +242,8 @@ MonoBehaviour:
   obstacleFollow: {fileID: 0}
   cinemachineCam: {fileID: 1088153594477705766}
   zoomFOV: 20
-  runShakeAmplitude: 2
-  runShakeFrequency: 2
+  runShakeAmplitude: 0.5
+  runShakeFrequency: 0.5
   normalFOV: 60
   runFOV: 90
   fovSpeed: 8
@@ -264,6 +264,9 @@ MonoBehaviour:
   lensTargetHidden: 0.76
   lensSpeed: 3
   chromaSpeed: 2
+  hiddenTemperature: -32
+  enemyTemperature: 50
+  temperatureSpeed: 3
 --- !u!1 &7169187624822612755
 GameObject:
   m_ObjectHideFlags: 0
