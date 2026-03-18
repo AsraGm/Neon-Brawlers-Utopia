@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -31,6 +32,10 @@ public class PlayerMovement : MonoBehaviour
     private bool onStairs;
     private RaycastHit stairsHit;
 
+    // referencia al efecto de velocidad
+    public UniversalRendererData rendererData;
+    ScriptableRendererFeature fullScreenFeature;
+
     Animator anim;
 
 
@@ -45,6 +50,16 @@ public class PlayerMovement : MonoBehaviour
 
         // establecemos que la velocidad actual es la walk desde el inicio
         currentSpeed = walkSpeed;
+
+        //foreach para el efecto de velocidad
+        foreach (var feature in rendererData.rendererFeatures)
+        {
+            if (feature.name == "FSSpeed")
+            {
+                fullScreenFeature = feature;
+                break;
+            }
+        }
     }
 
     private void Update()
@@ -170,6 +185,17 @@ public class PlayerMovement : MonoBehaviour
 
         // avisamos a la camara
         camScript.SetRunning(isRunning);
+
+        // Avisamos para prender el efecto de velocidad
+        SetEffect(isRunning);
+    }
+
+    void SetEffect(bool active)
+    {
+        if (fullScreenFeature != null)
+        {
+            fullScreenFeature.SetActive(active);
+        }
     }
 
     private void UpdateAnimations()
