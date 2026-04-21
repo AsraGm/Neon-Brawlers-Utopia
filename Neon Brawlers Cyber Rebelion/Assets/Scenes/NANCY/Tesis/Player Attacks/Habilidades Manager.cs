@@ -12,7 +12,8 @@ public class HabilidadesManager : MonoBehaviour
     public float cooldown;
     public float cooldownTimer = 0;
 
-    public AudioSource audio_source;
+    [Header("Provisional UI")]
+    [SerializeField] private RectTransform arrow;
 
     void Start()
     {
@@ -36,17 +37,23 @@ public class HabilidadesManager : MonoBehaviour
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
             selectedAbility = 0;
-            Debug.Log("Habilidad 1 seleccionada");
+            AudioManager.instance.Play("changeHability");
+            Debug.Log("Habilidad 1 seleccionada: Slow Motion");
+            arrow.anchoredPosition = new Vector2(-880, -394);
         }
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
             selectedAbility = 1;
+            AudioManager.instance.Play("changeHability");
             Debug.Log("Habilidad 2 seleccionada: Electromagnetic wave");
+            arrow.anchoredPosition = new Vector2(-287, -394);
         }
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
             selectedAbility = 2;
+            AudioManager.instance.Play("changeHability");
             Debug.Log("Habilidad 3 seleccionada: Telekinesis");
+            arrow.anchoredPosition = new Vector2(374, -394);
         }
 
         if (Keyboard.current.cKey.wasPressedThisFrame)

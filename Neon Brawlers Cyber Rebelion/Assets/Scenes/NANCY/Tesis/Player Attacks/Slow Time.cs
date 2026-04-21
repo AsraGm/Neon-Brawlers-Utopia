@@ -9,12 +9,10 @@ public class SlowTime : MonoBehaviour
 
     [Header("Cooldown")]
     [SerializeField] private float cooldownTime = 10f;
-
     [SerializeField] private Image cooldownUi;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip slowTimeClip;
+    [Header("Effects")]
+    [SerializeField] ParticleSystem particles;
 
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
@@ -54,11 +52,8 @@ public class SlowTime : MonoBehaviour
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        // Sonido one-shot
-        if (audioSource && slowTimeClip)
-        {
-            audioSource.PlayOneShot(slowTimeClip);
-        }
+        particles.Play();
+        AudioManager.instance.Play("slowMotion");
 
         HabilidadesManager.instance.Cooldown(cooldownTime);
 
