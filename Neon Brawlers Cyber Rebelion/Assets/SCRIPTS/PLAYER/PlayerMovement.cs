@@ -46,7 +46,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-        anim = GetComponent<Animator>();
+        anim = GetComponentInChildren<Animator>();
 
         // establecemos que la velocidad actual es la walk desde el inicio
         currentSpeed = walkSpeed;
@@ -202,29 +202,14 @@ public class PlayerMovement : MonoBehaviour
     {
         if (anim == null) return;
 
-        bool isRunning = Keyboard.current.leftShiftKey.isPressed && moveInput.magnitude > 0.1f;
-        float multiplier = isRunning ? 2f : 1f;
+        bool isMoving = moveInput.magnitude > 0.1f;
+        bool isUsingAbility = HabilidadesManager.instance != null &&
+                              HabilidadesManager.instance.IsUsingAbility;
 
-        float targetX;
-        float targetY;
+        anim.SetBool("isMoving", isMoving);
 
-        // Si hay input hacia adelante, ignorar X para que rote en lugar de strafear
-        if (moveInput.y > 0.1f)
-        {
-            targetX = 0f;
-            targetY = moveInput.y * multiplier;
-        }
-        else
-        {
-            targetX = moveInput.x * multiplier;
-            targetY = moveInput.y * multiplier;
-        }
-
-        float currentX = Mathf.Lerp(anim.GetFloat("X"), targetX, Time.deltaTime * 10f);
-        float currentY = Mathf.Lerp(anim.GetFloat("Y"), targetY, Time.deltaTime * 10f);
-
-        anim.SetFloat("X", currentX);
-        anim.SetFloat("Y", currentY);
+        // animacion especial de poder opcional
+        anim.SetBool("isUsingAbility", isUsingAbility);
     }
 
     void HandleObstacleMovement()
