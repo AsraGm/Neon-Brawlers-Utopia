@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     public UniversalRendererData rendererData;
     ScriptableRendererFeature fullScreenFeature;
 
-    Animator anim;
+    Animator Playeranimator;
 
 
     // referencia al script de la cámara
@@ -46,7 +46,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-        anim = GetComponentInChildren<Animator>();
+        Playeranimator = GetComponentInChildren<Animator>();
 
         // establecemos que la velocidad actual es la walk desde el inicio
         currentSpeed = walkSpeed;
@@ -165,10 +165,16 @@ public class PlayerMovement : MonoBehaviour
             );
         }
 
-        if (moveInput.y > 0.1f)
+        if (moveDirection.magnitude > 0.1f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+
+            Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                Time.deltaTime * 10f
+            );
         }
     }
 
@@ -189,7 +195,6 @@ public class PlayerMovement : MonoBehaviour
         // Avisamos para prender el efecto de velocidad
         SetEffect(isRunning);
     }
-
     void SetEffect(bool active)
     {
         if (fullScreenFeature != null)
@@ -200,16 +205,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateAnimations()
     {
-        if (anim == null) return;
+        if (Playeranimator == null) return;
 
         bool isMoving = moveInput.magnitude > 0.1f;
         bool isUsingAbility = HabilidadesManager.instance != null &&
                               HabilidadesManager.instance.IsUsingAbility;
 
-        anim.SetBool("isMoving", isMoving);
+        Playeranimator.SetBool("isMoving", isMoving);
 
         // animacion especial de poder opcional
-        anim.SetBool("isUsingAbility", isUsingAbility);
+        Playeranimator.SetBool("isUsingAbility", isUsingAbility);
     }
 
     void HandleObstacleMovement()

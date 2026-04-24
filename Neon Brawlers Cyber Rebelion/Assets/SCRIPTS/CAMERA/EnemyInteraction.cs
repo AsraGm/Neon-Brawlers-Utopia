@@ -12,6 +12,7 @@ public class EnemyInteraction : MonoBehaviour
     CameraPostFXController postFX;
 
     bool enemyInside;
+    Transform currentEnemyLookAt; // lo vamos a usar por si el enemigo ya se encontraba dentro del obstaculo antes del jugador
 
     void Awake()
     {
@@ -23,15 +24,29 @@ public class EnemyInteraction : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!IsEnemy(other)) return;
-        if (!obstacleInteraction.PlayerInObstacle) return;
 
         enemyInside = true;
 
-            Transform lookAt = other.transform.Find("EnemyLookAt");
+        currentEnemyLookAt = other.transform.Find("EnemyLookAt");
 
-        if (lookAt != null)
-            Debug.Log("Si detecta que hay un look at");
-        EnterEnemyMode(lookAt);
+        // Si el jugador YA está dentro, activamos
+        if (obstacleInteraction.PlayerInObstacle)
+        {
+            EnterEnemyMode(currentEnemyLookAt);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (!IsEnemy(other)) return;
+
+        enemyInside = true;
+        currentEnemyLookAt = other.transform.Find("EnemyLookAt");
+
+        if (obstacleInteraction.PlayerInObstacle)
+        {
+            EnterEnemyMode(currentEnemyLookAt);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -39,7 +54,18 @@ public class EnemyInteraction : MonoBehaviour
         if (!IsEnemy(other)) return;
 
         enemyInside = false;
+        currentEnemyLookAt = null;
+
         ExitEnemyMode();
+    }
+
+    // metodo por si el enemigo ya estaba dentro de la pared cuando el jugador entra
+    public void CheckEnemyInsideOnPlayerEnter()
+    {
+        if (enemyInside && currentEnemyLookAt != null)
+        {
+            EnterEnemyMode(currentEnemyLookAt);
+        }
     }
 
     bool IsEnemy(Collider other)

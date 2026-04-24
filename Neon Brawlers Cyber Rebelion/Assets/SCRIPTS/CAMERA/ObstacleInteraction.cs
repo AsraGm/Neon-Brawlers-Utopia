@@ -63,6 +63,11 @@ public class ObstacleInteraction : MonoBehaviour
 
         // llama al script PostFX
         postFX?.EnterObstacleFX();
+
+        if (enemyInteraction != null)
+        {
+            enemyInteraction.CheckEnemyInsideOnPlayerEnter();
+        }
     }
 
     void ExitObstacle(PlayerMovement player, ThirdPersonCam cam)

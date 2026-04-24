@@ -99,12 +99,7 @@ public class ThirdPersonCam : MonoBehaviour
 
         Vector3 inputDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-        // Si el input no es igual a cero, hace una cosa rara que no entendí pero funciona xd
-        if (inputDir != Vector3.zero)
-        {
-            playerObject.forward = Vector3.Slerp(playerObject.forward, inputDir.normalized, Time.unscaledDeltaTime * rotationSpeed);
 
-        }
 
         // FOV suave
         cinemachineCam.Lens.FieldOfView = Mathf.Lerp
@@ -143,7 +138,7 @@ public class ThirdPersonCam : MonoBehaviour
     public void SetCustomFollow(Transform followTarget, float fov)
     {
         obstacleFollowCached = cinemachineCam.Follow;
-        cinemachineCam.Follow = followTarget;
+
         targetFOV = fov;
     }
 
