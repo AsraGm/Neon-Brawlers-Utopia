@@ -15,6 +15,7 @@ public class PlayerDamage : MonoBehaviour
         if (vida <= 0)
         {
             transform.position = spawn.position;
+            vida = 100;
         }
     }
 
