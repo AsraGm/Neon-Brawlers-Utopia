@@ -9,7 +9,9 @@ public class PlayerMovement : MonoBehaviour
     public float runSpeed = 10f;
     float currentSpeed;
 
-    public float groundDrag;
+    [Header("Gravedad")]
+    public float gravity = -20f;
+    private float verticalVelocity = 0f;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -21,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
     Vector2 moveInput;
     Vector3 moveDirection;
 
-    Rigidbody rb;
+    CharacterController cc;
 
     // variables para la interaccion con obstaculos
     Transform currentSnapPoint;
@@ -30,7 +32,6 @@ public class PlayerMovement : MonoBehaviour
 
     // para las escaleras
     private bool onStairs;
-    private RaycastHit stairsHit;
 
     // referencia al efecto de velocidad
     public UniversalRendererData rendererData;
@@ -38,20 +39,16 @@ public class PlayerMovement : MonoBehaviour
 
     Animator Playeranimator;
 
-
     // referencia al script de la cámara
     public ThirdPersonCam camScript;
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
+        cc = GetComponent<CharacterController>();
         Playeranimator = GetComponentInChildren<Animator>();
 
-        // establecemos que la velocidad actual es la walk desde el inicio
         currentSpeed = walkSpeed;
 
-        //foreach para el efecto de velocidad
         foreach (var feature in rendererData.rendererFeatures)
         {
             if (feature.name == "FSSpeed")
@@ -64,35 +61,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // checar el suelo lanzando raycast
+        // Ground check igual que antes con raycast
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
         ReadInput();
-
         RunPlayer();
-
         UpdateAnimations();
+        HandleGravity();
 
         if (!inObstacle)
-        {
-            //SpeedControl();
-            rb.linearDamping = grounded ? groundDrag : 0f;
-        }
-        else
-        {
-            rb.linearDamping = 0f;
-        }
-
-    }
-
-    private void FixedUpdate()
-    {
-        if (inObstacle)
-            HandleObstacleMovement();
-        else
             MovePlayer();
+        else
+            HandleObstacleMovement();
     }
 
+    // FixedUpdate ya no es necesario, CharacterController va en Update
+
+    private void HandleGravity()
+    {
+        if (grounded && verticalVelocity < 0f)
+            verticalVelocity = -2f; // pequeño valor negativo para mantenerlo pegado al suelo
+        else
+            verticalVelocity += gravity * Time.deltaTime;
+    }
 
     private void ReadInput()
     {
@@ -108,67 +99,66 @@ public class PlayerMovement : MonoBehaviour
 
         moveInput = new Vector2(horizontal, vertical);
 
-        // pero si esta en un asset
-        if (inObstacle && Vector3.Distance(rb.position, currentSnapPoint.position) > 1.2f)
+        // Si está en obstáculo y se aleja demasiado del snap point, salir
+        if (inObstacle && currentSnapPoint != null &&
+            Vector3.Distance(transform.position, currentSnapPoint.position) > 1.2f)
         {
             ExitObstacleMode();
         }
-
-
     }
 
     private void MovePlayer()
     {
+        if (IsLocked) return; // bloquea todo este metodo si estas escondido en un obstacle
+
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
-        if (moveDirection.magnitude < 0.1f)
+        Vector3 flatMove = moveDirection;
+        flatMove.y = 0f;
+
+        if (flatMove.magnitude < 0.1f)
+        {
+            // Sin input horizontal pero sí aplicamos gravedad
+            cc.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
             return;
+        }
+
+        Vector3 motion;
 
         if (onStairs)
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out stairsHit, playerHeight * 0.6f, whatIsGround))
+            // Proyectar sobre la normal de la escalera igual que antes
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit stairsHit,
+                playerHeight * 0.6f, whatIsGround))
             {
-                Vector3 slopeDir = Vector3.ProjectOnPlane(moveDirection, stairsHit.normal).normalized;
+                Vector3 slopeDir = Vector3.ProjectOnPlane(flatMove, stairsHit.normal).normalized;
 
                 float stairSpeed = walkSpeed;
-
-                // Si va cuesta arriba, aplicar boost
                 if (slopeDir.y > 0.01f)
-                {
-                    stairSpeed *= 2f; // se puede ajustar la velocidad al subir escaleras 
-                }
+                    stairSpeed *= 2f;
 
-                Vector3 targetVelocity = slopeDir * stairSpeed;
-
-                //mantener la Y actual excepto si es positiva
-                float yVel = rb.linearVelocity.y;
-
-                if (yVel > 0f)
-                    yVel = 0f;
-
-                rb.linearVelocity = new Vector3(
-                    targetVelocity.x,
-                    yVel,
-                    targetVelocity.z
-                );
+                motion = slopeDir * stairSpeed;
+                // En escaleras no aplicamos gravedad para evitar rebotes
+                motion.y = Mathf.Max(motion.y, 0f);
+            }
+            else
+            {
+                motion = flatMove.normalized * currentSpeed;
+                motion.y = verticalVelocity;
             }
         }
         else
         {
-            // Movimiento normal fuera de escaleras
-            Vector3 targetVelocity = moveDirection.normalized * currentSpeed;
-
-            rb.linearVelocity = new Vector3(
-                targetVelocity.x,
-                rb.linearVelocity.y,
-                targetVelocity.z
-            );
+            motion = flatMove.normalized * currentSpeed;
+            motion.y = verticalVelocity;
         }
 
-        if (moveDirection.magnitude > 0.1f)
-        {
-            Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+        cc.Move(motion * Time.deltaTime);
 
+        // Rotación hacia donde se mueve (igual que antes)
+        Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+        if (flatDirection.magnitude > 0.1f)
+        {
             Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
@@ -182,25 +172,20 @@ public class PlayerMovement : MonoBehaviour
     {
         bool isMoving = moveInput.magnitude > 0.1f;
 
-        // Si está en escaleras, no puede correr
         bool isRunning = !onStairs &&
                          Keyboard.current.leftShiftKey.isPressed &&
                          isMoving;
 
         currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        // avisamos a la camara
         camScript.SetRunning(isRunning);
-
-        // Avisamos para prender el efecto de velocidad
         SetEffect(isRunning);
     }
+
     void SetEffect(bool active)
     {
         if (fullScreenFeature != null)
-        {
             fullScreenFeature.SetActive(active);
-        }
     }
 
     private void UpdateAnimations()
@@ -212,8 +197,6 @@ public class PlayerMovement : MonoBehaviour
                               HabilidadesManager.instance.IsUsingAbility;
 
         Playeranimator.SetBool("isMoving", isMoving);
-
-        // animacion especial de poder opcional
         Playeranimator.SetBool("isUsingAbility", isUsingAbility);
     }
 
@@ -221,47 +204,26 @@ public class PlayerMovement : MonoBehaviour
     {
         if (currentSnapPoint == null) return;
 
-        // Vector desde el snapPoint al player
-        Vector3 toPlayer = rb.position - currentSnapPoint.position;
-
-        // Normal de la pared (hacia afuera)
+        // Replicamos la lógica original: movimiento solo sobre el eje paralelo a la pared
+        Vector3 toPlayer = transform.position - currentSnapPoint.position;
         Vector3 wallNormal = currentSnapPoint.right;
-
-        // Componente paralela a la pared (eje Z)
         Vector3 parallel = Vector3.ProjectOnPlane(toPlayer, wallNormal);
-
-        // Movimiento input solo sobre el eje paralelo
         Vector3 move = currentSnapPoint.forward * moveInput.y;
 
         Vector3 targetPos = currentSnapPoint.position + parallel + move;
+        Vector3 delta = targetPos - transform.position;
 
-        rb.MovePosition(Vector3.Lerp(
-            rb.position,
-            targetPos,
-            Time.unscaledDeltaTime * snapSpeed
-        ));
+        // Usamos Move en vez de MovePosition, ignoramos la Y para no luchar con la gravedad
+        Vector3 slideMotion = new Vector3(delta.x, verticalVelocity * Time.deltaTime, delta.z);
+        cc.Move(slideMotion * snapSpeed * Time.unscaledDeltaTime);
     }
 
-
-    //private void SpeedControl()
-    //{
-    //    Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-    //    if (flatVel.magnitude > currentSpeed)
-    //    {
-    //        Vector3 limitedVel = flatVel.normalized * currentSpeed;
-    //        rb.linearVelocity =
-    //            new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
-    //    }
-    //}
-
+    // Triggers para escaleras (sin cambios en lógica)
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Stairs"))
         {
             onStairs = true;
-
-            // Forzar volver a caminar
             currentSpeed = walkSpeed;
             camScript.SetRunning(false);
         }
@@ -270,25 +232,35 @@ public class PlayerMovement : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Stairs"))
-        {
             onStairs = false;
-        }
     }
+
+    // Te transporta a pegarte directamente en la pared o escondite.
+    public void TeleportTo(Vector3 position, Quaternion rotation)
+    {
+        cc.enabled = false;              // desactivar para poder mover el transform
+        transform.position = position;
+        transform.rotation = rotation;
+        cc.enabled = true;
+    }
+
+    // Métodos públicos que ObstacleInteraction sigue llamando igual
+    public bool IsLocked { get; private set; }
 
     public void EnterObstacleMode(Transform snapPoint, float snapSpeed)
     {
         inObstacle = true;
+        IsLocked = true;          
         currentSnapPoint = snapPoint;
         this.snapSpeed = snapSpeed;
-
         currentSpeed = walkSpeed;
-        rb.linearVelocity = Vector3.zero;
+        verticalVelocity = 0f;
     }
 
     public void ExitObstacleMode()
     {
         inObstacle = false;
+        IsLocked = false;    
         currentSnapPoint = null;
     }
-
 }

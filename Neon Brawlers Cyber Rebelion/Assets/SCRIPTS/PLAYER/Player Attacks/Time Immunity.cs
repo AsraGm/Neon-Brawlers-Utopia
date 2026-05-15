@@ -1,25 +1,19 @@
 using UnityEngine;
-
-//Script para compensar la velocidad de movimiento al activar el Slow Time
+// Script para compensar la velocidad de movimiento al activar el Slow Time
 public class TimeImmunity : MonoBehaviour
 {
     private PlayerMovement playerMovement;
-    private Rigidbody rb;
-
     private float defaultWalkSpeed;
     private float defaultRunSpeed;
-    private float defaultDrag;
-
+    private float defaultGravity;
     private bool isCompensating = false;
 
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
-        rb = GetComponent<Rigidbody>();
-
         defaultWalkSpeed = playerMovement.walkSpeed;
         defaultRunSpeed = playerMovement.runSpeed;
-        defaultDrag = playerMovement.groundDrag;
+        defaultGravity = playerMovement.gravity;
     }
 
     void Update()
@@ -35,47 +29,27 @@ public class TimeImmunity : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
-    {
-        if (isCompensating)
-        {
-            float gravityMultiplier = 1f / (Time.timeScale * Time.timeScale);
-            rb.AddForce(Physics.gravity * gravityMultiplier, ForceMode.Acceleration);
-
-            float forceMultiplier = (1f / Time.timeScale) - 1f;
-
-            Vector3 moveDir = playerMovement.orientation.forward * Input.GetAxisRaw("Vertical") +
-                              playerMovement.orientation.right * Input.GetAxisRaw("Horizontal");
-
-            if (moveDir.magnitude > 0.1f)
-            {
-                rb.AddForce(moveDir.normalized * playerMovement.walkSpeed * 10f * forceMultiplier, ForceMode.Force);
-            }
-        }
-    }
+    // FixedUpdate ya no es necesario: CharacterController no usa fuerzas de Rigidbody
 
     void UpdateDynamicValues()
     {
         float multiplier = 1f / Time.timeScale;
-
         playerMovement.walkSpeed = defaultWalkSpeed * multiplier;
         playerMovement.runSpeed = defaultRunSpeed * multiplier;
-        playerMovement.groundDrag = defaultDrag * multiplier;
+        // Compensamos la gravedad igual que antes compensabas la física
+        playerMovement.gravity = defaultGravity * multiplier;
     }
 
     void StartCompensation()
     {
         isCompensating = true;
-        rb.useGravity = false;
     }
 
     void StopCompensation()
     {
         isCompensating = false;
-        rb.useGravity = true;
-
         playerMovement.walkSpeed = defaultWalkSpeed;
         playerMovement.runSpeed = defaultRunSpeed;
-        playerMovement.groundDrag = defaultDrag;
+        playerMovement.gravity = defaultGravity;
     }
 }

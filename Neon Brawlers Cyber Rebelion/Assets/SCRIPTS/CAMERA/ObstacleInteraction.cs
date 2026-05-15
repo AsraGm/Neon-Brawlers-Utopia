@@ -1,90 +1,110 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class ObstacleInteraction : MonoBehaviour
 {
     [Header("Referencias")]
-    public Transform obstacleLookAt;   // el empty
-    public Transform snapPoint;         // punto donde se pega el player
+    public Transform obstacleLookAt;
+    public Transform snapPoint;
 
     [Header("Ajustes")]
-    public float snapSpeed = 5f;
+    public float snapSpeed = 10f;
 
-    // variable para saber si el jugador esta o no
-    public bool PlayerInObstacle { get; private set; }
+    // Estado
+    public bool PlayerInObstacle { get; private set; }  // jugador en rango del trigger
+    public bool PlayerIsHidden { get; private set; }  // jugador bloqueado en escondite
 
+    // Referencias cacheadas
+    PlayerMovement playerMovement;
+    ThirdPersonCam cam;
     EnemyInteraction enemyInteraction;
     CameraPostFXController postFX;
 
-    // agarrar al script de enemyinteraction cuando inicia
     private void Awake()
     {
         enemyInteraction = GetComponent<EnemyInteraction>();
         postFX = FindFirstObjectByType<CameraPostFXController>();
+
+        // Aseguramos que los dos botones arrancan ocultos
+
     }
+
+
+    // TRIGGER: entrar / salir del rango
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Trigger enter: " + other.name);
-
         if (!other.CompareTag("Player")) return;
 
-        PlayerMovement player = other.GetComponentInParent<PlayerMovement>();
-        ThirdPersonCam cam = FindFirstObjectByType<ThirdPersonCam>();
+        playerMovement = other.GetComponentInParent<PlayerMovement>();
+        cam = FindFirstObjectByType<ThirdPersonCam>();
 
-        if (player == null || cam == null)
-        {
-            Debug.Log("Player o Camara no encontrados");
-            return;
-        }
+        if (playerMovement == null || cam == null) return;
 
-        EnterObstacle(player, cam);
+        // Solo mostramos el HideButton, nada más
+        PlayerInObstacle = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("Trigger exit: " + other.name);
-
         if (!other.CompareTag("Player")) return;
 
-        PlayerMovement player = other.GetComponentInParent<PlayerMovement>();
-        ThirdPersonCam cam = FindFirstObjectByType<ThirdPersonCam>();
+        // Si salía caminando mientras estaba escondido, forzamos salida limpia
+        if (PlayerIsHidden)
+            ExitHide();
 
-        if (player == null || cam == null) return;
-
-        ExitObstacle(player, cam);
+        PlayerInObstacle = false;
     }
 
-    void EnterObstacle(PlayerMovement player, ThirdPersonCam cam)
+
+    // UPDATE: escuchar la tecla C
+
+    private void Update()
     {
-        PlayerInObstacle = true;    
+        if (!PlayerInObstacle) return;
+        if (playerMovement == null || cam == null) return;
 
-        player.EnterObstacleMode(snapPoint, snapSpeed);
-        cam.EnterObstacleMode(obstacleLookAt);
-
-        // llama al script PostFX
-        postFX?.EnterObstacleFX();
-
-        if (enemyInteraction != null)
+        if (Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame)
         {
-            enemyInteraction.CheckEnemyInsideOnPlayerEnter();
+            if (!PlayerIsHidden)
+                EnterHide();
+            else
+                ExitHide();
         }
     }
 
-    void ExitObstacle(PlayerMovement player, ThirdPersonCam cam)
+
+    // ESCONDERSE
+
+    void EnterHide()
     {
-        PlayerInObstacle = false;
+        PlayerIsHidden = true;
 
-        if (enemyInteraction != null)
-            enemyInteraction.ForceCancel();
+        // Mover al jugador al snapPoint y bloquearlo
+        playerMovement.EnterObstacleMode(snapPoint, snapSpeed);
+        playerMovement.TeleportTo(snapPoint.position, snapPoint.rotation);
 
-        player.ExitObstacleMode();
-        cam.ForceReturnToPlayer();
+        // Cámara y PostFX
+        cam.EnterObstacleMode(obstacleLookAt);
+        postFX?.EnterObstacleFX();
 
-        // tambien acaba todo postFX
-        postFX?.ExitObstacleFX();
-        postFX?.StopEnemyFX();
+        // Revisar si ya hay enemigo cerca
+        enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
     }
 
 
+    // SALIR DEL ESCONDITE
 
+    void ExitHide()
+    {
+        PlayerIsHidden = false;
+
+        enemyInteraction?.ForceCancel();
+        playerMovement.ExitObstacleMode();
+        cam.ForceReturnToPlayer();
+        postFX?.ExitObstacleFX();
+        postFX?.StopEnemyFX();
+
+    }
 }

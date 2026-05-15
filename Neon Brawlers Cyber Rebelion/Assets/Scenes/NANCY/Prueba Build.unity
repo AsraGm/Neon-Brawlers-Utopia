@@ -580,7 +580,7 @@ MonoBehaviour:
   player: {fileID: 0}
   orientation: {fileID: 0}
   playerObject: {fileID: 8533955249172001263}
-  rb: {fileID: 2816445534678596231}
+  rb: {fileID: 0}
   normalFollow: {fileID: 0}
   zoomFollow: {fileID: 0}
   obstacleFollow: {fileID: 0}
@@ -12087,7 +12087,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3cf542414d0c22d4c82e45f1197db286, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.9
+      value: -0.924
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3cf542414d0c22d4c82e45f1197db286, type: 3}
       propertyPath: m_LocalPosition.z
@@ -53981,7 +53981,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   walkSpeed: 6
   runSpeed: 12
-  groundDrag: 2
+  gravity: -20
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -55069,33 +55069,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!54 &2816445534678596231
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5403458939268106334}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 0
-  m_CollisionDetection: 1
 --- !u!114 &2821049353912015234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55359,7 +55332,7 @@ MonoBehaviour:
   player: {fileID: 5714240633211631222}
   orientation: {fileID: 4510337882399222263}
   playerObject: {fileID: 8533955249172001263}
-  rb: {fileID: 2816445534678596231}
+  rb: {fileID: 0}
   normalFollow: {fileID: 5714240633211631222}
   zoomFollow: {fileID: 5628486310685715414}
   obstacleFollow: {fileID: 0}
@@ -70549,15 +70522,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5714240633211631222}
-  - component: {fileID: 2816445534678596231}
   - component: {fileID: 2673509096561274323}
   - component: {fileID: 5714240633211631229}
-  - component: {fileID: 5714240633211631228}
   - component: {fileID: 5714240633211631227}
   - component: {fileID: 5714240633211631226}
   - component: {fileID: 5714240633211631225}
   - component: {fileID: 5714240633211631224}
   - component: {fileID: 5714240633211631223}
+  - component: {fileID: 5714240633211631230}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -73228,29 +73200,6 @@ MonoBehaviour:
     m_Bits: 2560
   cooldownUi: {fileID: 1023472088}
   particles: {fileID: 809595982}
---- !u!136 &5714240633211631228
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5403458939268106334}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!114 &5714240633211631229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73267,6 +73216,31 @@ MonoBehaviour:
   cooldown: 0
   cooldownTimer: 0
   arrow: {fileID: 529145907}
+--- !u!143 &5714240633211631230
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5403458939268106334}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.3
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5732519930564589462
 MonoBehaviour:
   m_ObjectHideFlags: 0
