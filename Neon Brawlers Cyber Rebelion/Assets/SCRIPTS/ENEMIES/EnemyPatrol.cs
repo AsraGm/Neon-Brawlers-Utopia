@@ -20,6 +20,8 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float chaseStoppingDistance = 1.5f;
     [SerializeField] private float patrolStoppingDistance = 0.5f;
     [SerializeField] private float chaseRadius = 15f;
+    [Tooltip("Tiempo que tiene para acercarse al jugador al ser alertado")]
+    [SerializeField] private float chasingTolerance = 10f;
 
     [Header("Movement Settings")]
     [SerializeField] private float angularSpeed = 360f;
@@ -95,13 +97,22 @@ public class EnemyPatrol : MonoBehaviour
             {
                 StopChasing();
             }
-            else if (alertedByDrone && distanceToPlayer > chaseRadius * 1.5f)
+            else if (alertedByDrone && !playerInRange)
             {
-                alertedByDrone = false;
-                StopChasing();
+                StartCoroutine(DelayedUnalert());
             }
         }
+    }
 
+    private IEnumerator DelayedUnalert()
+    {
+        yield return new WaitForSeconds(chasingTolerance);
+        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        if (distanceToPlayer > chaseRadius)
+        {
+            alertedByDrone = false;
+            StopChasing();
+        }
     }
 
     public void StartChasing()

@@ -102,8 +102,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool cargarCheckpointAlIniciar = true;
     [SerializeField] private bool autoGuardarAlCerrar = true;
 
-    private DatosCheckpoint checkpointActual;
-    private DatosCheckpoint checkpointUltimoGuardado;
+    [SerializeField] private DatosCheckpoint checkpointActual;   //serialized para pruebas
+    [SerializeField] private DatosCheckpoint checkpointUltimoGuardado;   //serialized para pruebas
 
     private HashSet<string> itemsRecolectadosEnEstaPartida = new HashSet<string>();
     private Dictionary<string, ItemRecolectable> todosLosItemsDelMundo = new Dictionary<string, ItemRecolectable>();

@@ -17,7 +17,7 @@ public class WheelDroneAttack : MonoBehaviour
     private float timeInterval = 1f;
 
     private float nextCheckTime;
-    private PlayerDamage currentTarget;
+    private PlayerHealth currentTarget;
     private EnemyPatrol enemyPatrolScript;
 
     [SerializeField] private float delayTimeDamage = 3f;
@@ -63,11 +63,11 @@ public class WheelDroneAttack : MonoBehaviour
             if (hits.Length > 0)
             {
                 //Aplicar daño depende el area
-                PlayerDamage player = hits[0].GetComponent<PlayerDamage>();
+                PlayerHealth player = hits[0].GetComponent<PlayerHealth>();
                 if (player != null)
                 {
                     float damage = damageAreas[i].damagePerSecond;
-                    player.Die(damage);
+                    player.RecibirDanio(damage);
                     currentTarget = player;
                 }
                 return; 

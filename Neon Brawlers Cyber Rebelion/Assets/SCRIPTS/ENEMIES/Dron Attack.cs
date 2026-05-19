@@ -3,15 +3,20 @@ using System.Collections;
 
 public class DronAttack : MonoBehaviour
 {
+    [Header("Rangos de Distancias")]
     [Tooltip("Area donde los robots se activan")]
     [SerializeField] private float detectionRange = 10f;
     [Tooltip("Distancia del jugador para activar a los robots")]
     [SerializeField] private float attackRange = 3f;
 
+    [Header("Configuracion")]
+    [Tooltip("Los tipo de enemigos que va a alertar")]
     [SerializeField] private LayerMask EnemyLayer;
     [SerializeField] private LayerMask obstructionMask;
-    private Transform player;
+    [Tooltip("Tiempo para reactivar el daño al ser reactivados del stun")]
     [SerializeField] private float delayTimeDamage = 3f;
+
+    private Transform player;
     private EnemyPatrol enemyPatrol;
 
     private void Start()
@@ -87,5 +92,7 @@ public class DronAttack : MonoBehaviour
     {
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        Gizmos.DrawRay(transform.position, transform.forward * attackRange);
     }
 }

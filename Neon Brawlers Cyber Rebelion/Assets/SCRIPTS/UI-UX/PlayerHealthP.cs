@@ -24,7 +24,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool mostrarLogs = true;
 
     private AudioSource audioSource;
-    private bool estaMuerto = false;
+    [SerializeField] private bool estaMuerto = false; //serialized para pruebas
 
     private void Start()
     {
@@ -120,6 +120,7 @@ public class PlayerHealth : MonoBehaviour
         if (estaMuerto) return;
 
         estaMuerto = true;
+        vidaActual = vidaMaxima;
 
         if (mostrarLogs)
         {
@@ -149,6 +150,7 @@ public class PlayerHealth : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.CargarCheckpoint();
+            ResetearEstadoMuerte();
         }
         else
         {
