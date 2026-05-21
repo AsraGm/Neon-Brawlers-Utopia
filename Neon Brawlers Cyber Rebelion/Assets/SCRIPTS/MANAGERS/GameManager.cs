@@ -188,15 +188,27 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        //Prender y apagar el character controller para evitar bugs al respawnear
+        var characterController = jugador.GetComponent<CharacterController>();
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+
         jugador.position = checkpointUltimoGuardado.posicionJugador;
         jugador.rotation = checkpointUltimoGuardado.rotacionJugador;
 
+        if (characterController != null)
+        {
+            characterController.enabled = true;
+        }
+
         //Usar PlayerDamage en lugar de PlayerHealth
-        var playerDamage = jugador.GetComponent<PlayerDamage>();
+        var playerDamage = jugador.GetComponent<PlayerHealth>();
         if (playerDamage != null)
         {
-            playerDamage.vida = checkpointUltimoGuardado.vidaJugador;
-            Debug.Log($"[GameManager] Vida restaurada: {playerDamage.vida}");
+            playerDamage.vidaActual = checkpointUltimoGuardado.vidaJugador;
+            Debug.Log($"[GameManager] Vida restaurada: {playerDamage.vidaActual}");
         }
 
         if (InventoryUIManager.Instance != null && checkpointUltimoGuardado.inventario != null)
