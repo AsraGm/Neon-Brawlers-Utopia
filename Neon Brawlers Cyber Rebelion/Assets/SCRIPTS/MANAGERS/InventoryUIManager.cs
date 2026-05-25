@@ -152,6 +152,8 @@ public class InventoryUIManager : MonoBehaviour
     private float tiempoUltimoInput = 0f;
     private float cooldownInput = 0.15f; // Tiempo mínimo entre inputs
 
+    private bool juegoPausado = false; //variable por si se pausa el juego
+
     private enum TabActual { LLAVES, MISION, BdD }
     #endregion
 
@@ -247,6 +249,9 @@ public class InventoryUIManager : MonoBehaviour
     #region Abrir/Cerrar Inventario
     private void Update()
     {
+        //Evitar abrir el inventario si hay pausa
+        if (juegoPausado) return;
+
         // Abrir/Cerrar inventario
         if (Input.GetKeyDown(teclaAbrir))
         {
@@ -862,4 +867,15 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
     #endregion
+
+    //cerrar el inventario si se pausa el juego
+    public void SetPausa(bool pausa)
+    {
+        juegoPausado = pausa;
+
+        if (juegoPausado && inventarioAbierto)
+        {
+            CerrarInventario();
+        }
+    }
 }

@@ -18,6 +18,13 @@ public class MAINMENU : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("MAIN MENU");
     }
+
+    public void STARTGAME()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Prueba Build");
+    }
+
     public void QUIT()
     {
         Application.Quit();
