@@ -12,10 +12,24 @@ public class SlowTime : MonoBehaviour
     [SerializeField] private Image cooldownUi;
 
     [Header("Effects")]
-    [SerializeField] ParticleSystem particles;
+    [SerializeField] private ParticleSystem particles;
+
+    [Header("Visual Effects")]
+    [SerializeField] private TRAIL trail;
+    [SerializeField] private FootstepSpawner footstepSpawner;
 
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
+
+    private void Start()
+    {
+        // Búsqueda automática si no se asignan en el Inspector
+        if (trail == null)
+            trail = GetComponentInChildren<TRAIL>();
+
+        if (footstepSpawner == null)
+            footstepSpawner = GetComponentInChildren<FootstepSpawner>();
+    }
 
     private void Update()
     {
@@ -24,9 +38,7 @@ public class SlowTime : MonoBehaviour
             slowMotionTimer -= Time.unscaledDeltaTime;
 
             if (slowMotionTimer <= 0)
-            {
                 DeactivateSlowMotion();
-            }
         }
 
         cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
@@ -40,7 +52,7 @@ public class SlowTime : MonoBehaviour
         }
         else if (HabilidadesManager.instance.cooldownTimer > 0)
         {
-            Debug.Log($"Slow Motion en cooldown: {HabilidadesManager.instance.cooldownTimer}");
+            Debug.Log($"Slow Motion en cooldown: {HabilidadesManager.instance.cooldownTimer:F1}s");
         }
     }
 
@@ -52,10 +64,13 @@ public class SlowTime : MonoBehaviour
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        particles.Play();
+        particles?.Play();
         AudioManager.instance.Play("slowMotion");
-
         HabilidadesManager.instance.Cooldown(cooldownTime);
+
+        // Activar efectos visuales
+        trail?.StartTrail();
+        footstepSpawner?.SetSlowMotionActive(true);
 
         Debug.Log("Slow Motion Activado");
     }
@@ -63,8 +78,13 @@ public class SlowTime : MonoBehaviour
     private void DeactivateSlowMotion()
     {
         isSlowMotionActive = false;
+
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
+
+        // Desactivar efectos visuales
+        trail?.StopTrail();
+        footstepSpawner?.SetSlowMotionActive(false);
 
         Debug.Log("Slow Motion Desactivado");
     }

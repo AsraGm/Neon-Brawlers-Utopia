@@ -4,80 +4,89 @@ using System.Collections.Generic;
 
 public class TRAIL : MonoBehaviour
 {
-    #region V A R I A B L E S
-    public float activeTime = 2f;
+    #region Variables
 
     [Header("Mesh Part")]
     public float meshRefreshRate = 0.1f;
-    public float meshDestroyDelay = 1.5f;
     public Transform positionToSpawn;
 
     [Header("Shader Part")]
     public Material mat;
     public string shaderVarRef = "_Alpha";
     public float shaderVarRate = 0.1f;
-    public float shaderVarRrefeshRate = 0.05f;
+    public float shaderVarRefreshRate = 0.05f;
 
-    private bool isTrailActive;
+    private bool isTrailActive = false;
+    private Coroutine trailCoroutine;
     private SkinnedMeshRenderer[] skinnedMeshRenderers;
+
     #endregion
 
-    void Update()
+    public void StartTrail()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !isTrailActive)
-        {
-            isTrailActive = true;
-            StartCoroutine(ActivateTrail(activeTime));
-        }
+        if (isTrailActive) return;
+
+        isTrailActive = true;
+        skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+        trailCoroutine = StartCoroutine(TrailLoop());
     }
 
-    IEnumerator ActivateTrail(float timeActive)
+    public void StopTrail()
     {
-        while (timeActive > 0)
-        {
-            timeActive -= meshRefreshRate;
+        if (!isTrailActive) return;
 
-            if (skinnedMeshRenderers == null)
-                skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
-
-            for (int i = 0; i < skinnedMeshRenderers.Length; i++)
-            {
-                GameObject gObj = new GameObject();
-                gObj.transform.SetPositionAndRotation(positionToSpawn.position, positionToSpawn.rotation);
-
-                MeshRenderer mr = gObj.AddComponent<MeshRenderer>();
-                MeshFilter mf = gObj.AddComponent<MeshFilter>();
-
-                Mesh mesh = new Mesh();
-                skinnedMeshRenderers[i].BakeMesh(mesh);
-                mf.mesh = mesh;
-
-                // ✅ Instancia propia por cada mesh para no afectar el mat original
-                Material matInstance = new Material(mat);
-                mr.material = matInstance;
-
-                // ✅ Arranca el fade pasando el renderer para desactivarlo al final
-                StartCoroutine(AnimateMaterialFloat(mr, matInstance, mesh, gObj));
-            }
-
-            yield return new WaitForSeconds(meshRefreshRate);
-        }
         isTrailActive = false;
+
+        if (trailCoroutine != null)
+        {
+            StopCoroutine(trailCoroutine);
+            trailCoroutine = null;
+        }
     }
 
-    IEnumerator AnimateMaterialFloat(MeshRenderer mr, Material matInstance, Mesh mesh, GameObject gObj)
+    private IEnumerator TrailLoop()
     {
-        float valueToAnimate = matInstance.GetFloat(shaderVarRef);
-
-        // Fade del alpha hasta 0
-        while (valueToAnimate > 0f)
+        while (isTrailActive)
         {
-            valueToAnimate -= shaderVarRate;
-            matInstance.SetFloat(shaderVarRef, Mathf.Max(valueToAnimate, 0f));
-            yield return new WaitForSeconds(shaderVarRrefeshRate);
+            SpawnMeshSnapshot();
+            yield return new WaitForSecondsRealtime(meshRefreshRate);
+        }
+    }
+
+    private void SpawnMeshSnapshot()
+    {
+        if (skinnedMeshRenderers == null || skinnedMeshRenderers.Length == 0) return;
+
+        for (int i = 0; i < skinnedMeshRenderers.Length; i++)
+        {
+            GameObject gObj = new GameObject($"TrailMesh_{i}");
+            gObj.transform.SetPositionAndRotation(positionToSpawn.position, positionToSpawn.rotation);
+
+            MeshRenderer mr = gObj.AddComponent<MeshRenderer>();
+            MeshFilter mf = gObj.AddComponent<MeshFilter>();
+
+            Mesh mesh = new Mesh();
+            skinnedMeshRenderers[i].BakeMesh(mesh);
+            mf.mesh = mesh;
+
+            Material matInstance = new Material(mat);
+            mr.material = matInstance;
+
+            StartCoroutine(FadeAndDestroy(mr, matInstance, mesh, gObj));
+        }
+    }
+
+    private IEnumerator FadeAndDestroy(MeshRenderer mr, Material matInstance, Mesh mesh, GameObject gObj)
+    {
+        float alpha = matInstance.GetFloat(shaderVarRef);
+
+        while (alpha > 0f)
+        {
+            alpha -= shaderVarRate;
+            matInstance.SetFloat(shaderVarRef, Mathf.Max(alpha, 0f));
+            yield return new WaitForSecondsRealtime(shaderVarRefreshRate);
         }
 
-        // ✅ Alpha ya en 0, ahora sí destruyes limpio
         Destroy(matInstance);
         Destroy(mesh);
         Destroy(gObj);

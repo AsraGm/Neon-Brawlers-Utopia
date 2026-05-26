@@ -29767,67 +29767,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1684976117}
   m_CullTransparentMesh: 1
---- !u!1001 &1685764347
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.3098803
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.52
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -32.324688
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: f07e6c357501d3447994ebab6988e291, type: 3}
-      propertyPath: m_Name
-      value: TALLER
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f07e6c357501d3447994ebab6988e291, type: 3}
 --- !u!208 &1688817330
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -61073,6 +61012,12 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1024
+  crouchHeight: 1
+  crouchSpeed: 4
+  ceilingMask:
+    serializedVersion: 2
+    m_Bits: 0
+  ceilingCheckDistance: 0.5
   orientation: {fileID: 4510337882399222263}
   rendererData: {fileID: 11400000, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
   camScript: {fileID: 2903096234138803836}
@@ -82273,6 +82218,8 @@ MonoBehaviour:
   cooldownTime: 7
   cooldownUi: {fileID: 1170037500}
   particles: {fileID: 809595982}
+  trail: {fileID: 0}
+  footstepSpawner: {fileID: 0}
 --- !u!114 &5714240633211631225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82431,14 +82378,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9015088a243bbbf4b928f665ccb252e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TRAIL
-  activeTime: 2.5
   meshRefreshRate: 0.07
-  meshDestroyDelay: 1.5
   positionToSpawn: {fileID: 2145046490}
   mat: {fileID: 2100000, guid: 460398640fd18dc4c841217364a45e4d, type: 2}
   shaderVarRef: _Alpha
   shaderVarRate: 0.1
-  shaderVarRrefeshRate: 0.05
+  shaderVarRefreshRate: 0.05
 --- !u!114 &5714240633211631234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82454,7 +82399,7 @@ MonoBehaviour:
   leftFoot: {fileID: 1799076278}
   rightFoot: {fileID: 763011843}
   footprintPrefab: {fileID: 7157447460339621216, guid: ca1a5a8dacb082047806d9d29f8e2ad5, type: 3}
-  lifetime: 2
+  lifetime: 1.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -110356,4 +110301,3 @@ SceneRoots:
   - {fileID: 189650220}
   - {fileID: 1715126157}
   - {fileID: 2856896243413656746}
-  - {fileID: 1685764347}
