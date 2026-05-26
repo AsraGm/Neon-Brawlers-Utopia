@@ -2,17 +2,15 @@ using UnityEngine;
 
 public class EnemyInteraction : MonoBehaviour
 {
-
     [Header("Cámara")]
     [SerializeField] private float enemyFOV = 30f;
 
     ThirdPersonCam cam;
     ObstacleInteraction obstacleInteraction;
-    // referencia al script de postFX
     CameraPostFXController postFX;
 
     bool enemyInside;
-    Transform currentEnemyLookAt; // lo vamos a usar por si el enemigo ya se encontraba dentro del obstaculo antes del jugador
+    Transform currentEnemyLookAt;
 
     void Awake()
     {
@@ -26,14 +24,11 @@ public class EnemyInteraction : MonoBehaviour
         if (!IsEnemy(other)) return;
 
         enemyInside = true;
-
         currentEnemyLookAt = other.transform.Find("EnemyLookAt");
 
-        // Si el jugador YA está dentro, activamos
-        if (obstacleInteraction.PlayerInObstacle)
-        {
+        // Solo reacciona si el jugador YA está escondido (tecla H presionada)
+        if (obstacleInteraction.PlayerIsHidden)
             EnterEnemyMode(currentEnemyLookAt);
-        }
     }
 
     private void OnTriggerStay(Collider other)
@@ -43,10 +38,8 @@ public class EnemyInteraction : MonoBehaviour
         enemyInside = true;
         currentEnemyLookAt = other.transform.Find("EnemyLookAt");
 
-        if (obstacleInteraction.PlayerInObstacle)
-        {
+        if (obstacleInteraction.PlayerIsHidden)
             EnterEnemyMode(currentEnemyLookAt);
-        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -55,17 +48,14 @@ public class EnemyInteraction : MonoBehaviour
 
         enemyInside = false;
         currentEnemyLookAt = null;
-
         ExitEnemyMode();
     }
 
-    // metodo por si el enemigo ya estaba dentro de la pared cuando el jugador entra
+    // Llamado desde ObstacleInteraction al presionar H, por si el enemigo ya estaba dentro
     public void CheckEnemyInsideOnPlayerEnter()
     {
         if (enemyInside && currentEnemyLookAt != null)
-        {
             EnterEnemyMode(currentEnemyLookAt);
-        }
     }
 
     bool IsEnemy(Collider other)
@@ -76,7 +66,6 @@ public class EnemyInteraction : MonoBehaviour
     void EnterEnemyMode(Transform dynamicLookAt)
     {
         if (cam == null) return;
-
         cam.SetCustomFollow(dynamicLookAt, enemyFOV);
         postFX?.StartEnemyFX();
     }
@@ -84,20 +73,18 @@ public class EnemyInteraction : MonoBehaviour
     public void ExitEnemyMode()
     {
         if (cam == null) return;
-        if (!obstacleInteraction.PlayerInObstacle) return;
+
+        // Solo revierte si el jugador sigue escondido
+        if (!obstacleInteraction.PlayerIsHidden) return;
 
         cam.ReturnToObstacleFollow();
-
         postFX?.StopEnemyFX();
     }
 
-    // llamado desde ObstacleInteraction si el jugador se va
     public void ForceCancel()
     {
         if (!enemyInside) return;
-
         enemyInside = false;
         ExitEnemyMode();
     }
 }
-

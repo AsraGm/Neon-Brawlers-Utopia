@@ -18,6 +18,14 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask whatIsGround;
     bool grounded;
 
+    [Header("Agachado")]
+    public float crouchHeight = 1f;        // altura del CC al agacharse
+    public float crouchSpeed = 4f;         // velocidad del lerp al cambiar altura
+    private float normalHeight;
+    private Vector3 normalCenter;
+    private bool isCrouching = false;
+    public LayerMask ceilingMask;          // para el raycast de techo
+    public float ceilingCheckDistance = 0.5f; // margen extra sobre la cabeza
     public Transform orientation;
 
     Vector2 moveInput;
@@ -46,6 +54,9 @@ public class PlayerMovement : MonoBehaviour
     {
         cc = GetComponent<CharacterController>();
         Playeranimator = GetComponentInChildren<Animator>();
+
+        normalHeight = cc.height;
+        normalCenter = cc.center;
 
         currentSpeed = walkSpeed;
 
@@ -89,6 +100,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
+        // Si está bloqueado, limpiar input y salir
+        if (IsLocked)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         float horizontal =
             (Keyboard.current.dKey.isPressed ? 1 : 0) -
             (Keyboard.current.aKey.isPressed ? 1 : 0);
@@ -99,7 +117,15 @@ public class PlayerMovement : MonoBehaviour
 
         moveInput = new Vector2(horizontal, vertical);
 
-        // Si está en obstáculo y se aleja demasiado del snap point, salir
+        // Agachado con V
+        if (Keyboard.current.vKey.wasPressedThisFrame)
+        {
+            if (!isCrouching)
+                StartCrouch();
+            else
+                TryStandUp();
+        }
+
         if (inObstacle && currentSnapPoint != null &&
             Vector3.Distance(transform.position, currentSnapPoint.position) > 1.2f)
         {
@@ -182,6 +208,34 @@ public class PlayerMovement : MonoBehaviour
         SetEffect(isRunning);
     }
 
+    void StartCrouch()
+    {
+        isCrouching = true;
+
+        // Calculamos el nuevo center para que la BASE del collider no se mueva
+        float centerY = normalCenter.y - (normalHeight - crouchHeight) / 2f;
+
+        cc.height = crouchHeight;
+        cc.center = new Vector3(normalCenter.x, centerY, normalCenter.z);
+    }
+
+    void TryStandUp()
+    {
+        // Raycast desde la cabeza hacia arriba para verificar espacio
+        Vector3 topOfCapsule = transform.position + Vector3.up * (cc.height + cc.skinWidth);
+
+        bool blocked = Physics.Raycast(topOfCapsule, Vector3.up, ceilingCheckDistance, ceilingMask);
+
+        if (blocked)
+        {
+            Debug.Log("No hay espacio para levantarse");
+            return;
+        }
+
+        isCrouching = false;
+        cc.height = normalHeight;
+        cc.center = normalCenter;
+    }
     void SetEffect(bool active)
     {
         if (fullScreenFeature != null)
@@ -198,6 +252,7 @@ public class PlayerMovement : MonoBehaviour
 
         Playeranimator.SetBool("isMoving", isMoving);
         Playeranimator.SetBool("isUsingAbility", isUsingAbility);
+        Playeranimator.SetBool("isCrouching", isCrouching);
     }
 
     void HandleObstacleMovement()

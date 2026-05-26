@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class ObstacleInteraction : MonoBehaviour
 {
@@ -11,11 +10,9 @@ public class ObstacleInteraction : MonoBehaviour
     [Header("Ajustes")]
     public float snapSpeed = 10f;
 
-    // Estado
-    public bool PlayerInObstacle { get; private set; }  // jugador en rango del trigger
-    public bool PlayerIsHidden { get; private set; }  // jugador bloqueado en escondite
+    public bool PlayerInObstacle { get; private set; }
+    public bool PlayerIsHidden { get; private set; }
 
-    // Referencias cacheadas
     PlayerMovement playerMovement;
     ThirdPersonCam cam;
     EnemyInteraction enemyInteraction;
@@ -25,13 +22,7 @@ public class ObstacleInteraction : MonoBehaviour
     {
         enemyInteraction = GetComponent<EnemyInteraction>();
         postFX = FindFirstObjectByType<CameraPostFXController>();
-
-        // Aseguramos que los dos botones arrancan ocultos
-
     }
-
-
-    // TRIGGER: entrar / salir del rango
 
     private void OnTriggerEnter(Collider other)
     {
@@ -42,30 +33,30 @@ public class ObstacleInteraction : MonoBehaviour
 
         if (playerMovement == null || cam == null) return;
 
-        // Solo mostramos el HideButton, nada más
         PlayerInObstacle = true;
+
+        // Solo HideButton, ningún efecto todavía
+        HudManager.instance?.ShowHideButton();
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        // Si salía caminando mientras estaba escondido, forzamos salida limpia
+        // Si se va mientras está escondido, limpieza completa
         if (PlayerIsHidden)
             ExitHide();
 
         PlayerInObstacle = false;
+        HudManager.instance?.HideAllHideUI();
     }
-
-
-    // UPDATE: escuchar la tecla C
 
     private void Update()
     {
         if (!PlayerInObstacle) return;
         if (playerMovement == null || cam == null) return;
 
-        if (Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.hKey.wasPressedThisFrame)
         {
             if (!PlayerIsHidden)
                 EnterHide();
@@ -74,37 +65,41 @@ public class ObstacleInteraction : MonoBehaviour
         }
     }
 
-
-    // ESCONDERSE
-
     void EnterHide()
     {
         PlayerIsHidden = true;
 
-        // Mover al jugador al snapPoint y bloquearlo
+        // Primero movimiento y posición
         playerMovement.EnterObstacleMode(snapPoint, snapSpeed);
         playerMovement.TeleportTo(snapPoint.position, snapPoint.rotation);
 
-        // Cámara y PostFX
+        // Luego cámara y efectos
         cam.EnterObstacleMode(obstacleLookAt);
         postFX?.EnterObstacleFX();
 
-        // Revisar si ya hay enemigo cerca
+        // Revisar enemigo (ahora que PlayerIsHidden = true, EnemyInteraction reaccionará)
         enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
+
+        // HUD: cambia DESPUÉS de que todo está activo
+        HudManager.instance?.ShowExitHideButton();
     }
-
-
-    // SALIR DEL ESCONDITE
 
     void ExitHide()
     {
-        PlayerIsHidden = false;
-
+        // Primero apagamos efectos
         enemyInteraction?.ForceCancel();
-        playerMovement.ExitObstacleMode();
-        cam.ForceReturnToPlayer();
         postFX?.ExitObstacleFX();
         postFX?.StopEnemyFX();
+        cam.ForceReturnToPlayer();
+        playerMovement.ExitObstacleMode();
 
+        // Marcamos el estado DESPUÉS de limpiar
+        PlayerIsHidden = false;
+
+        // HUD: vuelve a HideButton si sigue en rango, o se oculta todo
+        if (PlayerInObstacle)
+            HudManager.instance?.ShowHideButton();
+        else
+            HudManager.instance?.HideAllHideUI();
     }
 }
