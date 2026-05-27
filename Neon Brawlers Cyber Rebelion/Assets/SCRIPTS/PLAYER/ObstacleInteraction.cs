@@ -33,10 +33,17 @@ public class ObstacleInteraction : MonoBehaviour
 
         if (playerMovement == null || cam == null) return;
 
-        PlayerInObstacle = true;
 
-        // Solo HideButton, ningún efecto todavía
-        HudManager.instance?.ShowHideButton();
+        Debug.Log("Entras a colider");
+
+        if (!PlayerInObstacle)
+        {
+            // Solo HideButton, ningún efecto todavía
+            HudManager.instance?.ShowHideButton();
+
+            PlayerInObstacle = true;
+        }
+
     }
 
     private void OnTriggerExit(Collider other)
@@ -48,6 +55,7 @@ public class ObstacleInteraction : MonoBehaviour
             ExitHide();
 
         PlayerInObstacle = false;
+        Debug.Log("Sales de colider");
         HudManager.instance?.HideAllHideUI();
     }
 
@@ -81,6 +89,7 @@ public class ObstacleInteraction : MonoBehaviour
         enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
 
         // HUD: cambia DESPUÉS de que todo está activo
+        HudManager.instance?.HideAllHideUI();
         HudManager.instance?.ShowExitHideButton();
     }
 
@@ -97,6 +106,7 @@ public class ObstacleInteraction : MonoBehaviour
         PlayerIsHidden = false;
 
         // HUD: vuelve a HideButton si sigue en rango, o se oculta todo
+        HudManager.instance?.HideAllHideUI();
         if (PlayerInObstacle)
             HudManager.instance?.ShowHideButton();
         else

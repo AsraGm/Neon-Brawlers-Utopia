@@ -25,7 +25,6 @@ public class HudManager : MonoBehaviour
     {
         Debug.Log($"ShowHideButton — hideButtonUI: {hideButtonUI?.name ?? "NULL"}, exitHideButtonUI: {exitHideButtonUI?.name ?? "NULL"}");
         hideButtonUI?.SetActive(true);
-        hideButtonUI?.SetActive(true);
         exitHideButtonUI?.SetActive(false);
     }
 
