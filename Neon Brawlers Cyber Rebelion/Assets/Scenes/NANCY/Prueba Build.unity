@@ -946,6 +946,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 9580541}
   snapPoint: {fileID: 966822421}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &23736846
 BoxCollider:
@@ -3265,6 +3266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 921826274}
   snapPoint: {fileID: 164381986}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &100542127
 BoxCollider:
@@ -3359,6 +3361,7 @@ Transform:
   - {fileID: 164381986}
   - {fileID: 2020071924}
   - {fileID: 921826274}
+  - {fileID: 666623964}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!208 &103155112
@@ -7314,6 +7317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1577147173}
   snapPoint: {fileID: 1733739221}
+  hideWalkingZone: {fileID: 816877613}
   snapSpeed: 10
 --- !u!65 &215509800
 BoxCollider:
@@ -7408,6 +7412,7 @@ Transform:
   - {fileID: 1733739221}
   - {fileID: 418363735}
   - {fileID: 1577147173}
+  - {fileID: 816877614}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &216149088
@@ -12354,6 +12359,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1182600124076590543, guid: 2ed239735cfa1814db50f98fdb6985ab, type: 3}
   m_PrefabInstance: {fileID: 2049289429}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &374922792
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 374922794}
+  - component: {fileID: 374922793}
+  m_Layer: 12
+  m_Name: HideWalkingZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &374922793
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374922792}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &374922794
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374922792}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.6725719, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 10605433797769934}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &376263022
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21647,6 +21705,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1806745260}
   snapPoint: {fileID: 1859629551}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &490083942
 BoxCollider:
@@ -24950,6 +25009,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 689568854}
   snapPoint: {fileID: 1988102566}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &596797608
 BoxCollider:
@@ -26394,6 +26454,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1031836006}
   snapPoint: {fileID: 815860331}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &645162987
 BoxCollider:
@@ -27225,6 +27286,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 787508048508324839, guid: 5a1f6bfa129324845ba5edda763c562d, type: 3}
   m_PrefabInstance: {fileID: 663547681}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &666623963
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 666623964}
+  - component: {fileID: 666623965}
+  m_Layer: 12
+  m_Name: HideWalkingZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &666623964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666623963}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.628, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 100542130}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &666623965
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666623963}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &668825462
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32294,6 +32408,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 645162990}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &816877612
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 816877614}
+  - component: {fileID: 816877613}
+  m_Layer: 12
+  m_Name: HideWalkingZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &816877613
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 816877612}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &816877614
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 816877612}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.8376, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 215509803}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &817736756 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b7a3541ae1090a34f86f0d139223179e, type: 3}
@@ -33110,6 +33277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 35774891}
   snapPoint: {fileID: 294713977}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &834835613
 BoxCollider:
@@ -42725,6 +42893,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1455736201}
   snapPoint: {fileID: 819559571}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1180862687
 BoxCollider:
@@ -50883,6 +51052,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 787508048508324839, guid: 5a1f6bfa129324845ba5edda763c562d, type: 3}
   m_PrefabInstance: {fileID: 1327048830}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1329731517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1329731518}
+  - component: {fileID: 1329731519}
+  m_Layer: 12
+  m_Name: HideWalkingZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1329731518
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329731517}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.6336, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1503623122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1329731519
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329731517}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1330793420
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51108,6 +51330,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 695129374}
   snapPoint: {fileID: 2044039767}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1333582780
 BoxCollider:
@@ -53251,6 +53474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 757401840}
   snapPoint: {fileID: 1097223840}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1397240429
 BoxCollider:
@@ -56205,6 +56429,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 2083068688}
   snapPoint: {fileID: 1294848621}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1477867398
 BoxCollider:
@@ -56634,6 +56859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1500586819}
   snapPoint: {fileID: 413521746}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1481701566
 BoxCollider:
@@ -57488,6 +57714,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1563186637}
   snapPoint: {fileID: 76613114}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1503623119
 BoxCollider:
@@ -57582,6 +57809,7 @@ Transform:
   - {fileID: 76613114}
   - {fileID: 662512809}
   - {fileID: 1563186637}
+  - {fileID: 1329731518}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1508168923
@@ -58736,6 +58964,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1354261340}
   snapPoint: {fileID: 538974803}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1533464645
 BoxCollider:
@@ -59765,6 +59994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 765735843}
   snapPoint: {fileID: 1052098933}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1576118751
 BoxCollider:
@@ -66031,6 +66261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1993928116}
   snapPoint: {fileID: 2062415984}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1782786615
 BoxCollider:
@@ -66220,6 +66451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 2019727790}
   snapPoint: {fileID: 1643014741}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1783045956
 BoxCollider:
@@ -72249,6 +72481,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1501126504}
   snapPoint: {fileID: 1216705605}
+  hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1976086728
 BoxCollider:
@@ -76385,6 +76618,7 @@ Transform:
   - {fileID: 3234113661300374636}
   - {fileID: 8372334819032682222}
   - {fileID: 4937240824360547059}
+  - {fileID: 374922794}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &13108439992408758
@@ -82867,7 +83101,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 60
+    FieldOfView: 59.89188
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -99687,6 +99921,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 4937240824360547059}
   snapPoint: {fileID: 3234113661300374636}
+  hideWalkingZone: {fileID: 374922793}
   snapSpeed: 10
 --- !u!114 &2530854865461504325
 MonoBehaviour:
@@ -100409,7 +100644,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   crouchHeight: 1
-  crouchSpeed: 4
+  crouchWalkSpeed: 2
+  colliderLerpSpeed: 4
+  isCrouching: 0
   ceilingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -126779,7 +127016,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 60
+  field of view: 59.89188
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -144754,6 +144991,8 @@ GameObject:
   - component: {fileID: 5021888067704654855}
   - component: {fileID: 3467923961827715394}
   - component: {fileID: 2044572184}
+  - component: {fileID: 8350126704567061808}
+  - component: {fileID: 8350126704567061807}
   m_Layer: 0
   m_Name: Cube (8)
   m_TagString: Untagged
@@ -144761,6 +145000,40 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!65 &8350126704567061807
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8350126704567061806}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 2, z: 2}
+  m_Center: {x: 0.0000019073486, y: -0.00000010430813, z: 0.00000023841858}
+--- !u!114 &8350126704567061808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8350126704567061806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f21d2dad9a2ccf4bbbdc24b5e1475f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CrouchObstacleInteraction
+  obstacleLookAt: {fileID: 6893551333698438911}
 --- !u!65 &8357510985183351997
 BoxCollider:
   m_ObjectHideFlags: 0

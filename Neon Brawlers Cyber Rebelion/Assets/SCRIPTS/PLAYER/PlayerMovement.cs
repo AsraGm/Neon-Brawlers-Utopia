@@ -20,10 +20,11 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Agachado")]
     public float crouchHeight = 1f;        // altura del CC al agacharse
-    public float crouchSpeed = 4f;         // velocidad del lerp al cambiar altura
+    public float crouchWalkSpeed = 2f;     // <-- velocidad al caminar agachado
+    public float colliderLerpSpeed = 4f;   // renombrado para que sea claro
     private float normalHeight;
     private Vector3 normalCenter;
-    private bool isCrouching = false;
+    public bool isCrouching = false;
     public LayerMask ceilingMask;          // para el raycast de techo
     public float ceilingCheckDistance = 0.5f; // margen extra sobre la cabeza
     public Transform orientation;
@@ -199,10 +200,15 @@ public class PlayerMovement : MonoBehaviour
         bool isMoving = moveInput.magnitude > 0.1f;
 
         bool isRunning = !onStairs &&
+                         !isCrouching &&
                          Keyboard.current.leftShiftKey.isPressed &&
                          isMoving;
 
-        currentSpeed = isRunning ? runSpeed : walkSpeed;
+        // Velocidad según estado
+        if (isCrouching)
+            currentSpeed = crouchWalkSpeed;
+        else
+            currentSpeed = isRunning ? runSpeed : walkSpeed;
 
         camScript.SetRunning(isRunning);
         SetEffect(isRunning);
@@ -290,22 +296,33 @@ public class PlayerMovement : MonoBehaviour
             onStairs = false;
     }
 
-    // Te transporta a pegarte directamente en la pared o escondite.
-    public void TeleportTo(Vector3 position, Quaternion rotation)
-    {
-        cc.enabled = false;              // desactivar para poder mover el transform
-        transform.position = position;
-        transform.rotation = rotation;
-        cc.enabled = true;
-    }
 
     // Métodos públicos que ObstacleInteraction sigue llamando igual
     public bool IsLocked { get; private set; }
 
+    // Modo hide: mueve libremente pero a velocidad reducida, sin bloquear
+    public void EnterHideMode(Transform snapPoint, float snapSpeed)
+    {
+        inObstacle = true;
+        IsLocked = false;         // libre para moverse
+        currentSnapPoint = snapPoint;
+        this.snapSpeed = snapSpeed;
+        currentSpeed = crouchWalkSpeed;  // velocidad reducida
+        verticalVelocity = 0f;
+    }
+
+    public void ExitHideMode()
+    {
+        inObstacle = false;
+        IsLocked = false;
+        currentSnapPoint = null;
+        currentSpeed = walkSpeed;     // restaurar velocidad normal
+    }
+
     public void EnterObstacleMode(Transform snapPoint, float snapSpeed)
     {
         inObstacle = true;
-        IsLocked = true;          
+        IsLocked = true;
         currentSnapPoint = snapPoint;
         this.snapSpeed = snapSpeed;
         currentSpeed = walkSpeed;
@@ -315,7 +332,7 @@ public class PlayerMovement : MonoBehaviour
     public void ExitObstacleMode()
     {
         inObstacle = false;
-        IsLocked = false;    
+        IsLocked = false;
         currentSnapPoint = null;
     }
 }

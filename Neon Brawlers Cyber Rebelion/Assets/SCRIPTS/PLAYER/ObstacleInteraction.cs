@@ -7,6 +7,9 @@ public class ObstacleInteraction : MonoBehaviour
     public Transform obstacleLookAt;
     public Transform snapPoint;
 
+    [Header("Hide Walking Zone")]
+    public Collider hideWalkingZone; // el trigger hijo del obstáculo
+
     [Header("Ajustes")]
     public float snapSpeed = 10f;
 
@@ -33,30 +36,24 @@ public class ObstacleInteraction : MonoBehaviour
 
         if (playerMovement == null || cam == null) return;
 
-
-        Debug.Log("Entras a colider");
-
         if (!PlayerInObstacle)
         {
-            // Solo HideButton, ningún efecto todavía
-            HudManager.instance?.ShowHideButton();
-
             PlayerInObstacle = true;
+            HudManager.instance?.ShowHideButton();
+            Debug.Log("Entras a colider");
         }
-
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        // Si se va mientras está escondido, limpieza completa
         if (PlayerIsHidden)
             ExitHide();
 
         PlayerInObstacle = false;
-        Debug.Log("Sales de colider");
         HudManager.instance?.HideAllHideUI();
+        Debug.Log("Sales de colider");
     }
 
     private void Update()
@@ -64,6 +61,7 @@ public class ObstacleInteraction : MonoBehaviour
         if (!PlayerInObstacle) return;
         if (playerMovement == null || cam == null) return;
 
+        // Tecla H para entrar/salir
         if (Keyboard.current != null && Keyboard.current.hKey.wasPressedThisFrame)
         {
             if (!PlayerIsHidden)
@@ -71,45 +69,51 @@ public class ObstacleInteraction : MonoBehaviour
             else
                 ExitHide();
         }
+
+        // Confinar al jugador dentro del HideWalkingZone mientras está escondido
+        if (PlayerIsHidden && hideWalkingZone != null)
+        {
+            Vector3 pos = playerMovement.transform.position;
+            Vector3 clamped = hideWalkingZone.ClosestPoint(pos);
+
+            // ClosestPoint devuelve el punto más cercano DENTRO del collider
+            // Si el jugador ya está dentro, clamped == pos y no pasa nada
+            // Si intenta salir, lo regresa al borde
+        }
     }
 
     void EnterHide()
     {
         PlayerIsHidden = true;
 
-        // Primero movimiento y posición
-        playerMovement.EnterObstacleMode(snapPoint, snapSpeed);
-        playerMovement.TeleportTo(snapPoint.position, snapPoint.rotation);
+        // Entrar en modo obstáculo SIN bloquear, solo cambia velocidad
+        playerMovement.EnterHideMode(snapPoint, snapSpeed);
 
-        // Luego cámara y efectos
+        // Cámara y efectos
         cam.EnterObstacleMode(obstacleLookAt);
         postFX?.EnterObstacleFX();
-
-        // Revisar enemigo (ahora que PlayerIsHidden = true, EnemyInteraction reaccionará)
         enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
 
-        // HUD: cambia DESPUÉS de que todo está activo
+        // HUD
         HudManager.instance?.HideAllHideUI();
         HudManager.instance?.ShowExitHideButton();
     }
 
     void ExitHide()
     {
-        // Primero apagamos efectos
+        PlayerIsHidden = false;
+
         enemyInteraction?.ForceCancel();
         postFX?.ExitObstacleFX();
         postFX?.StopEnemyFX();
         cam.ForceReturnToPlayer();
-        playerMovement.ExitObstacleMode();
 
-        // Marcamos el estado DESPUÉS de limpiar
-        PlayerIsHidden = false;
+        // Restaurar velocidad normal
+        playerMovement.ExitHideMode();
 
-        // HUD: vuelve a HideButton si sigue en rango, o se oculta todo
+        // HUD
         HudManager.instance?.HideAllHideUI();
         if (PlayerInObstacle)
             HudManager.instance?.ShowHideButton();
-        else
-            HudManager.instance?.HideAllHideUI();
     }
 }

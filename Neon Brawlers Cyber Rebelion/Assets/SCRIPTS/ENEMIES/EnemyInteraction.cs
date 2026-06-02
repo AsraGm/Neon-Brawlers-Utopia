@@ -7,6 +7,7 @@ public class EnemyInteraction : MonoBehaviour
 
     ThirdPersonCam cam;
     ObstacleInteraction obstacleInteraction;
+    CrouchObstacleInteraction crouchObstacle;
     CameraPostFXController postFX;
 
     bool enemyInside;
@@ -15,8 +16,11 @@ public class EnemyInteraction : MonoBehaviour
     void Awake()
     {
         cam = FindFirstObjectByType<ThirdPersonCam>();
-        obstacleInteraction = GetComponent<ObstacleInteraction>();
         postFX = FindFirstObjectByType<CameraPostFXController>();
+
+        // Busca cualquiera de los dos tipos de obstacle en este mismo GameObject
+        obstacleInteraction = GetComponent<ObstacleInteraction>();
+        crouchObstacle = GetComponent<CrouchObstacleInteraction>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -26,8 +30,7 @@ public class EnemyInteraction : MonoBehaviour
         enemyInside = true;
         currentEnemyLookAt = other.transform.Find("EnemyLookAt");
 
-        // Solo reacciona si el jugador YA está escondido (tecla H presionada)
-        if (obstacleInteraction.PlayerIsHidden)
+        if (IsPlayerHidden())
             EnterEnemyMode(currentEnemyLookAt);
     }
 
@@ -38,7 +41,7 @@ public class EnemyInteraction : MonoBehaviour
         enemyInside = true;
         currentEnemyLookAt = other.transform.Find("EnemyLookAt");
 
-        if (obstacleInteraction.PlayerIsHidden)
+        if (IsPlayerHidden())
             EnterEnemyMode(currentEnemyLookAt);
     }
 
@@ -51,7 +54,6 @@ public class EnemyInteraction : MonoBehaviour
         ExitEnemyMode();
     }
 
-    // Llamado desde ObstacleInteraction al presionar H, por si el enemigo ya estaba dentro
     public void CheckEnemyInsideOnPlayerEnter()
     {
         if (enemyInside && currentEnemyLookAt != null)
@@ -61,6 +63,14 @@ public class EnemyInteraction : MonoBehaviour
     bool IsEnemy(Collider other)
     {
         return other.gameObject.layer == LayerMask.NameToLayer("Enemy");
+    }
+
+    // Helper que consulta cualquiera de los dos tipos de obstacle
+    bool IsPlayerHidden()
+    {
+        if (obstacleInteraction != null) return obstacleInteraction.PlayerIsHidden;
+        if (crouchObstacle != null) return crouchObstacle.PlayerIsHidden;
+        return false;
     }
 
     void EnterEnemyMode(Transform dynamicLookAt)
@@ -74,8 +84,7 @@ public class EnemyInteraction : MonoBehaviour
     {
         if (cam == null) return;
 
-        // Solo revierte si el jugador sigue escondido
-        if (!obstacleInteraction.PlayerIsHidden) return;
+        if (!IsPlayerHidden()) return;
 
         cam.ReturnToObstacleFollow();
         postFX?.StopEnemyFX();
