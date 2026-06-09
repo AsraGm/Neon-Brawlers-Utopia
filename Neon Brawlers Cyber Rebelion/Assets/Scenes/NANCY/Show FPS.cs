@@ -71,24 +71,35 @@ public class ShowFPS : MonoBehaviour
     {
         resolutions = Screen.resolutions;
         resolutionsDropdown.ClearOptions();
+
         List<string> options = new List<string>();
+        List<Resolution> uniqueResolutions = new List<Resolution>();
+        HashSet<string> seen = new HashSet<string>();
         int actualResolution = 0;
 
         for (int i = 0; i < resolutions.Length; i++)
         {
+            string key = resolutions[i].width + "x" + resolutions[i].height;
+
+            if (seen.Contains(key)) continue;
+            seen.Add(key);
+
+            uniqueResolutions.Add(resolutions[i]);
+
             string option = resolutions[i].width + " x " + resolutions[i].height;
             options.Add(option);
 
-            if(Screen.fullScreen && resolutions[i].width == Screen.currentResolution.width &&
+            if (Screen.fullScreen && resolutions[i].width == Screen.currentResolution.width &&
                 resolutions[i].height == Screen.currentResolution.height)
             {
-                actualResolution = i;
+                actualResolution = uniqueResolutions.Count - 1;
             }
         }
+        resolutions = uniqueResolutions.ToArray();
+
         resolutionsDropdown.AddOptions(options);
         resolutionsDropdown.value = actualResolution;
         resolutionsDropdown.RefreshShownValue();
-
         resolutionsDropdown.value = PlayerPrefs.GetInt("resolution", 0);
     }
 

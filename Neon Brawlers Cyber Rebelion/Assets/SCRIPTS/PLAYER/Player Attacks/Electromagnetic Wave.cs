@@ -42,9 +42,26 @@ public class ElectromagneticWave : MonoBehaviour
             EnemyPatrol enemy = col.GetComponentInChildren<EnemyPatrol>();
             if (enemy == null)
                 enemy = col.GetComponentInParent<EnemyPatrol>();
-
             if (enemy != null)
                 enemy.ApplyStun(stunDuration);
+
+            InteractableDoor door = col.GetComponentInChildren<InteractableDoor>();
+            if (door == null)
+                door = col.GetComponentInParent<InteractableDoor>();
+            if (door != null)
+                door.ApplyStun(stunDuration);
+
+            ElectricCurrentDamage electricity = col.GetComponentInChildren<ElectricCurrentDamage>();
+            if (electricity == null)
+                electricity = col.GetComponentInParent<ElectricCurrentDamage>();
+            if (electricity != null)
+                electricity.ApplyStun();
+
+            Detector detector = col.GetComponentInChildren<Detector>();
+            if (detector == null)
+                detector = col.GetComponentInParent<Detector>();
+            if (detector != null)
+                detector.ApplyStun();
         }
     }
 

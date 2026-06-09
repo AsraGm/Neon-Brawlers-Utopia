@@ -258,6 +258,7 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null)
         {
             rb.useGravity = false;
+            rb.isKinematic = false;
         }
 
         if (agent != null)
@@ -309,6 +310,7 @@ public class EnemyPatrol : MonoBehaviour
 
         if (rb != null)
         {
+            rb.isKinematic = false;
             rb.useGravity = true;
         }
 

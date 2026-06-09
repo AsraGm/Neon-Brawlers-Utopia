@@ -117,7 +117,8 @@ public class Telekinesis : MonoBehaviour
 
     void MoveObject() // Mueve el objeto hacia la posición de agarre
     {
-        currentRb.MovePosition(Vector3.Lerp(currentRb.position, holdPosition.position, Time.deltaTime * moveSpeed));
+        Vector3 dir = holdPosition.position - currentRb.position;
+        currentRb.linearVelocity = dir * moveSpeed;
     }
 
     void ThrowObject() // Lanza el objeto en la dirección de la cámara
@@ -129,6 +130,10 @@ public class Telekinesis : MonoBehaviour
             currentEnemy.OnTelekinesisRelease();
             currentRb.AddForce(playerCamera.transform.forward * throwForce * 10, ForceMode.Impulse);
             currentEnemy = null;
+        }
+        else
+        {
+            currentRb.useGravity = true;
         }
 
         AudioManager.instance.Stop("telekinesis");

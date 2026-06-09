@@ -3,6 +3,11 @@ using UnityEngine.SceneManagement;
 
 public class MAINMENU : MonoBehaviour
 {
+    private void Start()
+    {
+        Application.targetFrameRate = 60;
+    }
+
     public void CREDITS()
     {
         Time.timeScale = 1f;

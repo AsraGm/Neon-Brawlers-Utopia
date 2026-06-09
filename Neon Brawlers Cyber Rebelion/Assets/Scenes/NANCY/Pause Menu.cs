@@ -17,6 +17,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 60;
         camara = camPlayer.GetComponent<CinemachineBrain>();
         habilidadesManager = habilitiesPlayer.GetComponent<HabilidadesManager>();
     }

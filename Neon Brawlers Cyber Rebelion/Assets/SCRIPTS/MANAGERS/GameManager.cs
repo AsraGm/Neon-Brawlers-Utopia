@@ -125,12 +125,11 @@ public class GameManager : MonoBehaviour
             rotacionJugador = jugador.rotation
         };
 
-        //Usar PlayerDamage en lugar de PlayerHealth
-        var playerDamage = jugador.GetComponent<PlayerDamage>();
-        if (playerDamage != null)
+        var playerHealth = jugador.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
         {
-            checkpointActual.vidaJugador = playerDamage.vida;
-            checkpointActual.vidaMaximaJugador = 100f; // ajusta si tienes vida máxima definida
+            checkpointActual.vidaJugador = playerHealth.vidaActual;
+            checkpointActual.vidaMaximaJugador = playerHealth.vidaMaxima;
         }
 
         if (InventoryUIManager.Instance != null)
@@ -203,7 +202,6 @@ public class GameManager : MonoBehaviour
             characterController.enabled = true;
         }
 
-        //Usar PlayerDamage en lugar de PlayerHealth
         var playerDamage = jugador.GetComponent<PlayerHealth>();
         if (playerDamage != null)
         {

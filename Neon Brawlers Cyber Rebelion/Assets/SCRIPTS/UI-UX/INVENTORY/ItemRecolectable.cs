@@ -24,11 +24,11 @@ public class ItemRecolectable : MonoBehaviour
         }
 
         // Asegurarse de que el collider es trigger
-        Collider col = GetComponent<Collider>();
-        if (col != null)
-            col.isTrigger = true;
-        else
-            Debug.LogError($"[ItemRecolectable] '{gameObject.name}' no tiene Collider. Agrégale uno.");
+        //Collider col = GetComponent<Collider>();
+        //if (col != null)
+        //    col.isTrigger = true;
+        //else
+        //    Debug.LogError($"[ItemRecolectable] '{gameObject.name}' no tiene Collider. Agrégale uno.");
 
         if (GameManager.Instance != null)
         {
