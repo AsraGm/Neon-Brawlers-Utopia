@@ -85,6 +85,7 @@ public class ObstacleInteraction : MonoBehaviour
     void EnterHide()
     {
         PlayerIsHidden = true;
+        HabilidadesManager.instance.playerIsHiding = true;
 
         // Entrar en modo obstáculo SIN bloquear, solo cambia velocidad
         playerMovement.EnterHideMode(snapPoint, snapSpeed);
@@ -102,6 +103,7 @@ public class ObstacleInteraction : MonoBehaviour
     void ExitHide()
     {
         PlayerIsHidden = false;
+        HabilidadesManager.instance.playerIsHiding = false;
 
         enemyInteraction?.ForceCancel();
         postFX?.ExitObstacleFX();

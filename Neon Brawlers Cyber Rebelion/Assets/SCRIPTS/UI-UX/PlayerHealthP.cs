@@ -121,6 +121,7 @@ public class PlayerHealth : MonoBehaviour
 
         estaMuerto = true;
         vidaActual = vidaMaxima;
+        HabilidadesManager.instance.playerIsHiding = false;
 
         if (mostrarLogs)
         {

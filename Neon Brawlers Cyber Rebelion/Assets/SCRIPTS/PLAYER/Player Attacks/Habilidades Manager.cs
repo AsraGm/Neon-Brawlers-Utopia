@@ -12,6 +12,7 @@ public class HabilidadesManager : MonoBehaviour
 
     public float cooldown;
     public float cooldownTimer = 0;
+    public bool playerIsHiding;
 
     [Header("Provisional UI")]
     [SerializeField] private RectTransform arrow;

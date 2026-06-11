@@ -13,6 +13,7 @@ public class CorruptDamage : MonoBehaviour
 
     [Header("Configuración")]
     [SerializeField] private LayerMask playerLayer;
+    [SerializeField] private LayerMask obstructionMask;
 
     private float timeInterval = 1f;
     private float nextCheckTime;
@@ -53,10 +54,22 @@ public class CorruptDamage : MonoBehaviour
                 PlayerHealth player = hits[0].GetComponent<PlayerHealth>();
                 if (player != null)
                 {
-                    float damage = damageAreas[i].damagePerSecond;
-                    player.RecibirDanio(damage);
-                    currentTarget = player;
+                    Transform target = hits[0].transform;
+                    Vector3 directionToTarget = (target.position - transform.position).normalized;
+                    float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+                    if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstructionMask))
+                    {
+                        float damage = damageAreas[i].damagePerSecond;
+                        player.RecibirDanio(damage);
+                        currentTarget = player;
+                    }
+                    else
+                    {
+                        currentTarget = null;
+                    }
                 }
+
                 return;
             }
         }
