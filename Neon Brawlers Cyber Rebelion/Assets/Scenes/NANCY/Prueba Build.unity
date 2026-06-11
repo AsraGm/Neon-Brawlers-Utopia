@@ -104286,7 +104286,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 59.89188
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -175424,7 +175424,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 59.89188
+  field of view: 60
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -209614,7 +209614,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineDeoccluder
   CollideAgainst:
     serializedVersion: 2
-    m_Bits: 8192
+    m_Bits: 9216
   IgnoreTag: 
   TransparentLayers:
     serializedVersion: 2
@@ -209629,9 +209629,9 @@ MonoBehaviour:
       Enabled: 0
       YOffset: 0
     Strategy: 0
-    MaximumEffort: 1
-    SmoothingTime: 0
-    Damping: 0
+    MaximumEffort: 6
+    SmoothingTime: 0.81
+    Damping: 1.38
     DampingWhenOccluded: 0
   ShotQualityEvaluation:
     Enabled: 0
