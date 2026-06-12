@@ -8,6 +8,7 @@ public class InteractableDoor : MonoBehaviour
     [SerializeField] private Collider damageCollider;
 
     public bool isStunned { get; private set; }
+    public bool doorOpen;
 
     private Animator animator;
     private Coroutine stunCoroutine;

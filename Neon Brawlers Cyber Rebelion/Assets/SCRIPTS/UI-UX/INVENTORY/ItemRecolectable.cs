@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
+using System.Collections;
 
 public class ItemRecolectable : MonoBehaviour
 {
@@ -7,6 +9,8 @@ public class ItemRecolectable : MonoBehaviour
 
     [Header("=== CONFIGURACIÓN ===")]
     [SerializeField] private KeyCode teclaRecolectar = KeyCode.E;
+
+    public UnityEvent ItemCollected;
 
     [Header("=== DEBUG ===")]
     [SerializeField] private bool logsDetallados = false;
@@ -51,8 +55,15 @@ public class ItemRecolectable : MonoBehaviour
         if (GameManager.Instance.ItemFueRecolectado(itemData.itemID, gameObject.name))
         {
             yaRecolectado = true;
-            gameObject.SetActive(false);
+            StartCoroutine(InvocarYDesactivar());
         }
+    }
+
+    private IEnumerator InvocarYDesactivar()
+    {
+        ItemCollected?.Invoke();
+        yield return null;
+        gameObject.SetActive(false);
     }
 
     // ✅ SOLUCIÓN: usar trigger en lugar de distancia

@@ -597,6 +597,25 @@ public class InventoryUIManager : MonoBehaviour
             ObjetivoManager.Instance.ItemRecolectado(item.itemID);
     }
 
+    public void QuitarItem(ItemData item)
+    {
+        if (item == null) return;
+
+        if (itemsLLAVES.Contains(item))
+        {
+            itemsLLAVES.Remove(item);
+            ActualizarVisualesLLAVES();
+        }
+
+        if (itemsBdD.Contains(item))
+        {
+            itemsBdD.Remove(item);
+            ActualizarVisualesBdD();
+        }
+
+        Debug.Log($"[InventoryUI] Item removido: {item.itemID}");
+    }
+
     /// <summary>
     /// Obtiene la lista de IDs de todos los items en el inventario
     /// </summary>
@@ -665,6 +684,24 @@ public class InventoryUIManager : MonoBehaviour
         {
             Debug.LogWarning($"[InventoryUI] Item con ID '{itemID}' no encontrado en ItemDatabase");
         }
+    }
+
+    public void QuitarItemPorID(string itemID)
+    {
+        if (string.IsNullOrEmpty(itemID)) return;
+
+        if (itemDatabase == null)
+        {
+            Debug.LogError("[InventoryUI] No hay ItemDatabase asignado.");
+            return;
+        }
+
+        ItemData item = itemDatabase.ObtenerItemPorID(itemID);
+
+        if (item != null)
+            QuitarItem(item);
+        else
+            Debug.LogWarning($"[InventoryUI] Item '{itemID}' no encontrado en ItemDatabase");
     }
 
     private void ActualizarVisualesLLAVES()
