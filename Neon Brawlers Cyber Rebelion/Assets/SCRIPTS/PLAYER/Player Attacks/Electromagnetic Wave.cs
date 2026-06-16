@@ -1,24 +1,39 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ElectromagneticWave : MonoBehaviour
 {
     [Header("Configuración de Onda")]
     [SerializeField] private float waveRange = 10f;
     [SerializeField] private float stunDuration = 3f;
+
+    [Header("Cooldown")]
     [SerializeField] private float cooldown = 5f;
+    [SerializeField] private Renderer _rend;
 
     [Header("Capas")]
     [SerializeField] private LayerMask enemyLayer;
 
-    [SerializeField] private Image cooldownUi;
-
     [Header("Effects")]
     [SerializeField] ParticleSystem particles;
 
+    private MaterialPropertyBlock _mpb;
+
+    private void Start()
+    {
+        _mpb = new MaterialPropertyBlock();
+        _mpb.SetFloat("_Bar", 0.5f);
+        _rend.SetPropertyBlock(_mpb);
+    }
+
     private void Update()
     {
-        cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
+        float progress = HabilidadesManager.instance.cooldown > 0
+            ? HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown
+            : 0f;
+
+        float shaderValue = Mathf.Lerp(0.5f, -0.5f, progress);
+        _mpb.SetFloat("_Bar", shaderValue);
+        _rend.SetPropertyBlock(_mpb);
     }
 
     public void ActivarOnda()

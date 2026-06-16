@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SlowTime : MonoBehaviour
 {
@@ -9,7 +8,7 @@ public class SlowTime : MonoBehaviour
 
     [Header("Cooldown")]
     [SerializeField] private float cooldownTime = 10f;
-    [SerializeField] private Image cooldownUi;
+    [SerializeField] private Renderer _rend;
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem particles;
@@ -18,6 +17,7 @@ public class SlowTime : MonoBehaviour
     [SerializeField] private TRAIL trail;
     [SerializeField] private FootstepSpawner footstepSpawner;
 
+    private MaterialPropertyBlock _mpb;
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
 
@@ -29,6 +29,8 @@ public class SlowTime : MonoBehaviour
 
         if (footstepSpawner == null)
             footstepSpawner = GetComponentInChildren<FootstepSpawner>();
+
+        _mpb = new MaterialPropertyBlock();
     }
 
     private void Update()
@@ -41,7 +43,14 @@ public class SlowTime : MonoBehaviour
                 DeactivateSlowMotion();
         }
 
-        cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
+        UpdateCooldownShader();
+    }
+
+    private void UpdateCooldownShader()
+    {
+        float progress = (HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown) * 5f;
+        _mpb.SetFloat("_Remove_Segments", progress);
+        _rend.SetPropertyBlock(_mpb);
     }
 
     public void UseSlowTime()

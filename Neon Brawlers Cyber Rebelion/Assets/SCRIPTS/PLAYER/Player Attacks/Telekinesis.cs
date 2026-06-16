@@ -1,6 +1,5 @@
-using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
+using UnityEngine;
 
 public class Telekinesis : MonoBehaviour
 {
@@ -18,13 +17,22 @@ public class Telekinesis : MonoBehaviour
     [SerializeField] private float holdDistance = 3f;
     [SerializeField] private float holdHeight = 1.5f;
 
-    [SerializeField] private Image cooldownUi;
+    [SerializeField] private Renderer _rend;
 
     [Header("Effects")]
     [SerializeField] ParticleSystem throwParticles;
 
     private Rigidbody currentRb;
     private EnemyPatrol currentEnemy;
+
+    private MaterialPropertyBlock _mpb;
+
+    private void Start()
+    {
+        _mpb = new MaterialPropertyBlock();
+        _mpb.SetFloat("_Bar", 0.5f);
+        _rend.SetPropertyBlock(_mpb);
+    }
 
     void Update()
     {
@@ -38,7 +46,18 @@ public class Telekinesis : MonoBehaviour
             AudioManager.instance.Stop("telekinesis");
         }
 
-        cooldownUi.fillAmount = HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown;
+        UpdateCooldownShader();
+    }
+
+    private void UpdateCooldownShader()
+    {
+        float progress = HabilidadesManager.instance.cooldown > 0
+            ? HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown
+            : 0f;
+
+        float shaderValue = Mathf.Lerp(0.5f, -0.5f, progress);
+        _mpb.SetFloat("_Bar", shaderValue);
+        _rend.SetPropertyBlock(_mpb);
     }
 
     void UpdateHoldPosition()

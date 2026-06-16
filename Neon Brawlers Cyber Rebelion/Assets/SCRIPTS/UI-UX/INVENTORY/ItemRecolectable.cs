@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
-using System.Collections;
 
 public class ItemRecolectable : MonoBehaviour
 {
@@ -9,6 +8,7 @@ public class ItemRecolectable : MonoBehaviour
 
     [Header("=== CONFIGURACIÓN ===")]
     [SerializeField] private KeyCode teclaRecolectar = KeyCode.E;
+    [SerializeField] private bool requiereSlowMo = false;
 
     public UnityEvent ItemCollected;
 
@@ -55,15 +55,8 @@ public class ItemRecolectable : MonoBehaviour
         if (GameManager.Instance.ItemFueRecolectado(itemData.itemID, gameObject.name))
         {
             yaRecolectado = true;
-            StartCoroutine(InvocarYDesactivar());
+            gameObject.SetActive(false);
         }
-    }
-
-    private IEnumerator InvocarYDesactivar()
-    {
-        ItemCollected?.Invoke();
-        yield return null;
-        gameObject.SetActive(false);
     }
 
     // ✅ SOLUCIÓN: usar trigger en lugar de distancia
@@ -90,12 +83,24 @@ public class ItemRecolectable : MonoBehaviour
         if (yaRecolectado || !jugadorCerca) return;
 
         if (Input.GetKeyDown(teclaRecolectar))
+        {
+            if (requiereSlowMo && Time.timeScale >= 1f)
+            {
+                if (logsDetallados)
+                    Debug.Log($"[ItemRecolectable] '{gameObject.name}' está desestabilizado.");
+
+                //Efecto o sonido de glitcheo o retro que no lo recolecto
+                return;
+            }
+
             Recolectar();
+        }
     }
 
     private void Recolectar()
     {
         yaRecolectado = true;
+        ItemCollected?.Invoke();
 
         if (GameManager.Instance != null)
             GameManager.Instance.RegistrarItemRecolectado(itemData.itemID, gameObject.name);
