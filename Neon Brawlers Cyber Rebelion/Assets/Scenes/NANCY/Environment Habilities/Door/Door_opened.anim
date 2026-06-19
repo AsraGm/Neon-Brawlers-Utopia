@@ -22,26 +22,47 @@ AnimationClip:
         time: 0
         value: {x: 0, y: 0, z: 0}
         inSlope: {x: 0, y: 0, z: 37.08062}
-        outSlope: {x: 0, y: 0, z: 17.361368}
+        outSlope: {x: 0, y: 0, z: 11.056306}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
-        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.06319275}
+        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.056171473}
       - serializedVersion: 3
         time: 1
-        value: {x: 0, y: 0, z: 6.68}
-        inSlope: {x: 0, y: 0, z: 0.75128037}
-        outSlope: {x: 0, y: 0, z: -0.5880546}
+        value: {x: 0, y: 0, z: 3.08}
+        inSlope: {x: 0, y: 0, z: 0.6093844}
+        outSlope: {x: 0, y: 0, z: 0.6093844}
         tangentMode: 0
-        weightedMode: 0
-        inWeight: {x: 0.33333334, y: 0.33333334, z: 0.16487712}
-        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
+        weightedMode: 3
+        inWeight: {x: 0.33333334, y: 0.33333334, z: 0.15742797}
+        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.2180054}
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     path: 
   m_ScaleCurves: []
-  m_FloatCurves: []
+  m_FloatCurves:
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_IsActive
+    path: Damage Col
+    classID: 1
+    script: {fileID: 0}
+    flags: 0
   m_PPtrCurves: []
   m_SampleRate: 60
   m_WrapMode: 0
@@ -55,6 +76,15 @@ AnimationClip:
       attribute: 1
       script: {fileID: 0}
       typeID: 4
+      customType: 0
+      isPPtrCurve: 0
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 1765845267
+      attribute: 2086281974
+      script: {fileID: 0}
+      typeID: 1
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
@@ -149,26 +179,47 @@ AnimationClip:
         time: 0
         value: 0
         inSlope: 37.08062
-        outSlope: 17.361368
+        outSlope: 11.056306
         tangentMode: 1
         weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.06319275
+        outWeight: 0.056171473
       - serializedVersion: 3
         time: 1
-        value: 6.68
-        inSlope: 0.75128037
-        outSlope: -0.5880546
-        tangentMode: 1
-        weightedMode: 0
-        inWeight: 0.16487712
-        outWeight: 0.33333334
+        value: 3.08
+        inSlope: 0.6093844
+        outSlope: 0.6093844
+        tangentMode: 0
+        weightedMode: 3
+        inWeight: 0.15742797
+        outWeight: 0.2180054
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
     path: 
     classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_IsActive
+    path: Damage Col
+    classID: 1
     script: {fileID: 0}
     flags: 0
   m_EulerEditorCurves: []
