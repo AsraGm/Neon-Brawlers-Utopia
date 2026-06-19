@@ -41,24 +41,45 @@ public class HabilidadesManager : MonoBehaviour
 
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
-            selectedAbility = 0;
-            AudioManager.instance.Play("changeHability");
-            Debug.Log("Habilidad 1 seleccionada: Slow Motion");
-            SlowMoSelected?.Invoke();
+            if (unlockedAbilities[0])
+            {
+                selectedAbility = 0;
+                AudioManager.instance.Play("changeHability");
+                Debug.Log("Habilidad 1 seleccionada: Slow Motion");
+                SlowMoSelected?.Invoke();
+            }
+            else
+            {
+                Debug.Log("Habilidad 1 no desbloqueada");
+            }
         }
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
-            selectedAbility = 1;
-            AudioManager.instance.Play("changeHability");
-            Debug.Log("Habilidad 2 seleccionada: Electromagnetic wave");
-            ElectroWaveSelected?.Invoke();
+            if (unlockedAbilities[1])
+            {
+                selectedAbility = 1;
+                AudioManager.instance.Play("changeHability");
+                Debug.Log("Habilidad 2 seleccionada: Electromagnetic wave");
+                ElectroWaveSelected?.Invoke();
+            }
+            else
+            {
+                Debug.Log("Habilidad 2 no desbloqueada");
+            }
         }
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
-            selectedAbility = 2;
-            AudioManager.instance.Play("changeHability");
-            Debug.Log("Habilidad 3 seleccionada: Telekinesis");
-            TelekinesisSelected?.Invoke();
+            if (unlockedAbilities[2])
+            {
+                selectedAbility = 2;
+                AudioManager.instance.Play("changeHability");
+                Debug.Log("Habilidad 3 seleccionada: Telekinesis");
+                TelekinesisSelected?.Invoke();
+            }
+            else
+            {
+                Debug.Log("Habilidad 3 no desbloqueada");
+            }
         }
 
         if (Keyboard.current.cKey.wasPressedThisFrame)

@@ -55,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
     {
         cc = GetComponent<CharacterController>();
         Playeranimator = GetComponentInChildren<Animator>();
+        Playeranimator.updateMode = AnimatorUpdateMode.UnscaledTime;
 
         normalHeight = cc.height;
         normalCenter = cc.center;
@@ -180,7 +181,7 @@ public class PlayerMovement : MonoBehaviour
             motion.y = verticalVelocity;
         }
 
-        cc.Move(motion * Time.deltaTime);
+        cc.Move(motion * (isCrouching ? Time.unscaledDeltaTime : Time.deltaTime));
 
         // Rotación hacia donde se mueve (igual que antes)
         Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
@@ -190,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRotation,
-                Time.deltaTime * 10f
+                Time.unscaledDeltaTime * 10f
             );
         }
     }

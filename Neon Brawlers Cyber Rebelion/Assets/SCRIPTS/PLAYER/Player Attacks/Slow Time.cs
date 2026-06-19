@@ -10,9 +10,6 @@ public class SlowTime : MonoBehaviour
     [SerializeField] private float cooldownTime = 10f;
     [SerializeField] private Renderer _rend;
 
-    [Header("Effects")]
-    [SerializeField] private ParticleSystem particles;
-
     [Header("Visual Effects")]
     [SerializeField] private TRAIL trail;
     [SerializeField] private FootstepSpawner footstepSpawner;
@@ -73,7 +70,6 @@ public class SlowTime : MonoBehaviour
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        particles?.Play();
         AudioManager.instance.Play("slowMotion");
         HabilidadesManager.instance.Cooldown(cooldownTime);
 

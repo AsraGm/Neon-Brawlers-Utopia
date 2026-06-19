@@ -30,8 +30,6 @@ public class Telekinesis : MonoBehaviour
     private void Start()
     {
         _mpb = new MaterialPropertyBlock();
-        _mpb.SetFloat("_Bar", 0.5f);
-        _rend.SetPropertyBlock(_mpb);
     }
 
     void Update()
@@ -51,12 +49,8 @@ public class Telekinesis : MonoBehaviour
 
     private void UpdateCooldownShader()
     {
-        float progress = HabilidadesManager.instance.cooldown > 0
-            ? HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown
-            : 0f;
-
-        float shaderValue = Mathf.Lerp(0.5f, -0.5f, progress);
-        _mpb.SetFloat("_Bar", shaderValue);
+        float progress = (HabilidadesManager.instance.cooldownTimer / HabilidadesManager.instance.cooldown) * 5f;
+        _mpb.SetFloat("_Remove_Segments", progress);
         _rend.SetPropertyBlock(_mpb);
     }
 
