@@ -53208,6 +53208,37 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &1521401394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1521401395}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1521401395
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521401394}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -41.63654, y: 16.11817, z: -136.67455}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1524791786
 GameObject:
   m_ObjectHideFlags: 0
@@ -55354,7 +55385,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7913579063486144070, guid: 1d47640126f32e44d96d3e8916d202e6, type: 3}
       propertyPath: cargarCheckpointAlIniciar
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -103118,7 +103149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &2327005898508956110
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -119294,7 +119325,7 @@ Transform:
   m_GameObject: {fileID: 2325275250406316118}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -47.24, y: -0.98, z: -44.72}
+  m_LocalPosition: {x: -86.11, y: 13.5, z: -149.85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -138518,6 +138549,7 @@ GameObject:
   - component: {fileID: 5714240633211631234}
   - component: {fileID: 5714240633211631233}
   - component: {fileID: 5714240633211631235}
+  - component: {fileID: 5714240633211631236}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -142978,6 +143010,11 @@ MonoBehaviour:
   sonidoDanio: {fileID: 0}
   sonidoMuerte: {fileID: 0}
   particulasDanio: {fileID: 0}
+  impulseSource: {fileID: 5714240633211631236}
+  fuerzaImpulso: 0.4
+  materialVignette: {fileID: 2100000, guid: c86c09ccc13f5684d86fb5c3da244d55, type: 2}
+  cambioDanoMaximo: 80
+  velocidadTransicionVignette: 1
   tiempoEsperaAntesDeCargarCheckpoint: 0.5
   mostrarLogs: 1
   estaMuerto: 0
@@ -143032,6 +143069,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorPush
   pushForce: 1.2
+--- !u!114 &5714240633211631236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5403458939268106334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseSource
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!224 &5730077086710499835
 RectTransform:
   m_ObjectHideFlags: 0
@@ -162142,7 +162232,7 @@ Transform:
   m_GameObject: {fileID: 8676612037457281339}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.66, y: 0.678, z: -63.96}
+  m_LocalPosition: {x: -3.66, y: 0.678, z: -61.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -171005,6 +171095,7 @@ GameObject:
   - component: {fileID: 8058461698290608896}
   - component: {fileID: 7744341402385770629}
   - component: {fileID: 9199877851547519549}
+  - component: {fileID: 9199877851547519550}
   m_Layer: 0
   m_Name: FreeLook Camera Basic
   m_TagString: Untagged
@@ -184826,6 +184917,30 @@ MonoBehaviour:
     NearLimit: 5
     FarLimit: 30
     MaxQualityBoost: 0.2
+--- !u!114 &9199877851547519550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7574857893209575001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseListener
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &9201272387942503686
 GameObject:
   m_ObjectHideFlags: 0
@@ -184924,3 +185039,4 @@ SceneRoots:
   - {fileID: 993751352}
   - {fileID: 997240320}
   - {fileID: 1805735892}
+  - {fileID: 1521401395}

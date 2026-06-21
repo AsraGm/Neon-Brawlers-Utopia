@@ -1,6 +1,7 @@
+using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -16,6 +17,19 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AudioClip sonidoDanio;
     [SerializeField] private AudioClip sonidoMuerte;
     [SerializeField] private ParticleSystem particulasDanio;
+
+    [Header("=== CAMERA SHAKE ===")]
+    [SerializeField] private CinemachineImpulseSource impulseSource;
+    [SerializeField] private float fuerzaImpulso = 0.4f;
+
+    [Header("=== VIGNETTE DE DAÑO ===")]
+    [SerializeField] private Material materialVignette;
+    [SerializeField] private float cambioDanoMaximo = 80f;
+    [SerializeField] private float velocidadTransicionVignette = 3f;
+
+    private int idPropiedadVignette;
+    private float vignetteRadiusObjetivo = 1f;
+    private float vignetteRadiusActual = 1f;
 
     [Header("=== CONFIGURACIÓN ===")]
     [SerializeField] private float tiempoEsperaAntesDeCargarCheckpoint = 1.5f;
@@ -35,9 +49,17 @@ public class PlayerHealth : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
+        idPropiedadVignette = Shader.PropertyToID("_Vignette_radius");
+
         // Inicializar vida
         vidaActual = vidaMaxima;
         ActualizarUI();
+        ActualizarObjetivoVignette();
+        if (materialVignette != null)
+        {
+            vignetteRadiusActual = vignetteRadiusObjetivo;
+            materialVignette.SetFloat(idPropiedadVignette, vignetteRadiusActual);
+        }
 
         if (mostrarLogs)
         {
@@ -68,6 +90,7 @@ public class PlayerHealth : MonoBehaviour
         // Efectos
         ReproducirEfectosDanio();
         ActualizarUI();
+        ActualizarObjetivoVignette();
 
         // Verificar muerte
         if (vidaActual <= 0)
@@ -89,6 +112,7 @@ public class PlayerHealth : MonoBehaviour
         }
 
         ActualizarUI();
+        ActualizarObjetivoVignette();
     }
 
     public void EstablecerVida(float nuevaVida, float nuevaVidaMaxima)
@@ -103,6 +127,7 @@ public class PlayerHealth : MonoBehaviour
         }
 
         ActualizarUI();
+        ActualizarObjetivoVignette();
     }
 
     public void ResetearEstadoMuerte()
@@ -135,6 +160,8 @@ public class PlayerHealth : MonoBehaviour
             PostProcessManager.Instance.ActivarVignetteMuerte();
         }
         */
+
+        ActualizarObjetivoVignette();
 
         // Reproducir efectos de muerte
         if (sonidoMuerte != null && audioSource != null)
@@ -172,6 +199,14 @@ public class PlayerHealth : MonoBehaviour
         {
             particulasDanio.Play();
         }
+
+        //Camera shake
+        if (impulseSource != null)
+        {
+            float intensidad = Mathf.Clamp01((vidaMaxima - vidaActual) / cambioDanoMaximo);
+            Vector3 direccionShake = new Vector3(0f, -0.5f, -1f).normalized;
+            impulseSource.GenerateImpulse(direccionShake * intensidad * fuerzaImpulso);
+        }
     }
 
     private void ActualizarUI()
@@ -190,11 +225,28 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    private void ActualizarObjetivoVignette()
+    {
+        if (materialVignette == null) return;
+        float danioAcumulado = vidaMaxima - vidaActual;
+        vignetteRadiusObjetivo = 1f - Mathf.Clamp01(danioAcumulado / cambioDanoMaximo);
+    }
+
+    private void ActualizarTransicionVignette()
+    {
+        if (materialVignette == null) return;
+        if (Mathf.Approximately(vignetteRadiusActual, vignetteRadiusObjetivo)) return;
+
+        vignetteRadiusActual = Mathf.MoveTowards(vignetteRadiusActual, vignetteRadiusObjetivo, velocidadTransicionVignette * Time.deltaTime);
+        materialVignette.SetFloat(idPropiedadVignette, vignetteRadiusActual);
+    }
+
     public void EstablecerVidaMaxima(float nuevaVidaMaxima)
     {
         vidaMaxima = nuevaVidaMaxima;
         vidaActual = Mathf.Min(vidaActual, vidaMaxima);
         ActualizarUI();
+        ActualizarObjetivoVignette();
 
         if (mostrarLogs)
         {
@@ -232,6 +284,8 @@ public class PlayerHealth : MonoBehaviour
         {
             Curar(vidaMaxima);
         }
+
+        ActualizarTransicionVignette();
     }
 
     [ContextMenu("Recibir 10 de Daño")]
