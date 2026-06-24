@@ -18,6 +18,18 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask whatIsGround;
     bool grounded;
 
+    [Header("Stamina")]
+    public float maxStamina = 4f;
+    public float staminaRecoveryTime = 5f;
+    private float currentStamina;
+    private float recoveryTimer = 0f;
+    private bool isRecovering = false;
+    private bool staminaDepleted = false;
+
+    // Propiedades para el HUD??? a ver si asi era nancy
+    public float StaminaNormalized => currentStamina / maxStamina;
+    public bool IsRecovering => isRecovering;
+
     [Header("Agachado")]
     public float crouchHeight = 1f;        // altura del CC al agacharse
     public float crouchWalkSpeed = 2f;     // <-- velocidad al caminar agachado
@@ -59,6 +71,8 @@ public class PlayerMovement : MonoBehaviour
 
         normalHeight = cc.height;
         normalCenter = cc.center;
+
+        currentStamina = maxStamina;
 
         currentSpeed = walkSpeed;
 
@@ -199,11 +213,61 @@ public class PlayerMovement : MonoBehaviour
     private void RunPlayer()
     {
         bool isMoving = moveInput.magnitude > 0.1f;
+        bool shiftHeld = Keyboard.current.leftShiftKey.isPressed;
 
+        // Si presiona shift mientras recupera, detener recuperación
+        if (shiftHeld && isRecovering)
+        {
+            isRecovering = false;
+            recoveryTimer = 0f;
+        }
+
+        // Recuperación total (solo tras agotamiento completo)
+        if (!shiftHeld && staminaDepleted)
+        {
+            if (!isRecovering)
+            {
+                isRecovering = true;
+                recoveryTimer = 0f;
+            }
+
+            recoveryTimer += Time.deltaTime;
+
+            if (recoveryTimer >= staminaRecoveryTime)
+            {
+                currentStamina = maxStamina;
+                staminaDepleted = false;
+                isRecovering = false;
+                recoveryTimer = 0f;
+            }
+        }
+
+        bool canRun = !staminaDepleted && currentStamina > 0f;
         bool isRunning = !onStairs &&
                          !isCrouching &&
-                         Keyboard.current.leftShiftKey.isPressed &&
-                         isMoving;
+                         shiftHeld &&
+                         isMoving &&
+                         canRun;
+
+        // Consumir stamina al correr
+        if (isRunning)
+        {
+            currentStamina -= Time.deltaTime;
+
+            if (currentStamina <= 0f)
+            {
+                currentStamina = 0f;
+                staminaDepleted = true;
+                isRecovering = false;
+                recoveryTimer = 0f;
+            }
+        }
+        else if (!shiftHeld && !staminaDepleted && currentStamina < maxStamina)
+        {
+            // Recuperación gradual si suelta shift sin haberse agotado
+            currentStamina += Time.deltaTime;
+            currentStamina = Mathf.Min(currentStamina, maxStamina);
+        }
 
         // Velocidad según estado
         if (isCrouching)
