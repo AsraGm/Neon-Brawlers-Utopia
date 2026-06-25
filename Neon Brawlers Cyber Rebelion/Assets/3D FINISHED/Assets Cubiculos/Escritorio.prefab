@@ -277,6 +277,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8649989131479150201}
   - component: {fileID: 3608608272357420188}
+  - component: {fileID: 2640152369579633288}
   m_Layer: 0
   m_Name: Escritorio
   m_TagString: Untagged
@@ -326,6 +327,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.7688713, y: 1.2876949, z: 4.7229614}
   m_Center: {x: 4.2305813, y: 0.7413683, z: -5.572212}
+--- !u!208 &2640152369579633288
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154268160515605413}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.875, y: 0.855, z: 2.475}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 4.31, y: 0.86, z: -5.51}
+  m_TimeToStationary: 0.5
 --- !u!1 &5850902109929375822
 GameObject:
   m_ObjectHideFlags: 0

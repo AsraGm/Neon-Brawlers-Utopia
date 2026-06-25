@@ -28,6 +28,10 @@ public class ObjetivoManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoObjetivo;
     [SerializeField] private TextMeshProUGUI textoQueHacer;
 
+    [Header("=== REFERENCIAS MENSAJE UI ===")]
+    [SerializeField] private TextMeshProUGUI missionText;
+    [SerializeField] private Animator animator;
+
     [Header("=== LISTA DE MISIONES ===")]
     [Tooltip("Array de todas las misiones en orden (0, 1, 2...)")]
     [SerializeField] private MisionData[] misiones;
@@ -45,6 +49,7 @@ public class ObjetivoManager : MonoBehaviour
             Debug.LogWarning("[ObjetivoManager] No hay misiones asignadas en el array");
             return;
         }
+        animator.updateMode = AnimatorUpdateMode.UnscaledTime;
     }
 
     /// <summary>
@@ -202,5 +207,11 @@ public class ObjetivoManager : MonoBehaviour
         }
 
         CargarMision(0);
+    }
+
+    public void MostrarMensaje(string texto)
+    {
+        missionText.text = texto;
+        animator.SetTrigger("trigger");
     }
 }

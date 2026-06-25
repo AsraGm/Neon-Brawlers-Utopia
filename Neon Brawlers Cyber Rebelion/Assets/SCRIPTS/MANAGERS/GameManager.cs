@@ -384,6 +384,7 @@ public class GameManager : MonoBehaviour
     private void InicializarSistema()
     {
         Debug.Log("[GameManager] Sistema inicializado correctamente");
+        BorrarDatosGuardados();
         BuscarJugador();
 
         if (cargarCheckpointAlIniciar && HayDatosGuardados())
