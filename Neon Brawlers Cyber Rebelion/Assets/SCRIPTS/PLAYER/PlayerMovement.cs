@@ -233,12 +233,16 @@ public class PlayerMovement : MonoBehaviour
 
             recoveryTimer += Time.deltaTime;
 
+            HabilidadesManager.instance.cooldown = staminaRecoveryTime;
+            HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime - recoveryTimer;
+
             if (recoveryTimer >= staminaRecoveryTime)
             {
                 currentStamina = maxStamina;
                 staminaDepleted = false;
                 isRecovering = false;
                 recoveryTimer = 0f;
+                HabilidadesManager.instance.cooldownTimer = 0f;
             }
         }
 
@@ -252,7 +256,16 @@ public class PlayerMovement : MonoBehaviour
         // Consumir stamina al correr
         if (isRunning)
         {
-            currentStamina -= Time.deltaTime;
+            currentStamina -= Time.unscaledDeltaTime;
+
+            float staminaDamage = maxStamina - currentStamina;
+
+            if (staminaDamage > HabilidadesManager.instance.cooldownTimer)
+            {
+                HabilidadesManager.instance.cooldown = maxStamina;
+                HabilidadesManager.instance.cooldownTimer = staminaDamage;
+            }
+
 
             if (currentStamina <= 0f)
             {
@@ -260,6 +273,9 @@ public class PlayerMovement : MonoBehaviour
                 staminaDepleted = true;
                 isRecovering = false;
                 recoveryTimer = 0f;
+
+                HabilidadesManager.instance.cooldown = staminaRecoveryTime;
+                HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime;
             }
         }
         else if (!shiftHeld && !staminaDepleted && currentStamina < maxStamina)
