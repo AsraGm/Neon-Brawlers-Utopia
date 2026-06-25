@@ -137,7 +137,10 @@ public class PlayerMovement : MonoBehaviour
         if (Keyboard.current.vKey.wasPressedThisFrame)
         {
             if (!isCrouching)
+            {
                 StartCrouch();
+                Playeranimator?.SetTrigger("doCrouch");  // <-- dispara la animación una sola vez
+            }
             else
                 TryStandUp();
         }
@@ -337,7 +340,12 @@ public class PlayerMovement : MonoBehaviour
         bool isUsingAbility = HabilidadesManager.instance != null &&
                               HabilidadesManager.instance.IsUsingAbility;
 
+        // Calcular si está corriendo para la animación
+        bool shiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
+        bool isRunning = !onStairs && !isCrouching && shiftHeld && isMoving && !staminaDepleted && currentStamina > 0f;
+
         Playeranimator.SetBool("isMoving", isMoving);
+        Playeranimator.SetBool("isRunning", isRunning);
         Playeranimator.SetBool("isUsingAbility", isUsingAbility);
         Playeranimator.SetBool("isCrouching", isCrouching);
     }
