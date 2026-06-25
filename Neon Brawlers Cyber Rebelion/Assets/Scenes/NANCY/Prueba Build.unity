@@ -101599,7 +101599,7 @@ Transform:
   m_GameObject: {fileID: 488719162521462400}
   serializedVersion: 2
   m_LocalRotation: {x: 0.25340134, y: 0.00000007945559, z: -0.00000002081348, w: 0.9673613}
-  m_LocalPosition: {x: 1.5902281, y: 3.170001, z: -4.2518005}
+  m_LocalPosition: {x: 1.5902293, y: 3.1700015, z: -4.2518044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -210906,14 +210906,14 @@ MonoBehaviour:
   MinimumDistanceFromTarget: 0.3
   AvoidObstacles:
     Enabled: 1
-    DistanceLimit: 0
+    DistanceLimit: 8.63
     MinimumOcclusionTime: 0
-    CameraRadius: 0.4
+    CameraRadius: 0.2
     UseFollowTarget:
       Enabled: 0
       YOffset: 0
     Strategy: 0
-    MaximumEffort: 6
+    MaximumEffort: 8
     SmoothingTime: 0.81
     Damping: 1.38
     DampingWhenOccluded: 0
