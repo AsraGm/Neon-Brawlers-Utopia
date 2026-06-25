@@ -8,6 +8,7 @@ public class EnemyPatrol : MonoBehaviour
     private FieldOfView fieldOfView;
 
     [Header("Patrol")]
+    [SerializeField] private Animator animator;
     [SerializeField] private Transform[] waypoints;
     private int waypointIndex;
     private Vector3 target;
@@ -61,6 +62,12 @@ public class EnemyPatrol : MonoBehaviour
     void Update()
     {
         if (isStunned || isBeingManipulated) return;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsWalking", !isWaiting && !isChasing);
+            animator.SetBool("IsChasing", isChasing);
+        }
 
         CheckChaseRange();
 
@@ -213,6 +220,9 @@ public class EnemyPatrol : MonoBehaviour
     {
         isStunned = true;
 
+        if (animator != null)
+            animator.speed = 0f;
+
         if (robotAttack != null)
         {
             robotAttack.StopRobotAttack();
@@ -234,6 +244,9 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         yield return new WaitForSeconds(duracion);
+
+        if (animator != null)
+            animator.speed = 1f;
 
         isStunned = false;
         canAttack = true;
@@ -292,6 +305,10 @@ public class EnemyPatrol : MonoBehaviour
         {
             StopAllCoroutines();
             isStunned = false;
+
+            if (animator != null)
+                animator.speed = 1f;
+
             agent.isStopped = false;
             StartChasing();
         }
