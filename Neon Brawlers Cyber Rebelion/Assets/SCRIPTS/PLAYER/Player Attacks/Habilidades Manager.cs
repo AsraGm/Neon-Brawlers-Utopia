@@ -11,6 +11,8 @@ public class HabilidadesManager : MonoBehaviour
 
     public bool IsUsingAbility { get; private set; }
 
+    private Animator playerAnimator;
+
     public float cooldown;
     public float cooldownTimer = 0;
     public bool playerIsHiding;
@@ -23,14 +25,16 @@ public class HabilidadesManager : MonoBehaviour
     void Start()
     {
         if (instance == null)
-        {
             instance = this;
-        }
         else
         {
             Destroy(gameObject);
+            return;
         }
+
+        playerAnimator = GetComponentInChildren<Animator>();
     }
+
 
     void Update()
     {
@@ -107,12 +111,15 @@ public class HabilidadesManager : MonoBehaviour
         switch (selectedAbility)
         {
             case 0:
+                playerAnimator?.SetTrigger("doSlowTime");  
                 GetComponent<SlowTime>()?.UseSlowTime();
                 break;
             case 1:
+                playerAnimator?.SetTrigger("doElectroWave"); 
                 GetComponent<ElectromagneticWave>()?.ActivarOnda();
                 break;
             case 2:
+                playerAnimator?.SetTrigger("doTelekinesis"); 
                 GetComponent<Telekinesis>()?.StartTelekinesis();
                 break;
         }

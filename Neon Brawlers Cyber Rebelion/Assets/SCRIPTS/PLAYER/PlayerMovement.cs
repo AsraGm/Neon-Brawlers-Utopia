@@ -337,17 +337,16 @@ public class PlayerMovement : MonoBehaviour
         if (Playeranimator == null) return;
 
         bool isMoving = moveInput.magnitude > 0.1f;
+        bool shiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
+        bool isRunning = !onStairs && !isCrouching && shiftHeld && isMoving && !staminaDepleted && currentStamina > 0f;
         bool isUsingAbility = HabilidadesManager.instance != null &&
                               HabilidadesManager.instance.IsUsingAbility;
 
-        // Calcular si está corriendo para la animación
-        bool shiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
-        bool isRunning = !onStairs && !isCrouching && shiftHeld && isMoving && !staminaDepleted && currentStamina > 0f;
-
         Playeranimator.SetBool("isMoving", isMoving);
         Playeranimator.SetBool("isRunning", isRunning);
-        Playeranimator.SetBool("isUsingAbility", isUsingAbility);
         Playeranimator.SetBool("isCrouching", isCrouching);
+        Playeranimator.SetBool("isUsingAbility", isUsingAbility);
+        Playeranimator.SetBool("isSlowActive", SlowTime.IsSlowActive);
     }
 
     void HandleObstacleMovement()

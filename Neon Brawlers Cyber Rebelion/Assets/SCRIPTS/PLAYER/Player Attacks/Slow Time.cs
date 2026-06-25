@@ -17,6 +17,8 @@ public class SlowTime : MonoBehaviour
     private MaterialPropertyBlock _mpb;
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
+    public static bool IsSlowActive { get; private set; }
+
 
     private void Start()
     {
@@ -64,6 +66,9 @@ public class SlowTime : MonoBehaviour
 
     private void ActivateSlowMotion()
     {
+
+        IsSlowActive = true;       
+
         isSlowMotionActive = true;
         slowMotionTimer = slowMotionDuration;
 
@@ -82,6 +87,7 @@ public class SlowTime : MonoBehaviour
 
     private void DeactivateSlowMotion()
     {
+        IsSlowActive = false;
         isSlowMotionActive = false;
 
         Time.timeScale = 1f;
