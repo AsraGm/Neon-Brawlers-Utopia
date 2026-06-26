@@ -16,11 +16,13 @@ public class ScreamerNPC : MonoBehaviour
     bool screamerActive = false;
     bool playerInside = false;
     bool playerHasExited = false;   // obliga al jugador a salir antes de reactivar
+    private Collider triggerCol;
 
     private void Awake()
     {
         // Aseguramos estado inicial
         screamerCamera.gameObject.SetActive(false);
+        triggerCol = GetComponent<BoxCollider>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -88,6 +90,7 @@ public class ScreamerNPC : MonoBehaviour
 
         screamerCamera.gameObject.SetActive(false);
         playerCamera.gameObject.SetActive(true);
-        playerMesh?.SetActive(true);               
+        playerMesh?.SetActive(true);
+        triggerCol.gameObject.SetActive(false);
     }
 }
