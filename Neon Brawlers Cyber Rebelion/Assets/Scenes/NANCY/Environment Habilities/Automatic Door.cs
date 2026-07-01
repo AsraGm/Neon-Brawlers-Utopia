@@ -3,37 +3,75 @@ using UnityEngine;
 
 public class AutomaticDoor : MonoBehaviour
 {
-    [SerializeField] private InteractableDoor doorOpen;
-    [SerializeField] private Animator animator;
-    [SerializeField] private float automaticClose = 5f;
+    [SerializeField] private float automaticCloseDelay = 5f;
+    private InteractableDoor interactableDoor;
 
-    private void OnTriggerEnter(Collider other)
+    private Animator animator;
+    private Coroutine closeRoutine;
+    private int playersInside = 0;
+
+    private void Awake()
     {
-        if (other.CompareTag("Player"))
-        {
-            if (!doorOpen.doorOpen)
-            {
-                animator.SetBool("Open", true);
-                animator.SetBool("Close", false);
-                doorOpen.doorOpen = true;
+        animator = GetComponent<Animator>();
+        if (interactableDoor == null)
+            interactableDoor = GetComponent<InteractableDoor>();
+    }
 
-                StartCoroutine(AutomaticClose());
-            }
-            else
-            {
-                animator.SetBool("Close", true);
-                animator.SetBool("Open", false);
-                doorOpen.doorOpen = false;
-            }
+    public void HandleTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+
+        playersInside++;
+        CancelPendingClose();
+        OpenDoor();
+    }
+
+    public void HandleTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+
+        playersInside = Mathf.Max(0, playersInside - 1);
+        if (playersInside != 0) return;
+
+        CancelPendingClose();
+        closeRoutine = StartCoroutine(AutomaticCloseAfterDelay());
+    }
+
+    private void CancelPendingClose()
+    {
+        if (closeRoutine != null)
+        {
+            StopCoroutine(closeRoutine);
+            closeRoutine = null;
         }
     }
 
-    private IEnumerator AutomaticClose()
+    private void OpenDoor()
     {
-        yield return new WaitForSeconds(automaticClose);
+        if (interactableDoor.doorOpen) return; 
+        animator.SetBool("Open", true);
+        animator.SetBool("Close", false);
+        interactableDoor.doorOpen = true;
+    }
 
+    private void CloseDoor()
+    {
+        if (!interactableDoor.doorOpen) return; 
         animator.SetBool("Close", true);
         animator.SetBool("Open", false);
-        doorOpen.doorOpen = false;
+        interactableDoor.doorOpen = false;
     }
+
+    private IEnumerator AutomaticCloseAfterDelay()
+    {
+        yield return new WaitForSeconds(automaticCloseDelay);
+        if (playersInside == 0)
+            CloseDoor();
+        closeRoutine = null;
+    }
+
+    public void OnCloseAnimationFinished() { }
+
+    [ContextMenu("Reset Player Count")]
+    private void ResetPlayerCount() => playersInside = 0;
 }

@@ -1,6 +1,7 @@
 using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
@@ -23,6 +24,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float fuerzaImpulso = 0.4f;
 
     [Header("=== VIGNETTE DE DAÑO ===")]
+    [SerializeField] private ScriptableRendererFeature vignetteRenderFeature;
     [SerializeField] private Material materialVignette;
     [SerializeField] private float cambioDanoMaximo = 80f;
     [SerializeField] private float velocidadTransicionVignette = 3f;
@@ -30,6 +32,7 @@ public class PlayerHealth : MonoBehaviour
     private int idPropiedadVignette;
     private float vignetteRadiusObjetivo = 1f;
     private float vignetteRadiusActual = 1f;
+    private bool vignetteFeatureActiva = false;
 
     [Header("=== CONFIGURACIÓN ===")]
     [SerializeField] private float tiempoEsperaAntesDeCargarCheckpoint = 1.5f;
@@ -55,10 +58,17 @@ public class PlayerHealth : MonoBehaviour
         vidaActual = vidaMaxima;
         ActualizarUI();
         ActualizarObjetivoVignette();
+
         if (materialVignette != null)
         {
             vignetteRadiusActual = vignetteRadiusObjetivo;
             materialVignette.SetFloat(idPropiedadVignette, vignetteRadiusActual);
+        }
+
+        if (vignetteRenderFeature != null)
+        {
+            vignetteRenderFeature.SetActive(false);
+            vignetteFeatureActiva = false;
         }
 
         if (mostrarLogs)
@@ -228,14 +238,29 @@ public class PlayerHealth : MonoBehaviour
     private void ActualizarObjetivoVignette()
     {
         if (materialVignette == null) return;
+
         float danioAcumulado = vidaMaxima - vidaActual;
         vignetteRadiusObjetivo = 1f - Mathf.Clamp01(danioAcumulado / cambioDanoMaximo);
+
+        if (danioAcumulado > 0f && vignetteRenderFeature != null && !vignetteFeatureActiva)
+        {
+            vignetteRenderFeature.SetActive(true);
+            vignetteFeatureActiva = true;
+        }
     }
 
     private void ActualizarTransicionVignette()
     {
         if (materialVignette == null) return;
-        if (Mathf.Approximately(vignetteRadiusActual, vignetteRadiusObjetivo)) return;
+        if (Mathf.Approximately(vignetteRadiusActual, vignetteRadiusObjetivo))
+        {
+            if (vignetteRadiusObjetivo >= 1f && vignetteRenderFeature != null && vignetteFeatureActiva)
+            {
+                vignetteRenderFeature.SetActive(false);
+                vignetteFeatureActiva = false;
+            }
+            return;
+        }
 
         vignetteRadiusActual = Mathf.MoveTowards(vignetteRadiusActual, vignetteRadiusObjetivo, velocidadTransicionVignette * Time.deltaTime);
         materialVignette.SetFloat(idPropiedadVignette, vignetteRadiusActual);

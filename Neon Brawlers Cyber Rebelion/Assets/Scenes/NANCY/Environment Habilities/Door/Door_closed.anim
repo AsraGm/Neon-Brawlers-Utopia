@@ -28,7 +28,7 @@ AnimationClip:
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.06720215}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.0849621}
       - serializedVersion: 3
-        time: 3
+        time: 2
         value: {x: 0, y: 0, z: -0.123}
         inSlope: {x: Infinity, y: Infinity, z: Infinity}
         outSlope: {x: 0, y: 0, z: 11.056306}
@@ -37,7 +37,7 @@ AnimationClip:
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.06720215}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.056171473}
       - serializedVersion: 3
-        time: 3.4166667
+        time: 3
         value: {x: 0, y: 0, z: 3}
         inSlope: {x: Infinity, y: Infinity, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
@@ -65,7 +65,7 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 3
+        time: 2
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -74,7 +74,7 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 3.4166667
+        time: 3
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -122,7 +122,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 3.4166667
+    m_StopTime: 3
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -152,7 +152,7 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 3
+        time: 2
         value: 0
         inSlope: Infinity
         outSlope: 0
@@ -161,7 +161,7 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 3.4166667
+        time: 3
         value: 0
         inSlope: Infinity
         outSlope: 0
@@ -191,7 +191,7 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 3
+        time: 2
         value: 0
         inSlope: Infinity
         outSlope: 0
@@ -200,7 +200,7 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 3.4166667
+        time: 3
         value: 0
         inSlope: Infinity
         outSlope: 0
@@ -230,7 +230,7 @@ AnimationClip:
         inWeight: 0.06720215
         outWeight: 0.0849621
       - serializedVersion: 3
-        time: 3
+        time: 2
         value: -0.123
         inSlope: Infinity
         outSlope: 11.056306
@@ -239,7 +239,7 @@ AnimationClip:
         inWeight: 0.06720215
         outWeight: 0.056171473
       - serializedVersion: 3
-        time: 3.4166667
+        time: 3
         value: 3
         inSlope: 0
         outSlope: 0
@@ -269,7 +269,7 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 3
+        time: 2
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -278,7 +278,7 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 3.4166667
+        time: 3
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -297,4 +297,11 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 1
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 3
+    functionName: AutomaticCloseAfterDelay
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0

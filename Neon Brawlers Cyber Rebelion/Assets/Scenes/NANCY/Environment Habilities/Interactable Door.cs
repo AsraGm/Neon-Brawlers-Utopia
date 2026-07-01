@@ -7,6 +7,8 @@ public class InteractableDoor : MonoBehaviour
     [SerializeField] private float stunDuration = 3f;
     [SerializeField] private Collider damageCollider;
 
+    [SerializeField] private AutomaticDoor automaticDoor;
+
     public bool isStunned { get; private set; }
     public bool doorOpen;
 
@@ -37,5 +39,13 @@ public class InteractableDoor : MonoBehaviour
         animator.speed = 1f;
         damageCollider.enabled = true;
         isStunned = false;
+    }
+
+    public void OnCloseAnimationFinished()
+    {
+        if (automaticDoor != null)
+        {
+            automaticDoor.OnCloseAnimationFinished();
+        }
     }
 }
