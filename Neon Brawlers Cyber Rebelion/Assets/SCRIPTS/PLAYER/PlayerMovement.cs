@@ -41,6 +41,9 @@ public class PlayerMovement : MonoBehaviour
     public float ceilingCheckDistance = 0.5f; // margen extra sobre la cabeza
     public Transform orientation;
 
+    private float staminaCooldownOffset = 0f;
+    private bool wasRunningLastFrame = false;
+
     Vector2 moveInput;
     Vector3 moveDirection;
 
@@ -259,15 +262,23 @@ public class PlayerMovement : MonoBehaviour
         // Consumir stamina al correr
         if (isRunning)
         {
+            if (!wasRunningLastFrame)
+            {
+                float oldMax = HabilidadesManager.instance.cooldown;
+                float oldTimer = HabilidadesManager.instance.cooldownTimer;
+                float startFraction = oldMax > 0f ? (oldTimer / oldMax) : 0f;
+
+                staminaCooldownOffset = startFraction * maxStamina;
+            }
+
             currentStamina -= Time.unscaledDeltaTime;
 
             float staminaDamage = maxStamina - currentStamina;
+            float adjustedTimer = Mathf.Min(maxStamina, staminaCooldownOffset + staminaDamage);
 
-            if (staminaDamage > HabilidadesManager.instance.cooldownTimer)
-            {
-                HabilidadesManager.instance.cooldown = maxStamina;
-                HabilidadesManager.instance.cooldownTimer = staminaDamage;
-            }
+            HabilidadesManager.instance.cooldown = maxStamina;
+            HabilidadesManager.instance.cooldownTimer = adjustedTimer;
+
 
 
             if (currentStamina <= 0f)
@@ -276,6 +287,7 @@ public class PlayerMovement : MonoBehaviour
                 staminaDepleted = true;
                 isRecovering = false;
                 recoveryTimer = 0f;
+                staminaCooldownOffset = 0f;
 
                 HabilidadesManager.instance.cooldown = staminaRecoveryTime;
                 HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime;
@@ -296,6 +308,8 @@ public class PlayerMovement : MonoBehaviour
 
         camScript.SetRunning(isRunning);
         SetEffect(isRunning);
+
+        wasRunningLastFrame = isRunning;
     }
 
     void StartCrouch()
