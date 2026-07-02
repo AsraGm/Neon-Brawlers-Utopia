@@ -77,12 +77,13 @@ public class ThirdPersonCam : MonoBehaviour
     }
     private void Update()
     {
-        // orientacion de la rotacion de la camara tomando en cuenta la position del player y transforma los vectores de x, y, z
-        Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
-        orientation.forward = viewDir.normalized;
+        // Solo actualizamos la orientación si NO estamos en zoom
+        if (!isZooming)
+        {
+            Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
+            orientation.forward = viewDir.normalized;
+        }
 
-        // Queremos que el jugador tambien rote a la vez que la camara
-        //Asi que declaramos flotantes que sean el input al girar en vertical u horizontal
         float horizontalInput = 0f;
         float verticalInput = 0f;
 
@@ -97,19 +98,14 @@ public class ThirdPersonCam : MonoBehaviour
                 (Keyboard.current.sKey.isPressed ? 1 : 0);
         }
 
-        Vector3 inputDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
-
-
-
         // FOV suave
-        cinemachineCam.Lens.FieldOfView = Mathf.Lerp
-        (
-            cinemachineCam.Lens.FieldOfView,targetFOV,Time.unscaledDeltaTime * fovSpeed
+        cinemachineCam.Lens.FieldOfView = Mathf.Lerp(
+            cinemachineCam.Lens.FieldOfView,
+            targetFOV,
+            Time.unscaledDeltaTime * fovSpeed
         );
 
         HandleInspectionZoom();
-
-
     }
 
     // Método para el zoom de inspección
@@ -118,6 +114,10 @@ public class ThirdPersonCam : MonoBehaviour
         if (inObstacle) return;
         if (Mouse.current == null) return;
 
+        // Obtener el InputAxisController que maneja el input del mouse
+        CinemachineInputAxisController inputController =
+            cinemachineCam.GetComponent<CinemachineInputAxisController>();
+
         bool zoomInput = Mouse.current.leftButton.isPressed;
 
         if (zoomInput && !isZooming)
@@ -125,14 +125,21 @@ public class ThirdPersonCam : MonoBehaviour
             isZooming = true;
             cinemachineCam.Follow = zoomFollow;
             targetFOV = zoomFOV;
+
+            // Desactivar el componente que procesa el input de rotación
+            if (inputController != null)
+                inputController.enabled = false;
         }
         else if (!zoomInput && isZooming)
         {
             isZooming = false;
             cinemachineCam.Follow = normalFollow;
             targetFOV = normalFOV;
+
+            // Reactivar el input de rotación
+            if (inputController != null)
+                inputController.enabled = true;
         }
-        
     }
 
     public void SetCustomFollow(Transform followTarget, float fov)
