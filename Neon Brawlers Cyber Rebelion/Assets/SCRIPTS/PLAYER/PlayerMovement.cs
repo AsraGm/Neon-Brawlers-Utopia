@@ -49,6 +49,9 @@ public class PlayerMovement : MonoBehaviour
 
     CharacterController cc;
 
+    //variable para no moverte mientras el enemigo te ataca
+    private bool isStunnedByEnemy = false;
+
     // variables para la interaccion con obstaculos
     Transform currentSnapPoint;
     float snapSpeed;
@@ -120,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
         if (Keyboard.current == null) return;
 
         // Si está bloqueado, limpiar input y salir
-        if (IsLocked)
+        if (IsLocked || isStunnedByEnemy)
         {
             moveInput = Vector2.zero;
             return;
@@ -158,6 +161,12 @@ public class PlayerMovement : MonoBehaviour
     private void MovePlayer()
     {
         if (IsLocked) return; // bloquea todo este metodo si estas escondido en un obstacle
+
+        if (isStunnedByEnemy)
+        {
+            cc.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+            return;
+        }
 
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
@@ -436,5 +445,14 @@ public class PlayerMovement : MonoBehaviour
         inObstacle = false;
         IsLocked = false;
         currentSnapPoint = null;
+    }
+
+    public void SetMovementLock(bool lockState)
+    {
+        isStunnedByEnemy = lockState;
+        if (lockState)
+        {
+            moveInput = Vector2.zero;
+        }
     }
 }

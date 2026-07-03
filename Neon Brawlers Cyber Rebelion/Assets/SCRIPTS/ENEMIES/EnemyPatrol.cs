@@ -37,8 +37,10 @@ public class EnemyPatrol : MonoBehaviour
     public bool alertedByDrone = false;
     public bool canAttack = true;
 
-    private bool isBeingManipulated = false;
+    public bool isBeingManipulated { get; private set; } = false;
+    public bool isAttacking = false;
     private Rigidbody rb;
+
 
     void Start()
     {
@@ -61,7 +63,7 @@ public class EnemyPatrol : MonoBehaviour
 
     void Update()
     {
-        if (isStunned || isBeingManipulated) return;
+        if (isStunned || isBeingManipulated || isAttacking) return;
 
         if (animator != null)
         {
@@ -204,6 +206,23 @@ public class EnemyPatrol : MonoBehaviour
         if (waypointIndex == waypoints.Length)
         {
             waypointIndex = 0;
+        }
+    }
+
+    public void StopAgentForAttack()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+    }
+
+    public void ResumeAgentAfterAttack()
+    {
+        if (agent != null && !isStunned && !isBeingManipulated)
+        {
+            agent.isStopped = false;
         }
     }
 
