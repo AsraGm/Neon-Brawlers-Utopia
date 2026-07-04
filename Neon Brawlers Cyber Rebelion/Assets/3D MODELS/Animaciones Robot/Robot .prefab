@@ -973,7 +973,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9136246215646258926
 Transform:
   m_ObjectHideFlags: 0
@@ -982,7 +982,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1330833880567093348}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -29.79, y: 14.214, z: -149.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1576,6 +1576,7 @@ MonoBehaviour:
   isChasing: 0
   alertedByDrone: 0
   canAttack: 1
+  isAttacking: 0
 --- !u!114 &8152735793586495408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1611,6 +1612,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RobotAttack
   damage: 100
   delayTimeDamage: 3
+  attackDuration: 1.5
 --- !u!114 &8059726693042166957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5696,7 +5698,7 @@ Transform:
   m_GameObject: {fileID: 7414019744673857861}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13.41, y: 0, z: 18}
+  m_LocalPosition: {x: -0.19, y: 0, z: 6.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5759,7 +5761,7 @@ Transform:
   m_GameObject: {fileID: 7550169070945582128}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18.99, y: 0, z: 18}
+  m_LocalPosition: {x: -0.20999786, y: 0, z: 30.320002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6049,7 +6051,7 @@ Transform:
   m_GameObject: {fileID: 7913739395345881866}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.034, y: -1.005, z: -0.13864326}
+  m_LocalPosition: {x: -0.034, y: -1.08, z: -0.13864326}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 0
   m_Children:

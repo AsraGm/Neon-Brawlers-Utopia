@@ -64,4 +64,10 @@ public class PauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
+    //extra cambio de escenas
+    public void CambioEscena(string escena)
+    {
+        SceneManager.LoadScene(escena);
+    }
+
 }

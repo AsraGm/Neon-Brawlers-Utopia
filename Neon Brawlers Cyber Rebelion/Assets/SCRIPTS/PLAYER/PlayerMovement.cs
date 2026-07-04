@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
@@ -29,6 +30,43 @@ public class PlayerMovement : MonoBehaviour
     // Propiedades para el HUD??? a ver si asi era nancy
     public float StaminaNormalized => currentStamina / maxStamina;
     public bool IsRecovering => isRecovering;
+
+    [Header("Efecto cansancio (pixelado)")]
+    [SerializeField] private ScriptableRendererFeature fatigueRenderFeature;
+    [SerializeField] private Material materialFatigue;
+    [SerializeField] private float normalPixelSize = 900f;
+    [SerializeField] private float cansancioPixelSize = 100f;
+    [Tooltip("Valor medio al que subirá el pulso antes de bajar de nuevo")]
+    [SerializeField] private float pulseMaxPixelSize = 400f;
+    [Tooltip("Velocidad ultra rápida para la caída inicial al llegar a 0 stamina")]
+    [SerializeField] private float velocidadImpactoInicial = 4000f;
+    [SerializeField] private float velocidadTransicionFatigue = 800f;
+    [SerializeField] private int cantidadDePulsos = 3;
+
+    private int idPropiedadPixel;
+    private float pixelSizeObjetivo = 900f;
+    private float pixelSizeActual = 900f;
+    private bool fatigueFeatureActiva = false;
+    private enum EstadoFatiga { Inactivo, ImpactoInicial, PulsoSubiendo, PulsoBajando, RecuperacionFinal }
+    private EstadoFatiga estadoActualFatigue = EstadoFatiga.Inactivo;
+    private int pulsosRestantes = 0;
+
+    [Header("Efecto cansancio (Vignette)")]
+    [SerializeField] private ScriptableRendererFeature vignetteRenderFeature;
+    [SerializeField] private Material materialVignette;
+    [SerializeField] private float normalVignette = 0f;
+    [SerializeField] private float cansancioVignette = 6f;
+    [Tooltip("Valor al que baja la viñeta durante las pulsaciones medias")]
+    [SerializeField] private float pulseMinVignette = 2f;
+    [Tooltip("Velocidad inicial para que la viñeta llegue rápido a 6")]
+    [SerializeField] private float velocidadVignetteInicial = 30f;
+    [Tooltip("Velocidad de transición para los pulsos de la viñeta")]
+    [SerializeField] private float velocidadTransicionVignette = 10f;
+
+    private int idPropiedadVignette;
+    private float vignetteObjetivo = 0f;
+    private float vignetteActual = 0f;
+    private bool vignetteFeatureActiva = false;
 
     [Header("Agachado")]
     public float crouchHeight = 1f;        // altura del CC al agacharse
@@ -82,6 +120,26 @@ public class PlayerMovement : MonoBehaviour
 
         currentSpeed = walkSpeed;
 
+        idPropiedadPixel = Shader.PropertyToID("_PixelSize");
+        if (materialFatigue != null)
+        {
+            pixelSizeActual = normalPixelSize;
+            materialFatigue.SetFloat(idPropiedadPixel, pixelSizeActual);
+        }
+
+        idPropiedadVignette = Shader.PropertyToID("_VignetteIntensity"); 
+        if (materialVignette != null)
+        {
+            vignetteActual = normalVignette;
+            materialVignette.SetFloat(idPropiedadVignette, vignetteActual);
+        }
+
+        if (fatigueRenderFeature != null)
+        {
+            fatigueRenderFeature.SetActive(false);
+            fatigueFeatureActiva = false;
+        }
+
         foreach (var feature in rendererData.rendererFeatures)
         {
             if (feature.name == "FSSpeed")
@@ -106,6 +164,8 @@ public class PlayerMovement : MonoBehaviour
             MovePlayer();
         else
             HandleObstacleMovement();
+
+        ActualizarTransicionFatigue();
     }
 
     // FixedUpdate ya no es necesario, CharacterController va en Update
@@ -288,8 +348,6 @@ public class PlayerMovement : MonoBehaviour
             HabilidadesManager.instance.cooldown = maxStamina;
             HabilidadesManager.instance.cooldownTimer = adjustedTimer;
 
-
-
             if (currentStamina <= 0f)
             {
                 currentStamina = 0f;
@@ -300,6 +358,8 @@ public class PlayerMovement : MonoBehaviour
 
                 HabilidadesManager.instance.cooldown = staminaRecoveryTime;
                 HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime;
+
+                DispararEfectoFatiga();
             }
         }
         else if (!shiftHeld && !staminaDepleted && currentStamina < maxStamina)
@@ -455,4 +515,115 @@ public class PlayerMovement : MonoBehaviour
             moveInput = Vector2.zero;
         }
     }
+
+    #region EfectoCansancio
+    //Efecto Fatiga
+    private void DispararEfectoFatiga()
+    {
+        if (estadoActualFatigue != EstadoFatiga.Inactivo) return;
+
+        pulsosRestantes = cantidadDePulsos;
+        estadoActualFatigue = EstadoFatiga.ImpactoInicial;
+
+        pixelSizeObjetivo = cansancioPixelSize;
+        vignetteObjetivo = cansancioVignette;
+
+        if (fatigueRenderFeature != null && !fatigueFeatureActiva)
+        {
+            fatigueRenderFeature.SetActive(true);
+            fatigueFeatureActiva = true;
+        }
+
+        if (vignetteRenderFeature != null && !vignetteFeatureActiva)
+        {
+            vignetteRenderFeature.SetActive(true);
+            vignetteFeatureActiva = true;
+        }
+    }
+
+    private void ActualizarTransicionFatigue()
+    {
+        if (estadoActualFatigue == EstadoFatiga.Inactivo) return;
+
+        float velPixel = (estadoActualFatigue == EstadoFatiga.ImpactoInicial) ? velocidadImpactoInicial : velocidadTransicionFatigue;
+        float velVignette = (estadoActualFatigue == EstadoFatiga.ImpactoInicial) ? velocidadVignetteInicial : velocidadTransicionVignette;
+
+        if (materialFatigue != null)
+        {
+            pixelSizeActual = Mathf.MoveTowards(pixelSizeActual, pixelSizeObjetivo, velPixel * Time.deltaTime);
+            materialFatigue.SetFloat(idPropiedadPixel, pixelSizeActual);
+        }
+
+        if (materialVignette != null)
+        {
+            vignetteActual = Mathf.MoveTowards(vignetteActual, vignetteObjetivo, velVignette * Time.deltaTime);
+            materialVignette.SetFloat(idPropiedadVignette, vignetteActual);
+        }
+
+        float valorControlActual = (materialFatigue != null) ? pixelSizeActual : vignetteActual;
+        float valorControlObjetivo = (materialFatigue != null) ? pixelSizeObjetivo : vignetteObjetivo;
+
+        if (Mathf.Approximately(valorControlActual, valorControlObjetivo))
+        {
+            switch (estadoActualFatigue)
+            {
+                case EstadoFatiga.ImpactoInicial:
+                    estadoActualFatigue = EstadoFatiga.PulsoSubiendo;
+                    pixelSizeObjetivo = pulseMaxPixelSize;
+                    vignetteObjetivo = pulseMinVignette; 
+                    break;
+
+                case EstadoFatiga.PulsoSubiendo:
+                    estadoActualFatigue = EstadoFatiga.PulsoBajando;
+                    pixelSizeObjetivo = cansancioPixelSize;
+                    vignetteObjetivo = cansancioVignette; 
+                    break;
+
+                case EstadoFatiga.PulsoBajando:
+                    pulsosRestantes--;
+                    if (pulsosRestantes > 0)
+                    {
+                        estadoActualFatigue = EstadoFatiga.PulsoSubiendo;
+                        pixelSizeObjetivo = pulseMaxPixelSize;
+                        vignetteObjetivo = pulseMinVignette;
+                    }
+                    else
+                    {
+                        estadoActualFatigue = EstadoFatiga.RecuperacionFinal;
+                        pixelSizeObjetivo = normalPixelSize;
+                        vignetteObjetivo = normalVignette; 
+                    }
+                    break;
+
+                case EstadoFatiga.RecuperacionFinal:
+                    estadoActualFatigue = EstadoFatiga.Inactivo;
+
+                    if (fatigueRenderFeature != null && fatigueFeatureActiva)
+                    {
+                        fatigueRenderFeature.SetActive(false);
+                        fatigueFeatureActiva = false;
+                    }
+
+                    if (vignetteRenderFeature != null && vignetteFeatureActiva)
+                    {
+                        vignetteRenderFeature.SetActive(false);
+                        vignetteFeatureActiva = false;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (materialFatigue != null)
+        {
+            materialFatigue.SetFloat(idPropiedadPixel, normalPixelSize);
+        }
+        if (materialVignette != null)
+        {
+            materialVignette.SetFloat(idPropiedadVignette, normalVignette);
+        }
+    }
+    #endregion EfectoCansancio
 }
