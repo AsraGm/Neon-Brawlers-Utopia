@@ -43,6 +43,8 @@ public class ElectromagneticWave : MonoBehaviour
         particles.Play();
         AudioManager.instance.Play("electromagneticWave");
 
+        GameManager.Instance.ReportNoiseB(transform.position, 1.5f);
+
         Collider[] enemigos = Physics.OverlapSphere(transform.position, waveRange, enemyLayer);
         Debug.Log($"Enemigos detectados: {enemigos.Length}");
 
@@ -84,6 +86,7 @@ public class ElectromagneticWave : MonoBehaviour
     {
         return HabilidadesManager.instance.cooldownTimer > 0f;
     }
+
     public float GetCooldownRestante()
     {
         return HabilidadesManager.instance.cooldownTimer;

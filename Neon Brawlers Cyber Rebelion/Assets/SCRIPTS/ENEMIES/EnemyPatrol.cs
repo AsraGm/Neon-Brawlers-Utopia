@@ -24,6 +24,12 @@ public class EnemyPatrol : MonoBehaviour
     [Tooltip("Tiempo que tiene para acercarse al jugador al ser alertado")]
     [SerializeField] private float chasingTolerance = 10f;
 
+    [Header("Investigating")]
+    [SerializeField] private float investigateWaitTime = 4f;
+    [Tooltip("Distancia a la que se considera que ya llego al punto de ruido")]
+    [SerializeField] private float investigateArrivalThreshold = 1f;
+    private Coroutine investigateCoroutine;
+
     [Header("Movement Settings")]
     [SerializeField] private float angularSpeed = 360f;
     [SerializeField] private float acceleration = 10f;
@@ -39,6 +45,8 @@ public class EnemyPatrol : MonoBehaviour
 
     public bool isBeingManipulated { get; private set; } = false;
     public bool isAttacking = false;
+    public bool isInvestigating { get; private set; } = false;
+    private bool isWaitingAtNoisePoint = false;
     private Rigidbody rb;
 
 
@@ -67,7 +75,7 @@ public class EnemyPatrol : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetBool("IsWalking", !isWaiting && !isChasing);
+            animator.SetBool("IsWalking", !isWaiting && !isChasing && !isWaitingAtNoisePoint);
             animator.SetBool("IsChasing", isChasing);
         }
 
@@ -76,6 +84,10 @@ public class EnemyPatrol : MonoBehaviour
         if (isChasing && player != null)
         {
             ChasePlayer();
+        }
+        else if (isInvestigating)
+        {
+            // El movimiento hacia el punto de ruido lo maneja InvestigateNoiseRoutine. Hay que evitar solo que entre a Patrol
         }
         else if (!isWaiting)
         {
@@ -130,12 +142,18 @@ public class EnemyPatrol : MonoBehaviour
         agent.speed = chaseSpeed;
         agent.stoppingDistance = chaseStoppingDistance;
 
-        // Detiene la coroutine de espera si está activa
         if (idleCoroutine != null)
         {
             StopCoroutine(idleCoroutine);
             idleCoroutine = null;
             isWaiting = false;
+        }
+
+        if (investigateCoroutine != null)
+        {
+            StopCoroutine(investigateCoroutine);
+            investigateCoroutine = null;
+            isInvestigating = false;
         }
     }
 
@@ -225,6 +243,60 @@ public class EnemyPatrol : MonoBehaviour
             agent.isStopped = false;
         }
     }
+
+
+    #region InvestigarRuido
+    public void InvestigateNoise(Vector3 noisePosition)
+    {
+        if (isChasing || isStunned || isBeingManipulated || isAttacking) return;
+
+        if (investigateCoroutine != null)
+        {
+            StopCoroutine(investigateCoroutine);
+        }
+
+        investigateCoroutine = StartCoroutine(InvestigateNoiseRoutine(noisePosition));
+    }
+
+    private IEnumerator InvestigateNoiseRoutine(Vector3 noisePosition)
+    {
+        isInvestigating = true;
+
+        if (idleCoroutine != null)
+        {
+            StopCoroutine(idleCoroutine);
+            idleCoroutine = null;
+            isWaiting = false;
+        }
+
+        agent.SetDestination(noisePosition);
+
+        while (!isChasing && (agent.pathPending || agent.remainingDistance > investigateArrivalThreshold))
+        {
+            yield return null;
+        }
+
+        if (isChasing)
+        {
+            investigateCoroutine = null;
+            yield break;
+        }
+
+        isWaitingAtNoisePoint = true;
+
+        yield return new WaitForSeconds(investigateWaitTime);
+
+        isWaitingAtNoisePoint = false;
+
+        if (!isChasing)
+        {
+            isInvestigating = false;
+            UpdateDestination();
+        }
+
+        investigateCoroutine = null;
+    }
+    #endregion InvestigarRuido
 
     #region AplicarStun
     public void ApplyStun(float duracion)

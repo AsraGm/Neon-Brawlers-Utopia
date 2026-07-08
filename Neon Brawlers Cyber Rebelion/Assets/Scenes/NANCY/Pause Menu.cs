@@ -8,6 +8,7 @@ public class PauseMenu : MonoBehaviour
     [Header("CONFIG")]
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject camPlayer;
+    [SerializeField] private Animator animPlayer;
     [SerializeField] private GameObject habilitiesPlayer;
     [SerializeField] private GameObject configCanvas;
 
@@ -41,6 +42,7 @@ public class PauseMenu : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             camara.enabled = false;
             habilidadesManager.enabled = false;
+            animPlayer.speed = 0f;
             InventoryUIManager.Instance.SetPausa(true);
             Time.timeScale = 0;
         }
@@ -49,6 +51,7 @@ public class PauseMenu : MonoBehaviour
             Time.timeScale = 1;
             camara.enabled = true;
             habilidadesManager.enabled = true;
+            animPlayer.speed = 1f;
             configCanvas.SetActive(false);
             InventoryUIManager.Instance.SetPausa(false);
             Cursor.visible = false;

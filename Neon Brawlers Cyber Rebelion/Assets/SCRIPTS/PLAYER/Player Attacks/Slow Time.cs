@@ -66,8 +66,7 @@ public class SlowTime : MonoBehaviour
 
     private void ActivateSlowMotion()
     {
-
-        IsSlowActive = true;       
+        IsSlowActive = true;
 
         isSlowMotionActive = true;
         slowMotionTimer = slowMotionDuration;
@@ -77,6 +76,8 @@ public class SlowTime : MonoBehaviour
 
         AudioManager.instance.Play("slowMotion");
         HabilidadesManager.instance.Cooldown(cooldownTime);
+
+        GameManager.Instance.ReportNoiseA(transform.position, 1.5f);
 
         // Activar efectos visuales
         trail?.StartTrail();

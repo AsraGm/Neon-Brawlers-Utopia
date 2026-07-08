@@ -379,6 +379,8 @@ public class PlayerMovement : MonoBehaviour
         SetEffect(isRunning);
 
         wasRunningLastFrame = isRunning;
+
+        ReportMovementNoise(isMoving, isRunning);
     }
 
     void StartCrouch()
@@ -409,6 +411,7 @@ public class PlayerMovement : MonoBehaviour
         cc.height = normalHeight;
         cc.center = normalCenter;
     }
+
     void SetEffect(bool active)
     {
         if (fullScreenFeature != null)
@@ -626,4 +629,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     #endregion EfectoCansancio
+
+    private void ReportMovementNoise(bool isMoving, bool isRunning)
+    {
+        if (GameManager.Instance == null) return;
+        if (isCrouching) return;
+
+        if (isRunning)
+            GameManager.Instance.ReportNoiseB(transform.position, 0.3f);
+        else if (isMoving)
+            GameManager.Instance.ReportNoiseA(transform.position, 0.3f);
+    }
 }

@@ -432,9 +432,41 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    #region Noise
+    [Header("Noise System")]
+    public bool normalNoise;
+    public Vector3 normalNoisePos;
+    private float normalNoiseExpireTime;
+
+    public bool loudNoise;
+    public Vector3 loudNoisePos;
+    private float loudNoiseExpireTime;
+
+    public void ReportNoiseA(Vector3 position, float duration)
+    {
+        normalNoise = true;
+        normalNoisePos = position;
+        normalNoiseExpireTime = Time.unscaledTime + duration;
+    }
+
+    public void ReportNoiseB(Vector3 position, float duration)
+    {
+        loudNoise = true;
+        loudNoisePos = position;
+        loudNoiseExpireTime = Time.unscaledTime + duration;
+    }
+
+    #endregion Noise
+
     #region Debug
     private void Update()
     {
+        if (normalNoise && Time.unscaledTime >= normalNoiseExpireTime)
+            normalNoise = false;
+
+        if (loudNoise && Time.unscaledTime >= loudNoiseExpireTime)
+            loudNoise = false;
+
 #if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.F1)) GuardarCheckpoint();
         if (Input.GetKeyDown(KeyCode.F2)) CargarCheckpoint();
