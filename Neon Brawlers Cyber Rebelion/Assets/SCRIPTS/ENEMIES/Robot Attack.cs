@@ -7,14 +7,15 @@ public class RobotAttack : MonoBehaviour
     [SerializeField] private float delayTimeDamage = 3f;
     [SerializeField] private float attackDuration = 1.5f;
 
+    private Collider attackTrigger;
     private EnemyPatrol enemyPatrol;
     private Animator animator;
-
-
     private void Start()
     {
         enemyPatrol = GetComponent<EnemyPatrol>();
         animator = GetComponentInChildren<Animator>();
+        attackTrigger = GetComponent<Collider>();
+        attackTrigger.enabled = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -96,6 +97,16 @@ public class RobotAttack : MonoBehaviour
     {
         yield return new WaitForSeconds(delayTimeDamage);
         RobotCanAttack();
+    }
+
+    public void EnableAttackTrigger()
+    {
+        attackTrigger.enabled = true;
+    }
+
+    public void DisableAttackTrigger()
+    {
+        attackTrigger.enabled = false;
     }
 
 }

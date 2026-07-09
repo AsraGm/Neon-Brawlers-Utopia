@@ -70,6 +70,11 @@ public class PauseMenu : MonoBehaviour
     //extra cambio de escenas
     public void CambioEscena(string escena)
     {
+        Time.timeScale = 1f;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        pause = false;
+
         SceneManager.LoadScene(escena);
     }
 

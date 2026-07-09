@@ -142,6 +142,11 @@ public class EnemyPatrol : MonoBehaviour
         agent.speed = chaseSpeed;
         agent.stoppingDistance = chaseStoppingDistance;
 
+        if (robotAttack != null)
+        {
+            robotAttack.EnableAttackTrigger();
+        }
+
         if (idleCoroutine != null)
         {
             StopCoroutine(idleCoroutine);
@@ -162,6 +167,12 @@ public class EnemyPatrol : MonoBehaviour
         isChasing = false;
         agent.speed = patrolSpeed;
         agent.stoppingDistance = patrolStoppingDistance;
+
+        if (robotAttack != null)
+        {
+            robotAttack.DisableAttackTrigger();
+        }
+
         UpdateDestination();
     }
 
@@ -432,6 +443,11 @@ public class EnemyPatrol : MonoBehaviour
             agent.speed = patrolSpeed;
             agent.stoppingDistance = patrolStoppingDistance;
             UpdateDestination();
+
+            if (robotAttack != null)
+            {
+                robotAttack.DisableAttackTrigger();
+            }
         }
 
         if (robotAttack != null)

@@ -199,8 +199,8 @@ public class PlayerMovement : MonoBehaviour
 
         moveInput = new Vector2(horizontal, vertical);
 
-        // Agachado con V
-        if (Keyboard.current.vKey.wasPressedThisFrame)
+        // Agachado con ctrl
+        if (Keyboard.current.leftCtrlKey.wasPressedThisFrame)
         {
             if (!isCrouching)
             {
