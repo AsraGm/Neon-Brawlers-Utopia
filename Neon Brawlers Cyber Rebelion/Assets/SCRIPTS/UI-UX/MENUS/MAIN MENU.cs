@@ -30,6 +30,12 @@ public class MAINMENU : MonoBehaviour
         SceneManager.LoadScene("Prueba Build");
     }
 
+    public void STARTPRUEBAIAYESCONDITE()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Prueba IA y Escondite");
+    }
+
     public void QUIT()
     {
         Application.Quit();

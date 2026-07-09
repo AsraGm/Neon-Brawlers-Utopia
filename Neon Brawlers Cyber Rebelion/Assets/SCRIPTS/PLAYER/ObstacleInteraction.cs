@@ -13,6 +13,8 @@ public class ObstacleInteraction : MonoBehaviour
     [Header("Ajustes")]
     public float snapSpeed = 10f;
 
+
+
     public bool PlayerInObstacle { get; private set; }
     public bool PlayerIsHidden { get; private set; }
 
@@ -86,6 +88,7 @@ public class ObstacleInteraction : MonoBehaviour
     {
         PlayerIsHidden = true;
         HabilidadesManager.instance.playerIsHiding = true;
+
 
         // Entrar en modo obstáculo SIN bloquear, solo cambia velocidad
         playerMovement.EnterHideMode(snapPoint, snapSpeed);

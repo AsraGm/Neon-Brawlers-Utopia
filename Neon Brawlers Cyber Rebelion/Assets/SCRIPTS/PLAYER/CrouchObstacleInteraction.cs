@@ -10,6 +10,9 @@ public class CrouchObstacleInteraction : MonoBehaviour
     EnemyInteraction enemyInteraction;
     CameraPostFXController postFX;
 
+
+
+
     bool playerInRange = false;
     bool isActive = false;
 
