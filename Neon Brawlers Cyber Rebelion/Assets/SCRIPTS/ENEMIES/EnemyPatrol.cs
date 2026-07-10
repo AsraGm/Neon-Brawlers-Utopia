@@ -30,6 +30,14 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float investigateArrivalThreshold = 1f;
     private Coroutine investigateCoroutine;
 
+    [Header("Symbols")]
+    [SerializeField] private Renderer symbolRenderer;
+    [SerializeField] private Material investigatingMat;
+    [SerializeField] private Material alertMat;
+    [SerializeField] private Animator symbolAnim;
+    [SerializeField] private float offDelay = 0.3f;
+    private Coroutine symbolCoroutine;
+
     [Header("Movement Settings")]
     [SerializeField] private float angularSpeed = 360f;
     [SerializeField] private float acceleration = 10f;
@@ -49,6 +57,9 @@ public class EnemyPatrol : MonoBehaviour
     private bool isWaitingAtNoisePoint = false;
     private Rigidbody rb;
 
+    private Coroutine stunCoroutine;
+    private Coroutine delayedUnalertCoroutine;
+
 
     void Start()
     {
@@ -67,8 +78,12 @@ public class EnemyPatrol : MonoBehaviour
         }
         player = GameObject.Find("Player").transform;
         robotAttack = GetComponent<RobotAttack>();
-    }
 
+        if (symbolAnim != null)
+        {
+            symbolAnim.gameObject.SetActive(false);
+        }
+    }
     void Update()
     {
         if (isStunned || isBeingManipulated || isAttacking) return;
@@ -87,7 +102,7 @@ public class EnemyPatrol : MonoBehaviour
         }
         else if (isInvestigating)
         {
-            // El movimiento hacia el punto de ruido lo maneja InvestigateNoiseRoutine. Hay que evitar solo que entre a Patrol
+            // El movimiento lo maneja la corrutina de investigacion.
         }
         else if (!isWaiting)
         {
@@ -101,7 +116,7 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         bool playerInRange = distanceToPlayer <= chaseRadius;
 
         if (alertedByDrone || (playerInRange && fieldOfView != null && fieldOfView.canSeePlayer))
@@ -120,7 +135,10 @@ public class EnemyPatrol : MonoBehaviour
             }
             else if (alertedByDrone && !playerInRange)
             {
-                StartCoroutine(DelayedUnalert());
+                if (delayedUnalertCoroutine == null)
+                {
+                    delayedUnalertCoroutine = StartCoroutine(DelayedUnalert());
+                }
             }
         }
     }
@@ -128,24 +146,23 @@ public class EnemyPatrol : MonoBehaviour
     private IEnumerator DelayedUnalert()
     {
         yield return new WaitForSeconds(chasingTolerance);
-        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-        if (distanceToPlayer > chaseRadius)
+
+        if (!isStunned && !isBeingManipulated && player != null)
         {
-            alertedByDrone = false;
-            StopChasing();
+            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+            if (distanceToPlayer > chaseRadius)
+            {
+                alertedByDrone = false;
+                StopChasing();
+            }
         }
+
+        delayedUnalertCoroutine = null;
     }
 
     public void StartChasing()
     {
         isChasing = true;
-        agent.speed = chaseSpeed;
-        agent.stoppingDistance = chaseStoppingDistance;
-
-        if (robotAttack != null)
-        {
-            robotAttack.EnableAttackTrigger();
-        }
 
         if (idleCoroutine != null)
         {
@@ -159,14 +176,35 @@ public class EnemyPatrol : MonoBehaviour
             StopCoroutine(investigateCoroutine);
             investigateCoroutine = null;
             isInvestigating = false;
+            isWaitingAtNoisePoint = false;
+        }
+
+        ShowSymbol(alertMat);
+
+        if (agent != null)
+        {
+            agent.speed = chaseSpeed;
+            agent.stoppingDistance = chaseStoppingDistance;
+            agent.isStopped = false; 
+        }
+
+        if (robotAttack != null)
+        {
+            robotAttack.EnableAttackTrigger();
         }
     }
 
     void StopChasing()
     {
         isChasing = false;
-        agent.speed = patrolSpeed;
-        agent.stoppingDistance = patrolStoppingDistance;
+
+        HideSymbol();
+
+        if (agent != null)
+        {
+            agent.speed = patrolSpeed;
+            agent.stoppingDistance = patrolStoppingDistance;
+        }
 
         if (robotAttack != null)
         {
@@ -178,15 +216,17 @@ public class EnemyPatrol : MonoBehaviour
 
     void ChasePlayer()
     {
-        if (Vector3.Distance(agent.destination, player.transform.position) > 1f)
+        if (agent != null && Vector3.Distance(agent.destination, player.position) > 1f)
         {
-            agent.SetDestination(player.transform.position);
+            agent.SetDestination(player.position);
         }
     }
 
     void Patrol()
     {
-        if (agent.remainingDistance <= agent.stoppingDistance)
+        if (agent == null) return;
+
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
         {
             if (idleCoroutine == null)
             {
@@ -209,7 +249,7 @@ public class EnemyPatrol : MonoBehaviour
 
     void HandleRotation()
     {
-        if (agent.velocity.magnitude > 0.1f)
+        if (agent != null && agent.velocity.magnitude > 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(agent.velocity.normalized);
             transform.rotation = Quaternion.Slerp(
@@ -222,7 +262,7 @@ public class EnemyPatrol : MonoBehaviour
 
     void UpdateDestination()
     {
-        if (agent != null && waypoints.Length > 0)
+        if (agent != null && waypoints != null && waypoints.Length > 0)
         {
             target = waypoints[waypointIndex].position;
             agent.SetDestination(target);
@@ -231,11 +271,9 @@ public class EnemyPatrol : MonoBehaviour
 
     void IterateWaypointIndex()
     {
-        waypointIndex++;
-        if (waypointIndex == waypoints.Length)
-        {
-            waypointIndex = 0;
-        }
+        if (waypoints == null || waypoints.Length == 0) return;
+
+        waypointIndex = (waypointIndex + 1) % waypoints.Length;
     }
 
     public void StopAgentForAttack()
@@ -255,7 +293,6 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-
     #region InvestigarRuido
     public void InvestigateNoise(Vector3 noisePosition)
     {
@@ -265,6 +302,8 @@ public class EnemyPatrol : MonoBehaviour
         {
             StopCoroutine(investigateCoroutine);
         }
+
+        ShowSymbol(investigatingMat);
 
         investigateCoroutine = StartCoroutine(InvestigateNoiseRoutine(noisePosition));
     }
@@ -280,9 +319,9 @@ public class EnemyPatrol : MonoBehaviour
             isWaiting = false;
         }
 
-        agent.SetDestination(noisePosition);
+        if (agent != null) agent.SetDestination(noisePosition);
 
-        while (!isChasing && (agent.pathPending || agent.remainingDistance > investigateArrivalThreshold))
+        while (!isChasing && agent != null && (agent.pathPending || agent.remainingDistance > investigateArrivalThreshold))
         {
             yield return null;
         }
@@ -294,14 +333,13 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         isWaitingAtNoisePoint = true;
-
         yield return new WaitForSeconds(investigateWaitTime);
-
         isWaitingAtNoisePoint = false;
 
         if (!isChasing)
         {
             isInvestigating = false;
+            HideSymbol();
             UpdateDestination();
         }
 
@@ -309,12 +347,77 @@ public class EnemyPatrol : MonoBehaviour
     }
     #endregion InvestigarRuido
 
+    #region Symbol
+    private void ShowSymbol(Material mat)
+    {
+        if (symbolCoroutine != null)
+        {
+            StopCoroutine(symbolCoroutine);
+            symbolCoroutine = null;
+        }
+
+        if (symbolRenderer != null)
+        {
+            symbolRenderer.enabled = true;
+            symbolRenderer.sharedMaterial = mat;
+        }
+
+        if (symbolAnim != null)
+        {
+            symbolAnim.gameObject.SetActive(true); 
+            symbolAnim.ResetTrigger("trigger");
+            symbolAnim.Play("Entrada", 0, 0f); 
+        }
+    }
+
+    private void HideSymbol()
+    {
+        if (symbolCoroutine != null)
+        {
+            StopCoroutine(symbolCoroutine);
+        }
+
+        if (gameObject.activeInHierarchy)
+        {
+            symbolCoroutine = StartCoroutine(OffSymbol());
+        }
+    }
+
+    private IEnumerator OffSymbol()
+    {
+        if (symbolAnim != null)
+        {
+            symbolAnim.SetTrigger("trigger");
+        }
+
+        yield return new WaitForSeconds(offDelay);
+
+        if (symbolRenderer != null)
+        {
+            symbolRenderer.enabled = false;
+        }
+
+        symbolCoroutine = null;
+    }
+    #endregion Symbol
+
     #region AplicarStun
     public void ApplyStun(float duracion)
     {
         if (!isStunned)
         {
-            StartCoroutine(StunCoroutine(duracion));
+            if (investigateCoroutine != null)
+            {
+                StopCoroutine(investigateCoroutine);
+                investigateCoroutine = null;
+                isInvestigating = false;
+                isWaitingAtNoisePoint = false;
+            }
+
+            if (gameObject.activeInHierarchy)
+            {
+                stunCoroutine = StartCoroutine(StunCoroutine(duracion));
+            }
         }
     }
 
@@ -322,15 +425,9 @@ public class EnemyPatrol : MonoBehaviour
     {
         isStunned = true;
 
-        if (animator != null)
-            animator.speed = 0f;
+        if (animator != null) animator.speed = 0f;
 
-        if (robotAttack != null)
-        {
-            robotAttack.StopRobotAttack();
-        }
-
-        // parar animaciones
+        if (robotAttack != null) robotAttack.StopRobotAttack();
 
         if (agent != null)
         {
@@ -347,21 +444,16 @@ public class EnemyPatrol : MonoBehaviour
 
         yield return new WaitForSeconds(duracion);
 
-        if (animator != null)
-            animator.speed = 1f;
+        if (animator != null) animator.speed = 1f;
 
         isStunned = false;
         canAttack = true;
 
-        if (robotAttack != null)
-        {
-            robotAttack.RobotCanAttack();
-        }
+        if (robotAttack != null) robotAttack.RobotCanAttack();
 
-        if (agent != null)
-        {
-            agent.isStopped = false;
-        }
+        if (agent != null) agent.isStopped = false;
+
+        stunCoroutine = null;
     }
     #endregion AplicarStun
 
@@ -382,7 +474,6 @@ public class EnemyPatrol : MonoBehaviour
             agent.velocity = Vector3.zero;
         }
 
-        // Detener coroutines activas
         if (idleCoroutine != null)
         {
             StopCoroutine(idleCoroutine);
@@ -390,13 +481,17 @@ public class EnemyPatrol : MonoBehaviour
             isWaiting = false;
         }
 
-        // Detener ataque si existe
-        if (robotAttack != null)
+        if (investigateCoroutine != null)
         {
-            robotAttack.StopRobotAttack();
+            StopCoroutine(investigateCoroutine);
+            investigateCoroutine = null;
+            isInvestigating = false;
+            isWaitingAtNoisePoint = false;
         }
 
-        Debug.Log("Enemigo agarrado por telekinesis");
+        HideSymbol();
+
+        if (robotAttack != null) robotAttack.StopRobotAttack();
     }
     #endregion AplicarTelekinesis
 
@@ -405,13 +500,17 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (isStunned)
         {
-            StopAllCoroutines();
+            if (stunCoroutine != null)
+            {
+                StopCoroutine(stunCoroutine);
+                stunCoroutine = null;
+            }
+
             isStunned = false;
 
-            if (animator != null)
-                animator.speed = 1f;
+            if (animator != null) animator.speed = 1f;
 
-            agent.isStopped = false;
+            if (agent != null) agent.isStopped = false;
             StartChasing();
         }
     }
@@ -420,7 +519,10 @@ public class EnemyPatrol : MonoBehaviour
     #region PararTelekinesis
     public void OnTelekinesisRelease()
     {
-        StartCoroutine(ReleaseFromTelekinesis());
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(ReleaseFromTelekinesis());
+        }
     }
 
     private IEnumerator ReleaseFromTelekinesis()
@@ -433,7 +535,6 @@ public class EnemyPatrol : MonoBehaviour
             rb.useGravity = true;
         }
 
-        //tiempo para que retome su camino
         yield return new WaitForSeconds(3f);
 
         if (agent != null)
@@ -444,18 +545,12 @@ public class EnemyPatrol : MonoBehaviour
             agent.stoppingDistance = patrolStoppingDistance;
             UpdateDestination();
 
-            if (robotAttack != null)
-            {
-                robotAttack.DisableAttackTrigger();
-            }
+            if (robotAttack != null) robotAttack.DisableAttackTrigger();
         }
 
-        if (robotAttack != null)
-        {
-            robotAttack.RobotCanAttack();
-        }
+        HideSymbol();
 
-        Debug.Log("Enemigo liberado de telekinesis");
+        if (robotAttack != null) robotAttack.RobotCanAttack();
     }
     #endregion PararTelekinesis
 
