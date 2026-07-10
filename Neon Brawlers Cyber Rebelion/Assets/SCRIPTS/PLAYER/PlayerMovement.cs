@@ -98,9 +98,7 @@ public class PlayerMovement : MonoBehaviour
     // para las escaleras
     private bool onStairs;
 
-    // referencia al efecto de velocidad
-    public UniversalRendererData rendererData;
-    ScriptableRendererFeature fullScreenFeature;
+
 
     Animator Playeranimator;
 
@@ -140,14 +138,6 @@ public class PlayerMovement : MonoBehaviour
             fatigueFeatureActiva = false;
         }
 
-        foreach (var feature in rendererData.rendererFeatures)
-        {
-            if (feature.name == "FSSpeed")
-            {
-                fullScreenFeature = feature;
-                break;
-            }
-        }
     }
 
     private void Update()
@@ -376,7 +366,6 @@ public class PlayerMovement : MonoBehaviour
             currentSpeed = isRunning ? runSpeed : walkSpeed;
 
         camScript.SetRunning(isRunning);
-        SetEffect(isRunning);
 
         wasRunningLastFrame = isRunning;
 
@@ -410,12 +399,6 @@ public class PlayerMovement : MonoBehaviour
         isCrouching = false;
         cc.height = normalHeight;
         cc.center = normalCenter;
-    }
-
-    void SetEffect(bool active)
-    {
-        if (fullScreenFeature != null)
-            fullScreenFeature.SetActive(active);
     }
 
     private void UpdateAnimations()

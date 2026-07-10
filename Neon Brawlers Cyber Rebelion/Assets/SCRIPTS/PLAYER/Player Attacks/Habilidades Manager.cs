@@ -35,104 +35,83 @@ public class HabilidadesManager : MonoBehaviour
         playerAnimator = GetComponentInChildren<Animator>();
     }
 
-
     void Update()
     {
         if (cooldownTimer > 0)
-        {
             cooldownTimer -= Time.unscaledDeltaTime;
-        }
 
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
-            if (unlockedAbilities[0])
-            {
-                selectedAbility = 0;
-                AudioManager.instance.Play("changeHability");
-                Debug.Log("Habilidad 1 seleccionada: Slow Motion");
-                SlowMoSelected?.Invoke();
-            }
-            else
-            {
-                Debug.Log("Habilidad 1 no desbloqueada");
-            }
+            if (unlockedAbilities[0]) { selectedAbility = 0; AudioManager.instance.Play("changeHability"); SlowMoSelected?.Invoke(); }
+            else Debug.Log("Habilidad 1 no desbloqueada");
         }
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
-            if (unlockedAbilities[1])
-            {
-                selectedAbility = 1;
-                AudioManager.instance.Play("changeHability");
-                Debug.Log("Habilidad 2 seleccionada: Electromagnetic wave");
-                ElectroWaveSelected?.Invoke();
-            }
-            else
-            {
-                Debug.Log("Habilidad 2 no desbloqueada");
-            }
+            if (unlockedAbilities[1]) { selectedAbility = 1; AudioManager.instance.Play("changeHability"); ElectroWaveSelected?.Invoke(); }
+            else Debug.Log("Habilidad 2 no desbloqueada");
         }
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
-            if (unlockedAbilities[2])
-            {
-                selectedAbility = 2;
-                AudioManager.instance.Play("changeHability");
-                Debug.Log("Habilidad 3 seleccionada: Telekinesis");
-                TelekinesisSelected?.Invoke();
-            }
-            else
-            {
-                Debug.Log("Habilidad 3 no desbloqueada");
-            }
+            if (unlockedAbilities[2]) { selectedAbility = 2; AudioManager.instance.Play("changeHability"); TelekinesisSelected?.Invoke(); }
+            else Debug.Log("Habilidad 3 no desbloqueada");
         }
 
         if (Keyboard.current.cKey.wasPressedThisFrame)
         {
             if (unlockedAbilities[selectedAbility])
-            {
                 ExecuteAbility();
-            }
             else
-            {
                 Debug.Log("Esta habilidad aun no esta desbloqueada");
-            }
         }
 
         if (Keyboard.current.cKey.wasReleasedThisFrame)
-        {
             AbilityRelease();
-        }
     }
 
     void ExecuteAbility()
     {
-        IsUsingAbility = true;
-
         switch (selectedAbility)
         {
             case 0:
-                playerAnimator?.SetTrigger("doSlowTime");  
+                // Solo animar si el cooldown lo permite
+                if (cooldownTimer <= 0 && !SlowTime.IsSlowActive)
+                {
+                    IsUsingAbility = true;
+                    playerAnimator?.SetTrigger("doSlowTime");
+                }
                 GetComponent<SlowTime>()?.UseSlowTime();
                 break;
+
             case 1:
-                playerAnimator?.SetTrigger("doElectroWave"); 
+                // Solo animar si el cooldown lo permite
+                if (cooldownTimer <= 0)
+                {
+                    IsUsingAbility = true;
+                    playerAnimator?.SetTrigger("doElectroWave");
+                }
                 GetComponent<ElectromagneticWave>()?.ActivarOnda();
                 break;
+
             case 2:
-                playerAnimator?.SetTrigger("doTelekinesis"); 
-                GetComponent<Telekinesis>()?.StartTelekinesis();
+                // Solo animar si el cooldown lo permite y no hay objeto agarrado
+                var telekinesis = GetComponent<Telekinesis>();
+                if (cooldownTimer <= 0)
+                {
+                    IsUsingAbility = true;
+                    playerAnimator?.SetTrigger("doTelekinesis");
+                }
+                telekinesis?.StartTelekinesis();
                 break;
         }
 
+        // Resetear en el siguiente frame para no bloquear el Animator
         IsUsingAbility = false;
     }
 
     private void AbilityRelease()
     {
         if (selectedAbility == 2)
-        {
             GetComponent<Telekinesis>()?.StopTelekinesis();
-        }
     }
 
     public void Cooldown(float cooldownTime)
@@ -141,7 +120,6 @@ public class HabilidadesManager : MonoBehaviour
         cooldown = cooldownTime;
     }
 
-    //para desbloquear habilidades
     public void UnlockAbility(int abilityIndex)
     {
         if (abilityIndex >= 0 && abilityIndex < 3)
@@ -151,7 +129,6 @@ public class HabilidadesManager : MonoBehaviour
         }
     }
 
-    //verificar si la habilidad esta desbloqueada
     public bool IsAbilityUnlocked(int abilityIndex)
     {
         return unlockedAbilities[abilityIndex];
