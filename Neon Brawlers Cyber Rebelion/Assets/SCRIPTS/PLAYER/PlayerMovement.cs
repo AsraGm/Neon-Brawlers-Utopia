@@ -5,61 +5,176 @@ using UnityEngine.Rendering.Universal;
 
 public class PlayerMovement : MonoBehaviour
 {
+    #region Referencias
+
+    CharacterController cc;
+    Animator Playeranimator;
+
+    [Tooltip("Transform que define la dirección hacia donde mira/se mueve el jugador")]
+    public Transform orientation;
+
+    #endregion
+
+    #region Movimiento
+
     [Header("Movimiento")]
+    [Tooltip("Velocidad de caminata normal")]
     public float walkSpeed = 6f;
+
+    [Tooltip("Velocidad al correr")]
     public float runSpeed = 10f;
+
     float currentSpeed;
 
+    Vector2 moveInput;
+    Vector3 moveDirection;
+
+    public bool IsMoving => moveInput.magnitude > 0.1f;
+
+    #endregion
+
+    #region Gravedad
+
     [Header("Gravedad")]
+    [Tooltip("Aceleración de gravedad aplicada al jugador")]
     public float gravity = -20f;
+
     private float verticalVelocity = 0f;
 
+    #endregion
+
+    #region Ground Check
+
     [Header("Ground Check")]
+    [Tooltip("Altura del jugador usada para el raycast de detección de suelo")]
     public float playerHeight;
+
+    [Tooltip("Capas consideradas como suelo")]
     public LayerMask whatIsGround;
+
     bool grounded;
 
+    #endregion
+
+    #region Stamina
+
     [Header("Stamina")]
+    [Tooltip("Cantidad máxima de stamina disponible")]
     public float maxStamina = 4f;
+
+    [Tooltip("Tiempo necesario para recuperar la stamina tras agotarla por completo")]
     public float staminaRecoveryTime = 5f;
+
     private float currentStamina;
     private float recoveryTimer = 0f;
     private bool isRecovering = false;
     private bool staminaDepleted = false;
+    private float staminaCooldownOffset = 0f;
+    private bool wasRunningLastFrame = false;
 
-    // Propiedades para el HUD??? a ver si asi era nancy
     public float StaminaNormalized => currentStamina / maxStamina;
     public bool IsRecovering => isRecovering;
 
+    #endregion
+
+    #region Agachado
+
+    [Header("Agachado")]
+    [Tooltip("Altura del CharacterController al estar agachado")]
+    public float crouchHeight = 1f;
+
+    [Tooltip("Velocidad de movimiento al caminar agachado")]
+    public float crouchWalkSpeed = 2f;
+
+    [Tooltip("Velocidad de interpolación del collider al agacharse o levantarse")]
+    public float colliderLerpSpeed = 4f;
+
+    [Tooltip("Indica si el jugador está agachado")]
+    public bool isCrouching = false;
+
+    [Tooltip("Capas consideradas como techo para el chequeo al levantarse")]
+    public LayerMask ceilingMask;
+
+    [Tooltip("Distancia extra sobre la cabeza para el raycast de techo")]
+    public float ceilingCheckDistance = 0.5f;
+
+    private float normalHeight;
+    private Vector3 normalCenter;
+
+    #endregion
+
+    #region Estados Externos
+
+    private bool isStunnedByEnemy = false;
+
+    Transform currentSnapPoint;
+    float snapSpeed;
+    bool inObstacle;
+    public bool IsLocked { get; private set; }
+
+    private bool onStairs;
+
+    #endregion
+
+    #region Efecto Cansancio - Pixelado
+
     [Header("Efecto cansancio (pixelado)")]
+    [Tooltip("Render feature que aplica el efecto de pixelado")]
     [SerializeField] private ScriptableRendererFeature fatigueRenderFeature;
+
+    [Tooltip("Material que controla el shader de pixelado")]
     [SerializeField] private Material materialFatigue;
+
+    [Tooltip("Tamaño de pixel en estado normal")]
     [SerializeField] private float normalPixelSize = 900f;
+
+    [Tooltip("Tamaño de pixel al llegar al cansancio")]
     [SerializeField] private float cansancioPixelSize = 100f;
+
     [Tooltip("Valor medio al que subirá el pulso antes de bajar de nuevo")]
     [SerializeField] private float pulseMaxPixelSize = 400f;
+
     [Tooltip("Velocidad ultra rápida para la caída inicial al llegar a 0 stamina")]
     [SerializeField] private float velocidadImpactoInicial = 4000f;
+
+    [Tooltip("Velocidad de transición para los pulsos del efecto de pixelado")]
     [SerializeField] private float velocidadTransicionFatigue = 800f;
+
+    [Tooltip("Cantidad de pulsos que realiza el efecto antes de recuperarse")]
     [SerializeField] private int cantidadDePulsos = 3;
 
     private int idPropiedadPixel;
     private float pixelSizeObjetivo = 900f;
     private float pixelSizeActual = 900f;
     private bool fatigueFeatureActiva = false;
+
     private enum EstadoFatiga { Inactivo, ImpactoInicial, PulsoSubiendo, PulsoBajando, RecuperacionFinal }
     private EstadoFatiga estadoActualFatigue = EstadoFatiga.Inactivo;
     private int pulsosRestantes = 0;
 
+    #endregion
+
+    #region Efecto Cansancio - Viñeta
+
     [Header("Efecto cansancio (Vignette)")]
+    [Tooltip("Render feature que aplica el efecto de viñeta")]
     [SerializeField] private ScriptableRendererFeature vignetteRenderFeature;
+
+    [Tooltip("Material que controla el shader de viñeta")]
     [SerializeField] private Material materialVignette;
+
+    [Tooltip("Intensidad de viñeta en estado normal")]
     [SerializeField] private float normalVignette = 0f;
+
+    [Tooltip("Intensidad de viñeta al llegar al cansancio")]
     [SerializeField] private float cansancioVignette = 6f;
+
     [Tooltip("Valor al que baja la viñeta durante las pulsaciones medias")]
     [SerializeField] private float pulseMinVignette = 2f;
-    [Tooltip("Velocidad inicial para que la viñeta llegue rápido a 6")]
+
+    [Tooltip("Velocidad inicial para que la viñeta llegue rápido a su valor de cansancio")]
     [SerializeField] private float velocidadVignetteInicial = 30f;
+
     [Tooltip("Velocidad de transición para los pulsos de la viñeta")]
     [SerializeField] private float velocidadTransicionVignette = 10f;
 
@@ -68,42 +183,9 @@ public class PlayerMovement : MonoBehaviour
     private float vignetteActual = 0f;
     private bool vignetteFeatureActiva = false;
 
-    [Header("Agachado")]
-    public float crouchHeight = 1f;        // altura del CC al agacharse
-    public float crouchWalkSpeed = 2f;     // <-- velocidad al caminar agachado
-    public float colliderLerpSpeed = 4f;   // renombrado para que sea claro
-    private float normalHeight;
-    private Vector3 normalCenter;
-    public bool isCrouching = false;
-    public LayerMask ceilingMask;          // para el raycast de techo
-    public float ceilingCheckDistance = 0.5f; // margen extra sobre la cabeza
-    public Transform orientation;
+    #endregion
 
-    private float staminaCooldownOffset = 0f;
-    private bool wasRunningLastFrame = false;
-
-    Vector2 moveInput;
-    Vector3 moveDirection;
-
-    CharacterController cc;
-
-    //variable para no moverte mientras el enemigo te ataca
-    private bool isStunnedByEnemy = false;
-
-    // variables para la interaccion con obstaculos
-    Transform currentSnapPoint;
-    float snapSpeed;
-    bool inObstacle;
-
-    // para las escaleras
-    private bool onStairs;
-
-
-
-    Animator Playeranimator;
-
-    // referencia al script de la cámara
-    public ThirdPersonCam camScript;
+    #region Unity Lifecycle
 
     private void Start()
     {
@@ -115,7 +197,6 @@ public class PlayerMovement : MonoBehaviour
         normalCenter = cc.center;
 
         currentStamina = maxStamina;
-
         currentSpeed = walkSpeed;
 
         idPropiedadPixel = Shader.PropertyToID("_PixelSize");
@@ -125,7 +206,7 @@ public class PlayerMovement : MonoBehaviour
             materialFatigue.SetFloat(idPropiedadPixel, pixelSizeActual);
         }
 
-        idPropiedadVignette = Shader.PropertyToID("_VignetteIntensity"); 
+        idPropiedadVignette = Shader.PropertyToID("_VignetteIntensity");
         if (materialVignette != null)
         {
             vignetteActual = normalVignette;
@@ -137,12 +218,10 @@ public class PlayerMovement : MonoBehaviour
             fatigueRenderFeature.SetActive(false);
             fatigueFeatureActiva = false;
         }
-
     }
 
     private void Update()
     {
-        // Ground check igual que antes con raycast
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
         ReadInput();
@@ -158,21 +237,38 @@ public class PlayerMovement : MonoBehaviour
         ActualizarTransicionFatigue();
     }
 
-    // FixedUpdate ya no es necesario, CharacterController va en Update
-
-    private void HandleGravity()
+    private void OnTriggerEnter(Collider other)
     {
-        if (grounded && verticalVelocity < 0f)
-            verticalVelocity = -2f; // pequeño valor negativo para mantenerlo pegado al suelo
-        else
-            verticalVelocity += gravity * Time.deltaTime;
+        if (other.CompareTag("Stairs"))
+        {
+            onStairs = true;
+            currentSpeed = walkSpeed;
+        }
     }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Stairs"))
+            onStairs = false;
+    }
+
+    private void OnDisable()
+    {
+        if (materialFatigue != null)
+            materialFatigue.SetFloat(idPropiedadPixel, normalPixelSize);
+
+        if (materialVignette != null)
+            materialVignette.SetFloat(idPropiedadVignette, normalVignette);
+    }
+
+    #endregion
+
+    #region Input
 
     private void ReadInput()
     {
         if (Keyboard.current == null) return;
 
-        // Si está bloqueado, limpiar input y salir
         if (IsLocked || isStunnedByEnemy)
         {
             moveInput = Vector2.zero;
@@ -189,16 +285,17 @@ public class PlayerMovement : MonoBehaviour
 
         moveInput = new Vector2(horizontal, vertical);
 
-        // Agachado con ctrl
         if (Keyboard.current.leftCtrlKey.wasPressedThisFrame)
         {
             if (!isCrouching)
             {
                 StartCrouch();
-                Playeranimator?.SetTrigger("doCrouch");  // <-- dispara la animación una sola vez
+                Playeranimator?.SetTrigger("doCrouch");
             }
             else
+            {
                 TryStandUp();
+            }
         }
 
         if (inObstacle && currentSnapPoint != null &&
@@ -208,9 +305,21 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Movimiento
+
+    private void HandleGravity()
+    {
+        if (grounded && verticalVelocity < 0f)
+            verticalVelocity = -2f;
+        else
+            verticalVelocity += gravity * Time.deltaTime;
+    }
+
     private void MovePlayer()
     {
-        if (IsLocked) return; // bloquea todo este metodo si estas escondido en un obstacle
+        if (IsLocked) return;
 
         if (isStunnedByEnemy)
         {
@@ -225,7 +334,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (flatMove.magnitude < 0.1f)
         {
-            // Sin input horizontal pero sí aplicamos gravedad
             cc.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
             return;
         }
@@ -234,7 +342,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (onStairs)
         {
-            // Proyectar sobre la normal de la escalera igual que antes
             if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit stairsHit,
                 playerHeight * 0.6f, whatIsGround))
             {
@@ -245,7 +352,6 @@ public class PlayerMovement : MonoBehaviour
                     stairSpeed *= 2f;
 
                 motion = slopeDir * stairSpeed;
-                // En escaleras no aplicamos gravedad para evitar rebotes
                 motion.y = Mathf.Max(motion.y, 0f);
             }
             else
@@ -262,7 +368,6 @@ public class PlayerMovement : MonoBehaviour
 
         cc.Move(motion * (isCrouching ? Time.unscaledDeltaTime : Time.deltaTime));
 
-        // Rotación hacia donde se mueve (igual que antes)
         Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
         if (flatDirection.magnitude > 0.1f)
         {
@@ -275,19 +380,21 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Stamina y Carrera
+
     private void RunPlayer()
     {
         bool isMoving = moveInput.magnitude > 0.1f;
         bool shiftHeld = Keyboard.current.leftShiftKey.isPressed;
 
-        // Si presiona shift mientras recupera, detener recuperación
         if (shiftHeld && isRecovering)
         {
             isRecovering = false;
             recoveryTimer = 0f;
         }
 
-        // Recuperación total (solo tras agotamiento completo)
         if (!shiftHeld && staminaDepleted)
         {
             if (!isRecovering)
@@ -318,7 +425,6 @@ public class PlayerMovement : MonoBehaviour
                          isMoving &&
                          canRun;
 
-        // Consumir stamina al correr
         if (isRunning)
         {
             if (!wasRunningLastFrame)
@@ -354,29 +460,25 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (!shiftHeld && !staminaDepleted && currentStamina < maxStamina)
         {
-            // Recuperación gradual si suelta shift sin haberse agotado
             currentStamina += Time.deltaTime;
             currentStamina = Mathf.Min(currentStamina, maxStamina);
         }
 
-        // Velocidad según estado
-        if (isCrouching)
-            currentSpeed = crouchWalkSpeed;
-        else
-            currentSpeed = isRunning ? runSpeed : walkSpeed;
-
-        camScript.SetRunning(isRunning);
+        currentSpeed = isCrouching ? crouchWalkSpeed : (isRunning ? runSpeed : walkSpeed);
 
         wasRunningLastFrame = isRunning;
 
         ReportMovementNoise(isMoving, isRunning);
     }
 
+    #endregion
+
+    #region Agachado
+
     void StartCrouch()
     {
         isCrouching = true;
 
-        // Calculamos el nuevo center para que la BASE del collider no se mueva
         float centerY = normalCenter.y - (normalHeight - crouchHeight) / 2f;
 
         cc.height = crouchHeight;
@@ -385,9 +487,7 @@ public class PlayerMovement : MonoBehaviour
 
     void TryStandUp()
     {
-        // Raycast desde la cabeza hacia arriba para verificar espacio
         Vector3 topOfCapsule = transform.position + Vector3.up * (cc.height + cc.skinWidth);
-
         bool blocked = Physics.Raycast(topOfCapsule, Vector3.up, ceilingCheckDistance, ceilingMask);
 
         if (blocked)
@@ -400,6 +500,10 @@ public class PlayerMovement : MonoBehaviour
         cc.height = normalHeight;
         cc.center = normalCenter;
     }
+
+    #endregion
+
+    #region Animación
 
     private void UpdateAnimations()
     {
@@ -418,11 +522,14 @@ public class PlayerMovement : MonoBehaviour
         Playeranimator.SetBool("isSlowActive", SlowTime.IsSlowActive);
     }
 
+    #endregion
+
+    #region Obstáculos
+
     void HandleObstacleMovement()
     {
         if (currentSnapPoint == null) return;
 
-        // Replicamos la lógica original: movimiento solo sobre el eje paralelo a la pared
         Vector3 toPlayer = transform.position - currentSnapPoint.position;
         Vector3 wallNormal = currentSnapPoint.right;
         Vector3 parallel = Vector3.ProjectOnPlane(toPlayer, wallNormal);
@@ -431,40 +538,17 @@ public class PlayerMovement : MonoBehaviour
         Vector3 targetPos = currentSnapPoint.position + parallel + move;
         Vector3 delta = targetPos - transform.position;
 
-        // Usamos Move en vez de MovePosition, ignoramos la Y para no luchar con la gravedad
         Vector3 slideMotion = new Vector3(delta.x, verticalVelocity * Time.deltaTime, delta.z);
         cc.Move(slideMotion * snapSpeed * Time.unscaledDeltaTime);
     }
 
-    // Triggers para escaleras (sin cambios en lógica)
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Stairs"))
-        {
-            onStairs = true;
-            currentSpeed = walkSpeed;
-            camScript.SetRunning(false);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Stairs"))
-            onStairs = false;
-    }
-
-
-    // Métodos públicos que ObstacleInteraction sigue llamando igual
-    public bool IsLocked { get; private set; }
-
-    // Modo hide: mueve libremente pero a velocidad reducida, sin bloquear
     public void EnterHideMode(Transform snapPoint, float snapSpeed)
     {
         inObstacle = true;
-        IsLocked = false;         // libre para moverse
+        IsLocked = false;
         currentSnapPoint = snapPoint;
         this.snapSpeed = snapSpeed;
-        currentSpeed = crouchWalkSpeed;  // velocidad reducida
+        currentSpeed = crouchWalkSpeed;
         verticalVelocity = 0f;
     }
 
@@ -473,7 +557,7 @@ public class PlayerMovement : MonoBehaviour
         inObstacle = false;
         IsLocked = false;
         currentSnapPoint = null;
-        currentSpeed = walkSpeed;     // restaurar velocidad normal
+        currentSpeed = walkSpeed;
     }
 
     public void EnterObstacleMode(Transform snapPoint, float snapSpeed)
@@ -493,17 +577,21 @@ public class PlayerMovement : MonoBehaviour
         currentSnapPoint = null;
     }
 
+    #endregion
+
+    #region API Pública
+
     public void SetMovementLock(bool lockState)
     {
         isStunnedByEnemy = lockState;
         if (lockState)
-        {
             moveInput = Vector2.zero;
-        }
     }
 
-    #region EfectoCansancio
-    //Efecto Fatiga
+    #endregion
+
+    #region Efecto Cansancio
+
     private void DispararEfectoFatiga()
     {
         if (estadoActualFatigue != EstadoFatiga.Inactivo) return;
@@ -556,13 +644,13 @@ public class PlayerMovement : MonoBehaviour
                 case EstadoFatiga.ImpactoInicial:
                     estadoActualFatigue = EstadoFatiga.PulsoSubiendo;
                     pixelSizeObjetivo = pulseMaxPixelSize;
-                    vignetteObjetivo = pulseMinVignette; 
+                    vignetteObjetivo = pulseMinVignette;
                     break;
 
                 case EstadoFatiga.PulsoSubiendo:
                     estadoActualFatigue = EstadoFatiga.PulsoBajando;
                     pixelSizeObjetivo = cansancioPixelSize;
-                    vignetteObjetivo = cansancioVignette; 
+                    vignetteObjetivo = cansancioVignette;
                     break;
 
                 case EstadoFatiga.PulsoBajando:
@@ -577,7 +665,7 @@ public class PlayerMovement : MonoBehaviour
                     {
                         estadoActualFatigue = EstadoFatiga.RecuperacionFinal;
                         pixelSizeObjetivo = normalPixelSize;
-                        vignetteObjetivo = normalVignette; 
+                        vignetteObjetivo = normalVignette;
                     }
                     break;
 
@@ -600,18 +688,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-        if (materialFatigue != null)
-        {
-            materialFatigue.SetFloat(idPropiedadPixel, normalPixelSize);
-        }
-        if (materialVignette != null)
-        {
-            materialVignette.SetFloat(idPropiedadVignette, normalVignette);
-        }
-    }
-    #endregion EfectoCansancio
+    #endregion
+
+    #region Ruido
 
     private void ReportMovementNoise(bool isMoving, bool isRunning)
     {
@@ -623,4 +702,6 @@ public class PlayerMovement : MonoBehaviour
         else if (isMoving)
             GameManager.Instance.ReportNoiseA(transform.position, 0.3f);
     }
+
+    #endregion
 }

@@ -13,13 +13,11 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject configCanvas;
 
     private bool pause;
-    private CinemachineBrain camara;
     private HabilidadesManager habilidadesManager;
 
     private void Start()
     {
         Application.targetFrameRate = 60;
-        camara = camPlayer.GetComponent<CinemachineBrain>();
         habilidadesManager = habilitiesPlayer.GetComponent<HabilidadesManager>();
     }
 
@@ -40,7 +38,7 @@ public class PauseMenu : MonoBehaviour
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-            camara.enabled = false;
+            camPlayer.gameObject.GetComponent<Camera>().enabled = false;
             habilidadesManager.enabled = false;
             animPlayer.speed = 0f;
             InventoryUIManager.Instance.SetPausa(true);
@@ -49,7 +47,7 @@ public class PauseMenu : MonoBehaviour
         else
         {
             Time.timeScale = 1;
-            camara.enabled = true;
+            camPlayer.gameObject.GetComponent<Camera>().enabled = true;
             habilidadesManager.enabled = true;
             animPlayer.speed = 1f;
             configCanvas.SetActive(false);
