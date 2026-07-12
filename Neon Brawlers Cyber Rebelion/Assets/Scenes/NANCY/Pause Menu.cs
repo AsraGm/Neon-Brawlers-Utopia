@@ -1,4 +1,3 @@
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -42,6 +41,7 @@ public class PauseMenu : MonoBehaviour
             habilidadesManager.enabled = false;
             animPlayer.speed = 0f;
             InventoryUIManager.Instance.SetPausa(true);
+            AudioListener.pause = true;
             Time.timeScale = 0;
         }
         else
@@ -52,6 +52,7 @@ public class PauseMenu : MonoBehaviour
             animPlayer.speed = 1f;
             configCanvas.SetActive(false);
             InventoryUIManager.Instance.SetPausa(false);
+            AudioListener.pause = false;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }

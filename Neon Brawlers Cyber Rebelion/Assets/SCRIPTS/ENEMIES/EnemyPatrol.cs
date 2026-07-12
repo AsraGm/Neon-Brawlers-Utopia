@@ -42,6 +42,11 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float angularSpeed = 360f;
     [SerializeField] private float acceleration = 10f;
 
+    [Header("Audio")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip generalSound;
+    [SerializeField] private AudioClip chaseSound;
+
     public bool isStunned /*{ get; private set; }*/ = false;
     public bool isChasing /*{ get; private set; }*/ = false;
     private bool isWaiting = false;
@@ -66,6 +71,9 @@ public class EnemyPatrol : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         fieldOfView = GetComponent<FieldOfView>();
         rb = GetComponent<Rigidbody>();
+
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+        NormalSound();
 
         if (agent != null)
         {
@@ -180,6 +188,7 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         ShowSymbol(alertMat);
+        ChaseSound();
 
         if (agent != null)
         {
@@ -199,6 +208,7 @@ public class EnemyPatrol : MonoBehaviour
         isChasing = false;
 
         HideSymbol();
+        NormalSound();
 
         if (agent != null)
         {
@@ -553,6 +563,28 @@ public class EnemyPatrol : MonoBehaviour
         if (robotAttack != null) robotAttack.RobotCanAttack();
     }
     #endregion PararTelekinesis
+
+    #region Audio
+    private void NormalSound()
+    {
+        if (audioSource == null || generalSound == null) return;
+        if (audioSource.clip == generalSound && audioSource.isPlaying) return;
+
+        audioSource.clip = generalSound;
+        audioSource.loop = true;
+        audioSource.Play();
+    }
+
+    private void ChaseSound()
+    {
+        if (audioSource == null || chaseSound == null) return;
+        if (audioSource.clip == chaseSound && audioSource.isPlaying) return;
+
+        audioSource.clip = chaseSound;
+        audioSource.loop = true;
+        audioSource.Play();
+    }
+    #endregion Audio
 
     private void OnDrawGizmos()
     {
