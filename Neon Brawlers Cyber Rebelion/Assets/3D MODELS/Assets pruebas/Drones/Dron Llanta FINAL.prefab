@@ -1325,8 +1325,9 @@ MonoBehaviour:
   patrolSpeed: 4
   chaseStoppingDistance: 1.5
   patrolStoppingDistance: 0.5
-  chaseRadius: 9.53
+  chaseRadius: 9
   chasingTolerance: 10
+  fovTransitionTime: 1.5
   investigateWaitTime: 4
   investigateArrivalThreshold: 1
   symbolRenderer: {fileID: 7461228970238641619}
@@ -1459,8 +1460,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 2.24
-  MinDistance: 6.645476
-  MaxDistance: 10.08884
+  MinDistance: 8.130457
+  MaxDistance: 11.898869
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0

@@ -15,11 +15,14 @@ public class FieldOfView : MonoBehaviour
     [SerializeField] private float eyeHeight = 1.6f;
 
     public LayerMask ObstructionMask => obstructionMask;
-
     public bool canSeePlayer;
+
+    private float originalRadius;
+    private Coroutine radiusChangeCoroutine;
 
     private void Start()
     {
+        originalRadius = radius;
         StartCoroutine(FOVRoutine());
     }
 
@@ -94,5 +97,36 @@ public class FieldOfView : MonoBehaviour
         }
 
         return target.position + Vector3.up * 1.5f;
+    }
+
+    public void SetRadius(float targetRadius, float duration)
+    {
+        if (radiusChangeCoroutine != null)
+        {
+            StopCoroutine(radiusChangeCoroutine);
+        }
+        radiusChangeCoroutine = StartCoroutine(LerpRadius(targetRadius, duration));
+    }
+
+    public void ResetRadius(float duration)
+    {
+        SetRadius(originalRadius, duration);
+    }
+
+    private IEnumerator LerpRadius(float targetRadius, float duration)
+    {
+        float startRadius = radius;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            radius = Mathf.Lerp(startRadius, targetRadius, t);
+            yield return null;
+        }
+
+        radius = targetRadius;
+        radiusChangeCoroutine = null;
     }
 }

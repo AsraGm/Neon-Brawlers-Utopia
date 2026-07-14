@@ -23,6 +23,7 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float chaseRadius = 15f;
     [Tooltip("Tiempo que tiene para acercarse al jugador al ser alertado")]
     [SerializeField] private float chasingTolerance = 10f;
+    [SerializeField] private float fovTransitionTime = 1.5f;
 
     [Header("Investigating")]
     [SerializeField] private float investigateWaitTime = 4f;
@@ -201,6 +202,11 @@ public class EnemyPatrol : MonoBehaviour
         {
             robotAttack.EnableAttackTrigger();
         }
+
+        if (fieldOfView != null)
+        {
+            fieldOfView.SetRadius(chaseRadius, fovTransitionTime);
+        }
     }
 
     void StopChasing()
@@ -219,6 +225,11 @@ public class EnemyPatrol : MonoBehaviour
         if (robotAttack != null)
         {
             robotAttack.DisableAttackTrigger();
+        }
+
+        if (fieldOfView != null)
+        {
+            fieldOfView.ResetRadius(fovTransitionTime);
         }
 
         UpdateDestination();
