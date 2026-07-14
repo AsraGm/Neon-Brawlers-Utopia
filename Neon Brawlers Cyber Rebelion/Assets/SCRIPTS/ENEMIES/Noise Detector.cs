@@ -8,6 +8,9 @@ public class NoiseDetector : MonoBehaviour
     [SerializeField] private float checkInterval = 0.2f;
     [SerializeField] private float minDistanceToRetrigger = 1.5f;
 
+    public float NormalNoiseRadius => normalNoise;
+    public float LoudNoiseRadius => loudNoise;
+
     private Vector3 lastNoiseAHandled = new Vector3(9999f, 9999f, 9999f);
     private Vector3 lastNoiseBHandled = new Vector3(9999f, 9999f, 9999f);
     private float timer;

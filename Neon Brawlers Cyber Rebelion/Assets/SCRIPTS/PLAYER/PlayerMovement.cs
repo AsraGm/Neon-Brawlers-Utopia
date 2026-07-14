@@ -30,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 moveDirection;
 
     public bool IsMoving => moveInput.magnitude > 0.1f;
+    public bool IsRunning { get; private set; }
 
     #endregion
 
@@ -424,6 +425,7 @@ public class PlayerMovement : MonoBehaviour
                          shiftHeld &&
                          isMoving &&
                          canRun;
+        IsRunning = isRunning;
 
         if (isRunning)
         {
