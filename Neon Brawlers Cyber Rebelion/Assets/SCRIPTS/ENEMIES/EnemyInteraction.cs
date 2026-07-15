@@ -2,23 +2,29 @@ using UnityEngine;
 
 public class EnemyInteraction : MonoBehaviour
 {
-    [Header("Cámara")]
-    [SerializeField] private float enemyFOV = 30f;
+    #region Referencias
 
-    ThirdPersonCam cam;
+    ThirdPersonCamera cam;
     ObstacleInteraction obstacleInteraction;
     CrouchObstacleInteraction crouchObstacle;
     CameraPostFXController postFX;
 
+    #endregion
+
+    #region Estado
+
     bool enemyInside;
     Transform currentEnemyLookAt;
 
+    #endregion
+
+    #region Unity Lifecycle
+
     void Awake()
     {
-        cam = FindFirstObjectByType<ThirdPersonCam>();
+        cam = FindFirstObjectByType<ThirdPersonCamera>();
         postFX = FindFirstObjectByType<CameraPostFXController>();
 
-        // Busca cualquiera de los dos tipos de obstacle en este mismo GameObject
         obstacleInteraction = GetComponent<ObstacleInteraction>();
         crouchObstacle = GetComponent<CrouchObstacleInteraction>();
     }
@@ -54,18 +60,43 @@ public class EnemyInteraction : MonoBehaviour
         ExitEnemyMode();
     }
 
+    #endregion
+
+    #region API Pública
+
     public void CheckEnemyInsideOnPlayerEnter()
     {
         if (enemyInside && currentEnemyLookAt != null)
             EnterEnemyMode(currentEnemyLookAt);
     }
 
+    public void ExitEnemyMode()
+    {
+        if (cam == null) return;
+
+        if (!IsPlayerHidden()) return;
+
+        cam.SetTenseBreathing(false);
+        postFX?.StopEnemyFX();
+    }
+
+    public void ForceCancel()
+    {
+        if (!enemyInside) return;
+
+        enemyInside = false;
+        ExitEnemyMode();
+    }
+
+    #endregion
+
+    #region Ayudantes
+
     bool IsEnemy(Collider other)
     {
         return other.gameObject.layer == LayerMask.NameToLayer("Enemy");
     }
 
-    // Helper que consulta cualquiera de los dos tipos de obstacle
     bool IsPlayerHidden()
     {
         if (obstacleInteraction != null) return obstacleInteraction.PlayerIsHidden;
@@ -76,24 +107,10 @@ public class EnemyInteraction : MonoBehaviour
     void EnterEnemyMode(Transform dynamicLookAt)
     {
         if (cam == null) return;
-        cam.SetCustomFollow(dynamicLookAt, enemyFOV);
+
+        cam.SetTenseBreathing(true);
         postFX?.StartEnemyFX();
     }
 
-    public void ExitEnemyMode()
-    {
-        if (cam == null) return;
-
-        if (!IsPlayerHidden()) return;
-
-        cam.ReturnToObstacleFollow();
-        postFX?.StopEnemyFX();
-    }
-
-    public void ForceCancel()
-    {
-        if (!enemyInside) return;
-        enemyInside = false;
-        ExitEnemyMode();
-    }
+    #endregion
 }
