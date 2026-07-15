@@ -378,7 +378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &55190992
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -420,6 +419,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1383459376}
   snapPoint: {fileID: 626419924}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &55190994
@@ -993,7 +1000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &215114626
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1035,6 +1041,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1845377482}
   snapPoint: {fileID: 1919752345}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &215114628
@@ -2979,7 +2993,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &533456946
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3021,6 +3034,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 674019276}
   snapPoint: {fileID: 817376549}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &533456948
@@ -3619,7 +3640,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &606098266
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3661,6 +3681,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1377081076}
   snapPoint: {fileID: 1693080958}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &606098268
@@ -4023,7 +4051,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &649573806
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4065,6 +4092,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1170601888}
   snapPoint: {fileID: 1677750201}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &649573808
@@ -4213,7 +4248,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &665631525
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4255,6 +4289,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 2123600665}
   snapPoint: {fileID: 1973060636}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &665631527
@@ -4545,7 +4587,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &691474306
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4587,6 +4628,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1277478893}
   snapPoint: {fileID: 850851432}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &691474308
@@ -5152,7 +5201,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &723554182
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5194,6 +5242,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 2103429664}
   snapPoint: {fileID: 1978601150}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &723554184
@@ -6932,7 +6988,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2408560032783380484, guid: fd749ab05e09c5042b1fad3cb1cc731b, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3.3132594
+      value: 4.5328703
       objectReference: {fileID: 0}
     - target: {fileID: 2408560032783380484, guid: fd749ab05e09c5042b1fad3cb1cc731b, type: 3}
       propertyPath: m_LocalScale.z
@@ -6944,7 +7000,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2408560032783380484, guid: fd749ab05e09c5042b1fad3cb1cc731b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.67
+      value: 8.0602
       objectReference: {fileID: 0}
     - target: {fileID: 2408560032783380484, guid: fd749ab05e09c5042b1fad3cb1cc731b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -13178,7 +13234,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &1344654499
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13220,6 +13275,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1533858140}
   snapPoint: {fileID: 1436275533}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1344654501
@@ -13368,7 +13431,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &1360144786
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13410,6 +13472,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 285094749}
   snapPoint: {fileID: 1321499324}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1360144788
@@ -15787,7 +15857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1655675588518385196, guid: 2f2cf8ca50efb2b4b88917a122c37353, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.7748147
+      value: 3.489108
       objectReference: {fileID: 0}
     - target: {fileID: 1655675588518385196, guid: 2f2cf8ca50efb2b4b88917a122c37353, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15795,7 +15865,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1655675588518385196, guid: 2f2cf8ca50efb2b4b88917a122c37353, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7.9629
+      value: 7.1058
       objectReference: {fileID: 0}
     - target: {fileID: 1655675588518385196, guid: 2f2cf8ca50efb2b4b88917a122c37353, type: 3}
       propertyPath: m_LocalPosition.z
@@ -16683,7 +16753,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &1902509728
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -16725,6 +16794,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 806851620}
   snapPoint: {fileID: 838594421}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1902509730
@@ -16941,7 +17018,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!54 &1923927615
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -16983,6 +17059,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 1129358399}
   snapPoint: {fileID: 246341606}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!65 &1923927617
@@ -107835,6 +107919,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   obstacleLookAt: {fileID: 646803745526060235}
   snapPoint: {fileID: 6961601808928332372}
+  cameraPositionOffset: {x: 0, y: 0, z: 0}
+  cameraRotationOffset: {x: 0, y: 0, z: 0}
+  detectionOrigin: {fileID: 0}
+  detectionOffset: {x: 0, y: 0, z: 0}
+  detectionBoxSize: {x: 1, y: 2, z: 0.5}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   hideWalkingZone: {fileID: 0}
   snapSpeed: 10
 --- !u!1 &8026418698755047300
@@ -107915,7 +108007,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d924ff54f532c449811026380942ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyInteraction
-  enemyFOV: 30
 --- !u!208 &8030208010043893175
 NavMeshObstacle:
   m_ObjectHideFlags: 0

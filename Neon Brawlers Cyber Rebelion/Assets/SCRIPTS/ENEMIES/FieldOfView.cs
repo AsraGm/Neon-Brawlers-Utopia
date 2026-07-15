@@ -10,10 +10,12 @@ public class FieldOfView : MonoBehaviour
 
     [SerializeField] private LayerMask targetMask;
     [SerializeField] private LayerMask obstructionMask;
+    [SerializeField] private Transform originPoint;
 
     [Header("Alturas de referencia")]
     [SerializeField] private float eyeHeight = 1.6f;
 
+    public Transform Origin => originPoint != null ? originPoint : transform;
     public LayerMask ObstructionMask => obstructionMask;
     public bool canSeePlayer;
 
@@ -38,19 +40,19 @@ public class FieldOfView : MonoBehaviour
     }
     private void FieldOfViewCheck()
     {
-        Collider[] rangeChecks = Physics.OverlapSphere(transform.position, radius, targetMask);
+        Transform origin = Origin;
+
+        Collider[] rangeChecks = Physics.OverlapSphere(origin.position, radius, targetMask);
 
         if (rangeChecks.Length != 0)
         {
             Transform target = rangeChecks[0].transform;
-
             Vector3 targetPoint = GetSightPoint(target);
-            Vector3 eyeOrigin = transform.position + Vector3.up * eyeHeight;
+            Vector3 eyeOrigin = origin.position + Vector3.up * eyeHeight;
             Vector3 directionToTarget = (targetPoint - eyeOrigin).normalized;
-
             Vector3 flatDirection = new Vector3(directionToTarget.x, 0, directionToTarget.z).normalized;
 
-            if (Vector3.Angle(transform.forward, flatDirection) < angle / 2)
+            if (Vector3.Angle(origin.forward, flatDirection) < angle / 2)
             {
                 if (HabilidadesManager.instance.playerIsHiding)
                 {
