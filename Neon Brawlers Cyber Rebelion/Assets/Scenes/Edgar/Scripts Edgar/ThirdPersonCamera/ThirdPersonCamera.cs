@@ -108,6 +108,10 @@ public class ThirdPersonCamera : MonoBehaviour
     private Vector3 customPositionOffset;
     private Vector3 customRotationOffset;
 
+    public Vector3 CurrentPivotPosition => followMode == FollowMode.Custom && customLookAt != null
+        ? customLookAt.position
+        : smoothedAnchorPosition;
+
     #endregion
 
     #region Unity Lifecycle
