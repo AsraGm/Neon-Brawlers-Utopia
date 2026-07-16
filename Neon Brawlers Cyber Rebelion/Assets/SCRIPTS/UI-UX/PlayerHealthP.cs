@@ -19,9 +19,9 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AudioClip sonidoMuerte;
     [SerializeField] private ParticleSystem particulasDanio;
 
-    [Header("=== CAMERA SHAKE ===")]
-    [SerializeField] private CinemachineImpulseSource impulseSource;
-    [SerializeField] private float fuerzaImpulso = 0.4f;
+    //[Header("=== CAMERA SHAKE ===")]
+    //[SerializeField] private CinemachineImpulseSource impulseSource;
+    //[SerializeField] private float fuerzaImpulso = 0.4f;
 
     [Header("=== VIGNETTE DE DAÑO ===")]
     [SerializeField] private ScriptableRendererFeature vignetteRenderFeature;
@@ -210,13 +210,13 @@ public class PlayerHealth : MonoBehaviour
             particulasDanio.Play();
         }
 
-        //Camera shake
-        if (impulseSource != null)
-        {
-            float intensidad = Mathf.Clamp01((vidaMaxima - vidaActual) / cambioDanoMaximo);
-            Vector3 direccionShake = new Vector3(0f, -0.5f, -1f).normalized;
-            impulseSource.GenerateImpulse(direccionShake * intensidad * fuerzaImpulso);
-        }
+        ////Camera shake
+        //if (impulseSource != null)
+        //{
+        //    float intensidad = Mathf.Clamp01((vidaMaxima - vidaActual) / cambioDanoMaximo);
+        //    Vector3 direccionShake = new Vector3(0f, -0.5f, -1f).normalized;
+        //    impulseSource.GenerateImpulse(direccionShake * intensidad * fuerzaImpulso);
+        //}
     }
 
     private void ActualizarUI()
