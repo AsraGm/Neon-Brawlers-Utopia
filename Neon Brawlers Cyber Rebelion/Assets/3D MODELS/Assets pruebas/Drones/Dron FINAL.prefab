@@ -885,9 +885,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c37852508deffa946b2bfaf7e03953e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DronAttack
-  detectionRange: 18.7
+  detectionRange: 18
   attackRange: 3
-  EnemyLayer:
+  enemyLayer:
     serializedVersion: 2
     m_Bits: 512
   obstructionMask:
@@ -1194,7 +1194,7 @@ GameObject:
   - component: {fileID: 1075382078638729103}
   - component: {fileID: 3616384539214231541}
   - component: {fileID: 2098705688299269312}
-  m_Layer: 0
+  m_Layer: 19
   m_Name: 'Collider '
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -66,6 +67,8 @@ public class EnemyPatrol : MonoBehaviour
     private Coroutine stunCoroutine;
     private Coroutine delayedUnalertCoroutine;
 
+    //Dron attack
+    public static readonly List<EnemyPatrol> ActiveEnemies = new List<EnemyPatrol>();
 
     void Start()
     {
@@ -596,6 +599,19 @@ public class EnemyPatrol : MonoBehaviour
         audioSource.Play();
     }
     #endregion Audio
+
+    #region DronAttack
+    private void OnEnable()
+    {
+        if (!ActiveEnemies.Contains(this))
+            ActiveEnemies.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        ActiveEnemies.Remove(this);
+    }
+    #endregion DronAttack
 
     private void OnDrawGizmos()
     {

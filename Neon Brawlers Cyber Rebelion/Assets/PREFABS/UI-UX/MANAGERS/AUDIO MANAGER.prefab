@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9216026760910013148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4798967717376967913}
+  - component: {fileID: 5934471925720948147}
+  m_Layer: 0
+  m_Name: AUDIO MANAGER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4798967717376967913
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9216026760910013148}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.17913, y: 5.82594, z: 140.64058}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5934471925720948147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9216026760910013148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2d5e841635fdf7428483eb4cd34f384, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  sounds:
+  - name: electromagneticWave
+    clip: {fileID: 8300000, guid: 6b9c4502ebb686b41a7ce18a5f4570f8, type: 3}
+    loop: 0
+    volume: 0.53
+    source: {fileID: 0}
+  - name: slowMotion
+    clip: {fileID: 8300000, guid: ce86c5004a9bc204d8d12f6e69af40fd, type: 3}
+    loop: 0
+    volume: 0.555
+    source: {fileID: 0}
+  - name: telekinesis
+    clip: {fileID: 8300000, guid: 24af62f2192d8f2489245ba37b65e29e, type: 3}
+    loop: 1
+    volume: 0.614
+    source: {fileID: 0}
+  - name: changeHability
+    clip: {fileID: 8300000, guid: 423d73e6b48283e488b7276b1dc32c06, type: 3}
+    loop: 0
+    volume: 1
+    source: {fileID: 0}
+  - name: throwDron
+    clip: {fileID: 8300000, guid: 423d73e6b48283e488b7276b1dc32c06, type: 3}
+    loop: 0
+    volume: 1
+    source: {fileID: 0}
+  - name: throwObject
+    clip: {fileID: 8300000, guid: 423d73e6b48283e488b7276b1dc32c06, type: 3}
+    loop: 0
+    volume: 1
+    source: {fileID: 0}

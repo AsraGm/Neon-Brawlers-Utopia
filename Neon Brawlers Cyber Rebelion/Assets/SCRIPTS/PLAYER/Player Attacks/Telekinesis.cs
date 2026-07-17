@@ -138,16 +138,23 @@ public class Telekinesis : MonoBehaviour
     {
         throwParticles.Play();
 
+        Vector3 releasePosition = currentRb.position;
+
         if (currentEnemy != null)
         {
             currentEnemy.OnTelekinesisRelease();
             currentRb.AddForce(playerCamera.transform.forward * throwForce * 10, ForceMode.Impulse);
             currentEnemy = null;
+
+            AudioManager.instance.Play("throwDron");
         }
         else
         {
             currentRb.useGravity = true;
+            AudioManager.instance.Play("throwObject");
         }
+
+        GameManager.Instance.ReportNoiseA(releasePosition, 1.5f); 
 
         AudioManager.instance.Stop("telekinesis");
 
