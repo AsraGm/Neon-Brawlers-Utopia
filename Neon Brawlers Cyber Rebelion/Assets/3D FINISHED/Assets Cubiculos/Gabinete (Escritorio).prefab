@@ -98,7 +98,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4447786579297291965}
-  - component: {fileID: 2411686389905471174}
   m_Layer: 0
   m_Name: Gabinete (Escritorio)
   m_TagString: Untagged
@@ -123,27 +122,6 @@ Transform:
   - {fileID: 3895845994763941695}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &2411686389905471174
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4079715682702305836}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.9576454, y: 1.1346283, z: 1.1968994}
-  m_Center: {x: 4.694296, y: 0.6636028, z: -3.9678497}
 --- !u!1 &6911692712389168381
 GameObject:
   m_ObjectHideFlags: 0
