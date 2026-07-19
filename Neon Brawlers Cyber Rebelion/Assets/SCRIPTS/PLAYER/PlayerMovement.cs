@@ -193,6 +193,7 @@ public class PlayerMovement : MonoBehaviour
         cc = GetComponent<CharacterController>();
         Playeranimator = GetComponentInChildren<Animator>();
         Playeranimator.updateMode = AnimatorUpdateMode.UnscaledTime;
+        Playeranimator.applyRootMotion = false;
 
         normalHeight = cc.height;
         normalCenter = cc.center;
@@ -316,6 +317,11 @@ public class PlayerMovement : MonoBehaviour
             verticalVelocity = -2f;
         else
             verticalVelocity += gravity * Time.deltaTime;
+
+        if (!IsMoving)
+        {
+            Debug.Log($"PlayerMovement: grounded={grounded} verticalVelocity={verticalVelocity:F4} position={transform.position}");
+        }
     }
 
     private void MovePlayer()

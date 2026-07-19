@@ -17,14 +17,17 @@ public class CameraCollision : MonoBehaviour
     [Tooltip("Capas consideradas como obstáculos para la colisión de cámara")]
     public LayerMask collisionMask;
 
-    [Tooltip("Radio aproximado de la cámara, usado para separar los rayos de detección // Valores altos = mayor precisión, pero menor rendimiento")]
+    [Tooltip("Radio aproximado de la cámara, usado para separar los rayos de detección")]
     public float collisionRadius = 0.3f;
 
-    [Tooltip("Distancia que se mantiene entre la cámara y la superficie con la que colisiona // Valores altos = mayor precisión, pero menor rendimiento")]
+    [Tooltip("Distancia que se mantiene entre la cámara y la superficie con la que colisiona")]
     public float collisionPadding = 0.2f;
 
     [Tooltip("Distancia adicional que se revisa más allá de la posición ideal de la cámara, para anticipar paredes cercanas")]
     public float extraDetectionRange = 0.5f;
+
+    [Tooltip("Frames consecutivos que debe persistir la colisión antes de aplicar la corrección, filtra falsos positivos de un solo frame en uniones de mesh")]
+    public int requiredConsecutiveHits = 2;
 
     [Tooltip("Tiempo de suavizado al alejar la cámara una vez que deja de colisionar")]
     public float collisionSmoothTime = 0.05f;
@@ -44,7 +47,8 @@ public class CameraCollision : MonoBehaviour
 
     private Vector3 smoothedPosition;
     private Vector3 velocity;
-    private bool initialized;
+    private bool wasColliding;
+    private int consecutiveHitFrames;
 
     #endregion
 
@@ -62,23 +66,25 @@ public class CameraCollision : MonoBehaviour
     {
         if (thirdPersonCamera == null) return;
 
-        Vector3 targetPosition = GetCollisionAdjustedPosition();
-        ApplySmoothedPosition(targetPosition);
+        Vector3 desiredPosition = transform.position;
+        bool isColliding = TryGetCorrectedPosition(desiredPosition, out Vector3 correctedPosition);
+
+        ApplyPosition(desiredPosition, correctedPosition, isColliding);
     }
 
     #endregion
 
     #region Colisión
 
-    private Vector3 GetCollisionAdjustedPosition()
+    private bool TryGetCorrectedPosition(Vector3 desiredPosition, out Vector3 correctedPosition)
     {
-        Vector3 anchor = thirdPersonCamera.CurrentPivotPosition;
-        Vector3 desiredPosition = transform.position;
+        correctedPosition = desiredPosition;
 
+        Vector3 anchor = thirdPersonCamera.CurrentPivotPosition;
         Vector3 direction = desiredPosition - anchor;
         float distance = direction.magnitude;
 
-        if (distance <= 0.0001f) return desiredPosition;
+        if (distance <= 0.0001f) return false;
 
         Vector3 directionNormalized = direction.normalized;
         float castDistance = distance + extraDetectionRange;
@@ -96,6 +102,11 @@ public class CameraCollision : MonoBehaviour
                 continue;
             }
 
+            if (IsPartOfPlayer(hit.collider))
+            {
+                continue;
+            }
+
             float hitDistance = Vector3.Distance(sampleAnchor, hit.point);
 
             if (hitDistance > distance) continue;
@@ -107,34 +118,42 @@ public class CameraCollision : MonoBehaviour
             }
         }
 
-        Debug.Log($"CameraCollision: anyHit={anyHit} closestDistance={closestDistance:F2} distance={distance:F2}", this);
+        consecutiveHitFrames = anyHit ? consecutiveHitFrames + 1 : 0;
 
-        if (!anyHit) return desiredPosition;
+        if (consecutiveHitFrames < requiredConsecutiveHits) return false;
 
         float safeDistance = Mathf.Max(closestDistance - collisionPadding, 0f);
-        return anchor + directionNormalized * safeDistance;
+        correctedPosition = anchor + directionNormalized * safeDistance;
+        return true;
     }
 
-    private void ApplySmoothedPosition(Vector3 targetPosition)
+    private bool IsPartOfPlayer(Collider hitCollider)
     {
-        if (!initialized)
-        {
-            smoothedPosition = transform.position;
-            initialized = true;
-        }
+        if (thirdPersonCamera.playerMovement == null) return false;
 
-        Vector3 anchor = thirdPersonCamera.CurrentPivotPosition;
-        float targetDistance = Vector3.Distance(anchor, targetPosition);
-        float currentDistance = Vector3.Distance(anchor, smoothedPosition);
+        return hitCollider.transform.root == thirdPersonCamera.playerMovement.transform.root;
+    }
 
-        if (targetDistance < currentDistance)
+    private void ApplyPosition(Vector3 desiredPosition, Vector3 correctedPosition, bool isColliding)
+    {
+        if (isColliding)
         {
-            smoothedPosition = targetPosition;
+            smoothedPosition = correctedPosition;
             velocity = Vector3.zero;
+            wasColliding = true;
+        }
+        else if (wasColliding)
+        {
+            smoothedPosition = Vector3.SmoothDamp(smoothedPosition, desiredPosition, ref velocity, collisionSmoothTime);
+
+            if (Vector3.Distance(smoothedPosition, desiredPosition) <= 0.01f)
+            {
+                wasColliding = false;
+            }
         }
         else
         {
-            smoothedPosition = Vector3.SmoothDamp(smoothedPosition, targetPosition, ref velocity, collisionSmoothTime);
+            smoothedPosition = desiredPosition;
         }
 
         transform.position = smoothedPosition;

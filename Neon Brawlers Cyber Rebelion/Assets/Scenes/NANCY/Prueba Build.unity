@@ -49123,7 +49123,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0.5
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -279174,6 +279174,7 @@ GameObject:
   - component: {fileID: 4316503093531691633}
   - component: {fileID: 6364526053866112642}
   - component: {fileID: 9041756636954348611}
+  - component: {fileID: 9041756636954348612}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -386043,11 +386044,61 @@ MonoBehaviour:
   thirdPersonCamera: {fileID: 4316503093531691633}
   collisionMask:
     serializedVersion: 2
-    m_Bits: 270336
-  collisionRadius: 0.5
-  collisionPadding: 0.5
-  extraDetectionRange: 0.5
+    m_Bits: 8192
+  collisionRadius: 0.1
+  collisionPadding: 0.15
+  extraDetectionRange: 0.2
+  requiredConsecutiveHits: 2
   collisionSmoothTime: 0.08
+--- !u!114 &9041756636954348612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4718895169193329922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e06f4609c37d594b87c7ef852c62644, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  lowPreset:
+    intensity: 0.1
+    duration: 0.15
+  mediumPreset:
+    intensity: 0.25
+    duration: 0.3
+  highPreset:
+    intensity: 0.5
+    duration: 0.5
+  usePositionShake: 1
+  useRotationShake: 0
+  noiseFrequency: 25
+  rotationMultiplier: 3
+  decayCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!23 &9043810391669935314
 MeshRenderer:
   m_ObjectHideFlags: 0
