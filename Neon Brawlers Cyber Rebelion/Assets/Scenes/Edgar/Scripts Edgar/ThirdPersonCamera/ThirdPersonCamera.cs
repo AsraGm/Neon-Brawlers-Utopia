@@ -189,7 +189,9 @@ public class ThirdPersonCamera : MonoBehaviour
     private void FollowPosition()
     {
         Vector3 targetPosition = GetNormalTargetPosition();
-        ApplySmoothedCameraPosition(targetPosition, positionSmoothTime);
+
+        transform.position = targetPosition;
+        SyncSharedCameraPosition(targetPosition);
     }
 
     private Vector3 GetNormalTargetPosition()
@@ -238,6 +240,13 @@ public class ThirdPersonCamera : MonoBehaviour
         if (orientation == null) return;
 
         orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
+    }
+
+    private void SyncSharedCameraPosition(Vector3 currentPosition)
+    {
+        smoothedCameraPosition = currentPosition;
+        cameraPositionVelocity = Vector3.zero;
+        cameraPositionInitialized = true;
     }
 
     private void ApplySmoothedCameraPosition(Vector3 targetPosition, float smoothTime)
