@@ -158,6 +158,8 @@ public class PlayerHealth : MonoBehaviour
         vidaActual = vidaMaxima;
         HabilidadesManager.instance.playerIsHiding = false;
 
+        TransitionDeath.Instance?.IniciarGlitchLuegoFade();
+
         if (mostrarLogs)
         {
             Debug.Log("[PlayerHealth] ☠️ Jugador muerto. Cargando checkpoint...");
@@ -189,6 +191,7 @@ public class PlayerHealth : MonoBehaviour
         {
             GameManager.Instance.CargarCheckpoint();
             ResetearEstadoMuerte();
+            TransitionDeath.Instance?.TerminarFadeLuegoGlitch();
         }
         else
         {
