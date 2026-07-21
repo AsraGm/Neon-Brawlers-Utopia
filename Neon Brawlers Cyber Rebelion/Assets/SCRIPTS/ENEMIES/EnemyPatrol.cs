@@ -44,6 +44,14 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float angularSpeed = 360f;
     [SerializeField] private float acceleration = 10f;
 
+    [Header("Led")]
+    [SerializeField] private Renderer ledRenderer;
+    [SerializeField] private Color ledColorNormal = Color.green;
+    [SerializeField] private Color ledColorChasing = Color.red;
+
+    private MaterialPropertyBlock ledPropBlock;
+    private static readonly int LedColorID = Shader.PropertyToID("_LedColor");
+
     [Header("Audio")]
     private AudioSource audioSource;
     [SerializeField] private AudioClip generalSound;
@@ -75,6 +83,9 @@ public class EnemyPatrol : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         fieldOfView = GetComponent<FieldOfView>();
         rb = GetComponent<Rigidbody>();
+
+        ledPropBlock = new MaterialPropertyBlock();
+        SetLedColor(ledColorNormal);
 
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
         NormalSound();
@@ -193,6 +204,7 @@ public class EnemyPatrol : MonoBehaviour
 
         ShowSymbol(alertMat);
         ChaseSound();
+        SetLedColor(ledColorChasing);
 
         if (agent != null)
         {
@@ -218,6 +230,7 @@ public class EnemyPatrol : MonoBehaviour
 
         HideSymbol();
         NormalSound();
+        SetLedColor(ledColorNormal);
 
         if (agent != null)
         {
@@ -612,6 +625,17 @@ public class EnemyPatrol : MonoBehaviour
         ActiveEnemies.Remove(this);
     }
     #endregion DronAttack
+
+    #region Led
+    private void SetLedColor(Color color)
+    {
+        if (ledRenderer == null) return;
+
+        ledRenderer.GetPropertyBlock(ledPropBlock);
+        ledPropBlock.SetColor(LedColorID, color);
+        ledRenderer.SetPropertyBlock(ledPropBlock);
+    }
+    #endregion Led
 
     private void OnDrawGizmos()
     {
