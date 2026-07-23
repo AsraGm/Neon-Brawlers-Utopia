@@ -111,7 +111,11 @@ public class HabilidadesManager : MonoBehaviour
     private void AbilityRelease()
     {
         if (selectedAbility == 2)
+        {
             GetComponent<Telekinesis>()?.StopTelekinesis();
+            playerAnimator?.SetTrigger("doTelekinesis");
+
+        }
     }
 
     public void Cooldown(float cooldownTime)
