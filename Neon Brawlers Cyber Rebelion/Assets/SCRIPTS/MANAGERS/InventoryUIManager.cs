@@ -402,7 +402,6 @@ public class InventoryUIManager : MonoBehaviour
 
         int nuevoIndice = indiceSeleccionado + direccion;
 
-        // Limitar navegación horizontal
         if (direccion == 1 || direccion == -1)
         {
             int filaActual = indiceSeleccionado / columnasGrid;
@@ -425,11 +424,17 @@ public class InventoryUIManager : MonoBehaviour
             indiceSeleccionado = nuevoIndice;
             tiempoUltimoInput = Time.time;
 
-            HacerScrollAlSlot();
-            StartCoroutine(ActualizarHighlightConDelayNavegacion());
+            StartCoroutine(ActualizarScrollYHighlight());
         }
     }
 
+    private System.Collections.IEnumerator ActualizarScrollYHighlight()
+    {
+        yield return null;
+        yield return null;
+        HacerScrollAlSlot();
+        ActualizarHighlight();
+    }
     private System.Collections.IEnumerator ActualizarHighlightConDelayNavegacion()
     {
         yield return null;
@@ -485,41 +490,53 @@ public class InventoryUIManager : MonoBehaviour
         if (scrollActual == null || slotsActuales.Count == 0) return;
         if (indiceSeleccionado >= slotsActuales.Count) return;
 
-        // Forzar actualización de layout
-        Canvas.ForceUpdateCanvases();
+        scrollActual.StopMovement();
 
-        GameObject slotSeleccionado = slotsActuales[indiceSeleccionado];
-        RectTransform slotRect = slotSeleccionado.GetComponent<RectTransform>();
         RectTransform contentRect = scrollActual.content;
         RectTransform viewportRect = scrollActual.viewport;
+        if (contentRect == null || viewportRect == null) return;
 
-        if (slotRect == null || contentRect == null || viewportRect == null) return;
-
-        int filaActual = indiceSeleccionado / columnasGrid;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+        Canvas.ForceUpdateCanvases();
 
         GridLayoutGroup gridLayout = contentRect.GetComponent<GridLayoutGroup>();
         if (gridLayout == null) return;
 
         float alturaFila = gridLayout.cellSize.y + gridLayout.spacing.y;
-        float targetY = filaActual * alturaFila;
 
-        float contentHeight = contentRect.rect.height;
+        int totalFilas = Mathf.CeilToInt((float)slotsActuales.Count / columnasGrid);
+        float contentHeightCalculada = totalFilas * alturaFila
+                                        + gridLayout.padding.top
+                                        + gridLayout.padding.bottom;
+
+        float contentHeight = Mathf.Max(contentRect.rect.height, contentHeightCalculada);
         float viewportHeight = viewportRect.rect.height;
 
+        // Si todo entra en el viewport, no hay nada que mover
         if (contentHeight <= viewportHeight)
         {
-            scrollActual.verticalNormalizedPosition = 1f;
+            contentRect.anchoredPosition = new Vector2(contentRect.anchoredPosition.x, 0f);
+
             return;
         }
 
-        float normalizedPosition = Mathf.Clamp01(targetY / (contentHeight - viewportHeight));
-        normalizedPosition = 1f - normalizedPosition;
+        int filaActual = indiceSeleccionado / columnasGrid;
 
-        scrollActual.verticalNormalizedPosition = normalizedPosition;
+        // ⭐ Posición objetivo EXACTA en píxeles: la fila sube (Content se mueve
+        // hacia arriba en Y positivo, porque el pivot está arriba)
+        float targetY = filaActual * alturaFila;
+
+        // No dejar que se pase del final del contenido
+        float maxScroll = contentHeight - viewportHeight;
+        targetY = Mathf.Clamp(targetY, 0f, maxScroll);
+
+        contentRect.anchoredPosition = new Vector2(contentRect.anchoredPosition.x, targetY);
+
+        Debug.Log($"[SCROLL-CHECK] Content='{contentRect.name}' (id={contentRect.GetInstanceID()}) posY_aplicado={targetY} posY_real_despues={contentRect.anchoredPosition.y}");
     }
     #endregion
 
-    #region Selección de Item
+        #region Selección de Item
     private void SeleccionarItem()
     {
         // LLAVES: Inspeccionar modelo 3D
