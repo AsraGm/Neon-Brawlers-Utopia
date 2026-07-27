@@ -4,14 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// ✅ VERSIÓN CORREGIDA V2 - InventoryUIManager con cálculo de posición CORRECTO
-/// 
-/// FIX PRINCIPAL:
-/// - Método de cálculo de posición del highlight simplificado y corregido
-/// - Ahora usa TransformPoint para conversión directa de coordenadas
-/// - Mucho más confiable y funciona en cualquier configuración de Canvas
-/// </summary>
 public class InventoryUIManager : MonoBehaviour
 {
     #region Singleton
@@ -85,6 +77,17 @@ public class InventoryUIManager : MonoBehaviour
     public KeyCode teclaAbajo = KeyCode.DownArrow;
     public KeyCode teclaIzquierda = KeyCode.LeftArrow;
     public KeyCode teclaDerecha = KeyCode.RightArrow;
+    private int filaOffset = 0;
+
+    private Rigidbody rbAncla;
+
+    [Header("=== ANIMACIÓN OPEN/CLOSE ===")]
+    [SerializeField] private float duracionAnimacion = 0.25f;
+    [SerializeField] private AnimationCurve curvaAnimacion = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private float escalaInicial = 0.8f; // qué tan "chico" arranca al abrir
+
+    private CanvasGroup canvasGroupInventario;
+    private Coroutine animacionActual;
     #endregion
 
     #region Variables Internas
@@ -117,7 +120,6 @@ public class InventoryUIManager : MonoBehaviour
             }
         }
     }
-
     private ScrollRect scrollActual
     {
         get
@@ -168,16 +170,16 @@ public class InventoryUIManager : MonoBehaviour
         // Obtener todos los slots existentes
         ObtenerSlots();
 
-        // ✅ NUEVO SISTEMA: Crear highlight en contenedor separado
         if (highlightObject == null)
             CrearHighlightMejorado();
 
         ConfigurarBotonesTabs();
 
         // Cerrar inventario al inicio
+        canvasGroupInventario = canvasInventario.GetComponent<CanvasGroup>();
+        if (canvasGroupInventario == null)
+            canvasGroupInventario = canvasInventario.AddComponent<CanvasGroup>();
         CerrarInventario();
-
-        Debug.Log("[InventoryUI] Sistema inicializado");
     }
 
     private void ObtenerSlots()
@@ -197,10 +199,6 @@ public class InventoryUIManager : MonoBehaviour
         Debug.Log($"[InventoryUI] {slotsLLAVES.Count} slots LLAVES, {slotsBdD.Count} slots BdD");
     }
 
-    /// <summary>
-    /// ✅ NUEVO SISTEMA MEJORADO: Crea el highlight en un contenedor SEPARADO
-    /// Esto evita que el GridLayoutGroup lo trate como un slot más
-    /// </summary>
     private void CrearHighlightMejorado()
     {
         // ⭐ VALIDACIÓN: Si no hay contenedor asignado, crearlo automáticamente
@@ -208,7 +206,6 @@ public class InventoryUIManager : MonoBehaviour
         {
             Debug.LogWarning("[InventoryUI] ⚠️ No hay HighlightContainer asignado. Creando uno automáticamente...");
 
-            // Crear contenedor como hijo directo del Canvas de inventario
             GameObject containerObj = new GameObject("HighlightContainer");
             containerObj.transform.SetParent(canvasInventario.transform, false);
 
@@ -220,8 +217,6 @@ public class InventoryUIManager : MonoBehaviour
             containerRect.anchoredPosition = Vector2.zero;
 
             highlightContainer = containerObj.transform;
-
-            Debug.Log("[InventoryUI] ✅ HighlightContainer creado automáticamente");
         }
 
         // Crear el highlight como hijo del contenedor separado
@@ -311,7 +306,6 @@ public class InventoryUIManager : MonoBehaviour
 
     public void ActualizarHighlightPublico()
     {
-        // ✅ Solo actualizar si el inventario está abierto
         if (inventarioAbierto)
         {
             ActualizarHighlight();
@@ -323,33 +317,75 @@ public class InventoryUIManager : MonoBehaviour
         inventarioAbierto = true;
         canvasInventario.SetActive(true);
 
-        // Mostrar tab actual
         MostrarTab(tabActual);
-
-        indiceSeleccionado = 0; // Resetear al abrir
+        indiceSeleccionado = 0;
 
         StartCoroutine(ActualizarHighlightConDelay());
-
         ActualizarEstadoBotones();
+
+        if (animacionActual != null) StopCoroutine(animacionActual);
+        animacionActual = StartCoroutine(AnimarInventario(true));
 
         Debug.Log("[InventoryUI] Inventario abierto");
     }
 
+    public void CerrarInventario()
+    {
+        inventarioAbierto = false;
+        highlightObject.SetActive(false);
+
+        if (animacionActual != null) StopCoroutine(animacionActual);
+        animacionActual = StartCoroutine(AnimarInventario(false));
+
+        Debug.Log("[InventoryUI] Inventario cerrado");
+    }
+    private System.Collections.IEnumerator AnimarInventario(bool abriendo)
+    {
+        float tiempo = 0f;
+
+        float alphaInicio = canvasGroupInventario.alpha;
+        float alphaFin = abriendo ? 1f : 0f;
+
+        float escalaInicio = canvasInventario.transform.localScale.x;
+        float escalaFin = abriendo ? 1f : escalaInicial;
+
+        canvasGroupInventario.interactable = false;
+        canvasGroupInventario.blocksRaycasts = false;
+
+        while (tiempo < duracionAnimacion)
+        {
+            tiempo += Time.unscaledDeltaTime; // unscaled para que funcione aunque el juego esté en pausa/timescale 0
+            float t = curvaAnimacion.Evaluate(Mathf.Clamp01(tiempo / duracionAnimacion));
+
+            canvasGroupInventario.alpha = Mathf.Lerp(alphaInicio, alphaFin, t);
+
+            float escalaActual = Mathf.Lerp(escalaInicio, escalaFin, t);
+            canvasInventario.transform.localScale = new Vector3(escalaActual, escalaActual, escalaActual);
+
+            yield return null;
+        }
+
+        canvasGroupInventario.alpha = alphaFin;
+        canvasInventario.transform.localScale = Vector3.one * escalaFin;
+
+        if (abriendo)
+        {
+            canvasGroupInventario.interactable = true;
+            canvasGroupInventario.blocksRaycasts = true;
+        }
+        else
+        {
+            // Recién ahora que terminó la animación, desactivamos el objeto de verdad
+            canvasInventario.SetActive(false);
+            canvasInventario.transform.localScale = Vector3.one; // resetear para la próxima apertura
+        }
+    }
     private System.Collections.IEnumerator ActualizarHighlightConDelay()
     {
         yield return null; // Esperar 1 frame
         yield return null; // Esperar un frame adicional para asegurar que el layout esté actualizado
         ActualizarHighlight();
         HacerScrollAlSlot();
-    }
-
-    public void CerrarInventario()
-    {
-        inventarioAbierto = false;
-        canvasInventario.SetActive(false);
-        highlightObject.SetActive(false);
-
-        Debug.Log("[InventoryUI] Inventario cerrado");
     }
     #endregion
 
@@ -487,56 +523,48 @@ public class InventoryUIManager : MonoBehaviour
 
     private void HacerScrollAlSlot()
     {
-        if (scrollActual == null || slotsActuales.Count == 0) return;
+        if (slotsActuales.Count == 0) return;
         if (indiceSeleccionado >= slotsActuales.Count) return;
 
-        scrollActual.StopMovement();
-
-        RectTransform contentRect = scrollActual.content;
-        RectTransform viewportRect = scrollActual.viewport;
+        RectTransform contentRect = scrollActual != null ? scrollActual.content : null;
+        RectTransform viewportRect = scrollActual != null ? scrollActual.viewport : null;
         if (contentRect == null || viewportRect == null) return;
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
-        Canvas.ForceUpdateCanvases();
 
         GridLayoutGroup gridLayout = contentRect.GetComponent<GridLayoutGroup>();
         if (gridLayout == null) return;
 
         float alturaFila = gridLayout.cellSize.y + gridLayout.spacing.y;
-
-        int totalFilas = Mathf.CeilToInt((float)slotsActuales.Count / columnasGrid);
-        float contentHeightCalculada = totalFilas * alturaFila
-                                        + gridLayout.padding.top
-                                        + gridLayout.padding.bottom;
-
-        float contentHeight = Mathf.Max(contentRect.rect.height, contentHeightCalculada);
         float viewportHeight = viewportRect.rect.height;
 
-        // Si todo entra en el viewport, no hay nada que mover
-        if (contentHeight <= viewportHeight)
-        {
-            contentRect.anchoredPosition = new Vector2(contentRect.anchoredPosition.x, 0f);
+        // Cuántas filas completas entran en el viewport
+        int filasVisibles = Mathf.Max(1, Mathf.FloorToInt(viewportHeight / alturaFila));
 
-            return;
+        int filaSeleccionada = indiceSeleccionado / columnasGrid;
+
+        // Ajustar el offset según hacia dónde nos movimos
+        if (filaSeleccionada < filaOffset)
+        {
+            filaOffset = filaSeleccionada;
+        }
+        else if (filaSeleccionada >= filaOffset + filasVisibles)
+        {
+            filaOffset = filaSeleccionada - filasVisibles + 1;
         }
 
-        int filaActual = indiceSeleccionado / columnasGrid;
+        int totalFilas = Mathf.CeilToInt((float)slotsActuales.Count / columnasGrid);
+        filaOffset = Mathf.Clamp(filaOffset, 0, Mathf.Max(0, totalFilas - filasVisibles));
 
-        // ⭐ Posición objetivo EXACTA en píxeles: la fila sube (Content se mueve
-        // hacia arriba en Y positivo, porque el pivot está arriba)
-        float targetY = filaActual * alturaFila;
-
-        // No dejar que se pase del final del contenido
-        float maxScroll = contentHeight - viewportHeight;
-        targetY = Mathf.Clamp(targetY, 0f, maxScroll);
-
-        contentRect.anchoredPosition = new Vector2(contentRect.anchoredPosition.x, targetY);
-
-        Debug.Log($"[SCROLL-CHECK] Content='{contentRect.name}' (id={contentRect.GetInstanceID()}) posY_aplicado={targetY} posY_real_despues={contentRect.anchoredPosition.y}");
+        // Mostrar/ocultar slots según su fila
+        for (int i = 0; i < slotsActuales.Count; i++)
+        {
+            int filaDeEsteSlot = i / columnasGrid;
+            bool visible = filaDeEsteSlot >= filaOffset && filaDeEsteSlot < filaOffset + filasVisibles;
+            slotsActuales[i].SetActive(visible);
+        }
     }
     #endregion
 
-        #region Selección de Item
+    #region Selección de Item
     private void SeleccionarItem()
     {
         // LLAVES: Inspeccionar modelo 3D
