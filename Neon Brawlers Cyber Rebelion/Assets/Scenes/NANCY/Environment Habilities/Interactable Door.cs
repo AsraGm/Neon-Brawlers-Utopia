@@ -14,10 +14,15 @@ public class InteractableDoor : MonoBehaviour
 
     private Animator animator;
     private Coroutine stunCoroutine;
+    private int defaultStateHash;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
+    }
+    private void Start()
+    {
+        defaultStateHash = animator.GetCurrentAnimatorStateInfo(0).fullPathHash;
     }
 
     public void ApplyStun(float duration)
@@ -47,5 +52,23 @@ public class InteractableDoor : MonoBehaviour
         {
             automaticDoor.OnCloseAnimationFinished();
         }
+    }
+
+    public void ReturnToDefaultState()
+    {
+        if (stunCoroutine != null)
+        {
+            StopCoroutine(stunCoroutine);
+            stunCoroutine = null;
+        }
+
+        isStunned = false;
+        animator.speed = 1f;
+
+        if (damageCollider != null)
+            damageCollider.enabled = true;
+
+        animator.Play(defaultStateHash, 0, 0f);
+        animator.Update(0f);
     }
 }

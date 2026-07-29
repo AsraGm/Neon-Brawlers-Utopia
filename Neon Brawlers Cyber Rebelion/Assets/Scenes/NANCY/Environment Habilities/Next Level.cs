@@ -8,12 +8,14 @@ public class NextLevel : MonoBehaviour
 
     [Tooltip("Tiempo para que las animaciones pasen")]
     [SerializeField] private float scanningTime;
+    [SerializeField] private string item1;
+    [SerializeField] private string item2;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            if (InventoryUIManager.Instance.TieneItem("Area_2") && (InventoryUIManager.Instance.TieneItem("Area_2.2")))
+            if (InventoryUIManager.Instance.TieneItem(item1) && (InventoryUIManager.Instance.TieneItem(item2)))
             {
                 StartCoroutine(ScanearTarjetas());
                 WaveCollected?.Invoke();
