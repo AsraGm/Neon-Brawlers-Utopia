@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
 
     #endregion
 
-    #region Movimiento
+    #region DatosMovimiento
 
     [Header("Movimiento")]
     [Tooltip("Velocidad de caminata normal")]
@@ -229,6 +229,7 @@ public class PlayerMovement : MonoBehaviour
         ReadInput();
         RunPlayer();
         UpdateAnimations();
+        HandleFootsteps();
         HandleGravity();
 
         if (!inObstacle)
@@ -709,6 +710,58 @@ public class PlayerMovement : MonoBehaviour
             GameManager.Instance.ReportNoiseB(transform.position, 0.3f);
         else if (isMoving)
             GameManager.Instance.ReportNoiseA(transform.position, 0.3f);
+    }
+
+    #endregion
+
+    #region Audio - Pasos
+
+    [Header("Audio - Pasos")]
+    [Tooltip("AudioSource dedicado a los pasos del jugador (Spatial Blend = 1 recomendado)")]
+    public AudioSource footstepSource;
+
+    [Tooltip("Variaciones de sonido al caminar")]
+    public AudioClip[] walkFootstepClips;
+
+    [Tooltip("Variaciones de sonido al correr")]
+    public AudioClip[] runFootstepClips;
+
+    [Tooltip("Intervalo entre pasos al caminar (segundos)")]
+    public float walkStepInterval = 0.5f;
+
+    [Tooltip("Intervalo entre pasos al correr (segundos)")]
+    public float runStepInterval = 0.28f;
+
+    private float stepTimer = 0f;
+
+    private void HandleFootsteps()
+    {
+        if (!grounded || !IsMoving || isCrouching || IsLocked || isStunnedByEnemy)
+        {
+            stepTimer = 0f;
+            return;
+        }
+
+        float interval = IsRunning ? runStepInterval : walkStepInterval;
+
+        stepTimer -= Time.deltaTime;
+        if (stepTimer <= 0f)
+        {
+            PlayFootstep();
+            stepTimer = interval;
+        }
+    }
+
+    public void PlayFootstep()
+    {
+        if (footstepSource == null) return;
+
+        AudioClip[] clips = IsRunning ? runFootstepClips : walkFootstepClips;
+        if (clips == null || clips.Length == 0) return;
+
+        AudioClip clip = clips[Random.Range(0, clips.Length)];
+        footstepSource.pitch = Random.Range(0.95f, 1.05f); // variación sutil para que no suene repetitivo
+        footstepSource.PlayOneShot(clip);
     }
 
     #endregion
