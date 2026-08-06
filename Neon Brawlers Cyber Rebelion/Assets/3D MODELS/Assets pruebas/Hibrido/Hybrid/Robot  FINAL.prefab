@@ -3614,11 +3614,11 @@ MonoBehaviour:
   minIdleTime: 2
   maxIdleTime: 4
   chaseSpeed: 4
-  patrolSpeed: 2
+  patrolSpeed: 2.5
   chaseStoppingDistance: 0.1
   patrolStoppingDistance: 0.5
-  chaseRadius: 10
-  chasingTolerance: 10
+  chaseRadius: 8
+  chasingTolerance: 8
   fovTransitionTime: 1.5
   investigateWaitTime: 4
   investigateArrivalThreshold: 1
@@ -3629,6 +3629,9 @@ MonoBehaviour:
   offDelay: 1
   angularSpeed: 360
   acceleration: 10
+  ledRenderer: {fileID: 0}
+  ledColorNormal: {r: 0, g: 1, b: 0, a: 1}
+  ledColorChasing: {r: 1, g: 0, b: 0, a: 1}
   generalSound: {fileID: 8300000, guid: 74385a6e80fd51f459e3b6cddc8aef5a, type: 3}
   chaseSound: {fileID: 8300000, guid: 403ca5ce5ef3cdf47ad575112bffd1a2, type: 3}
   isStunned: 0

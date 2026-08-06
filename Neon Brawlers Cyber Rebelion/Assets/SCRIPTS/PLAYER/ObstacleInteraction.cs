@@ -6,22 +6,11 @@ public class ObstacleInteraction : MonoBehaviour
     #region Referencias
 
     [Header("Referencias")]
-    [Tooltip("Punto que la cámara mira mientras el jugador está en rango del obstáculo")]
-    public Transform obstacleLookAt;
-
-    [Tooltip("Punto al que se ancla el jugador mientras está escondido")]
+    [Tooltip("Punto al que se coloca y ancla el jugador mientras está escondido")]
     public Transform snapPoint;
 
-    #endregion
-
-    #region Cámara
-
-    [Header("Cámara")]
-    [Tooltip("Offset de posición adicional aplicado sobre obstacleLookAt, propio de este obstáculo")]
-    public Vector3 cameraPositionOffset = Vector3.zero;
-
-    [Tooltip("Offset de rotación adicional aplicado sobre obstacleLookAt, propio de este obstáculo")]
-    public Vector3 cameraRotationOffset = Vector3.zero;
+    [Tooltip("Holder que define la posición y rotación exactas de la cámara durante el modo sigilo")]
+    public CamaraStealthHolder cameraStealthHolder;
 
     #endregion
 
@@ -42,31 +31,15 @@ public class ObstacleInteraction : MonoBehaviour
 
     #endregion
 
-    #region Hide Walking Zone
-
-    [Header("Hide Walking Zone")]
-    [Tooltip("Trigger hijo del obstáculo que delimita el área de movimiento mientras el jugador está escondido")]
-    public Collider hideWalkingZone;
-
-    #endregion
-
-    #region Ajustes
-
-    [Header("Ajustes")]
-    [Tooltip("Velocidad de desplazamiento del jugador mientras está anclado al obstáculo")]
-    public float snapSpeed = 10f;
-
-    #endregion
-
     #region Estado
 
     public bool PlayerInObstacle { get; private set; }
     public bool PlayerIsHidden { get; private set; }
 
-    PlayerMovement playerMovement;
-    ThirdPersonCamera cam;
-    EnemyInteraction enemyInteraction;
-    CameraPostFXController postFX;
+    private PlayerMovement playerMovement;
+    private ThirdPersonCamera cam;
+    private EnemyInteraction enemyInteraction;
+    private CameraPostFXController postFX;
 
     #endregion
 
@@ -84,18 +57,14 @@ public class ObstacleInteraction : MonoBehaviour
         DetectPlayerInRange();
 
         if (!PlayerInObstacle) return;
+        if (Keyboard.current == null) return;
 
-        if (Keyboard.current != null && Keyboard.current.hKey.wasPressedThisFrame)
+        if (Keyboard.current.hKey.wasPressedThisFrame)
         {
             if (!PlayerIsHidden)
                 EnterHide();
             else
                 ExitHide();
-        }
-
-        if (PlayerIsHidden && hideWalkingZone != null)
-        {
-            ClampPlayerToWalkingZone();
         }
     }
 
@@ -107,12 +76,7 @@ public class ObstacleInteraction : MonoBehaviour
     {
         if (detectionOrigin == null) return;
 
-        Collider[] hits = Physics.OverlapBox(
-            GetDetectionOrigin(),
-            detectionBoxSize * 0.5f,
-            detectionOrigin.rotation,
-            playerLayer
-        );
+        Collider[] hits = Physics.OverlapBox(GetDetectionOrigin(), detectionBoxSize * 0.5f, detectionOrigin.rotation, playerLayer);
 
         bool inRange = hits.Length > 0;
 
@@ -147,6 +111,8 @@ public class ObstacleInteraction : MonoBehaviour
             ExitHide();
 
         PlayerInObstacle = false;
+        playerMovement = null;
+
         HudManager.instance?.HideAllHideUI();
     }
 
@@ -154,14 +120,18 @@ public class ObstacleInteraction : MonoBehaviour
 
     #region Hide
 
-    void EnterHide()
+    private void EnterHide()
     {
+        if (!CanEnterHide()) return;
+
         PlayerIsHidden = true;
-        HabilidadesManager.instance.playerIsHiding = true;
 
-        playerMovement.EnterHideMode(snapPoint, snapSpeed);
+        if (HabilidadesManager.instance != null)
+            HabilidadesManager.instance.playerIsHiding = true;
 
-        cam?.EnterObstacleMode(obstacleLookAt, cameraPositionOffset, cameraRotationOffset);
+        playerMovement.EnterHideMode(snapPoint);
+        cam.EnterObstacleMode(cameraStealthHolder);
+
         postFX?.EnterObstacleFX();
         enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
 
@@ -169,29 +139,56 @@ public class ObstacleInteraction : MonoBehaviour
         HudManager.instance?.ShowExitHideButton();
     }
 
-    void ExitHide()
+    private void ExitHide()
     {
+        if (!PlayerIsHidden) return;
+
         PlayerIsHidden = false;
-        HabilidadesManager.instance.playerIsHiding = false;
+
+        if (HabilidadesManager.instance != null)
+            HabilidadesManager.instance.playerIsHiding = false;
 
         enemyInteraction?.ForceCancel();
+
         postFX?.ExitObstacleFX();
         postFX?.StopEnemyFX();
-        cam?.ForceReturnToPlayer();
 
-        playerMovement.ExitHideMode();
+        cam?.ForceReturnToPlayer();
+        playerMovement?.ExitHideMode();
 
         HudManager.instance?.HideAllHideUI();
+
         if (PlayerInObstacle)
             HudManager.instance?.ShowHideButton();
     }
 
-    void ClampPlayerToWalkingZone()
+    private bool CanEnterHide()
     {
-        Vector3 pos = playerMovement.transform.position;
-        Vector3 clamped = hideWalkingZone.ClosestPoint(pos);
+        if (playerMovement == null)
+        {
+            Debug.LogWarning($"{name}: No se puede entrar al modo sigilo porque PlayerMovement es NULL.");
+            return false;
+        }
 
-        playerMovement.transform.position = clamped;
+        if (snapPoint == null)
+        {
+            Debug.LogWarning($"{name}: No se puede entrar al modo sigilo porque SnapPoint es NULL.");
+            return false;
+        }
+
+        if (cameraStealthHolder == null)
+        {
+            Debug.LogWarning($"{name}: No se puede entrar al modo sigilo porque CamaraStealthHolder es NULL.");
+            return false;
+        }
+
+        if (cam == null)
+        {
+            Debug.LogWarning($"{name}: No se puede entrar al modo sigilo porque ThirdPersonCamera es NULL.");
+            return false;
+        }
+
+        return true;
     }
 
     #endregion
@@ -199,6 +196,7 @@ public class ObstacleInteraction : MonoBehaviour
     #region Gizmos
 
 #if UNITY_EDITOR
+
     private void OnDrawGizmosSelected()
     {
         if (detectionOrigin == null) return;
@@ -206,11 +204,13 @@ public class ObstacleInteraction : MonoBehaviour
         Vector3 center = GetDetectionOrigin();
 
         Matrix4x4 originalMatrix = Gizmos.matrix;
+
         Gizmos.matrix = Matrix4x4.TRS(center, detectionOrigin.rotation, Vector3.one);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(Vector3.zero, detectionBoxSize);
         Gizmos.matrix = originalMatrix;
     }
+
 #endif
 
     #endregion

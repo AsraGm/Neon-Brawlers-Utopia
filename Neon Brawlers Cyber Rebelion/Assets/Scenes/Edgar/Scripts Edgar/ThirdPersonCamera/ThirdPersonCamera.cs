@@ -26,7 +26,7 @@ public class ThirdPersonCamera : MonoBehaviour
     [Tooltip("Tiempo de suavizado del seguimiento de posición, simula el lag de una cámara en mano")]
     public float positionSmoothTime = 0.15f;
 
-    [Tooltip("Distancia a partir de la cual se asume que el jugador fue teletransportado, y la cámara se ajusta instantáneamente en vez de suavizar")]
+    [Tooltip("Distancia a partir de la cual se asume que el jugador fue teletransportado y la cámara se ajusta instantáneamente")]
     public float teleportThreshold = 3f;
 
     private Vector3 positionVelocity;
@@ -79,7 +79,7 @@ public class ThirdPersonCamera : MonoBehaviour
     [Tooltip("Ángulo máximo de rotación horizontal en grados, ignorado si infiniteYaw está activo")]
     public float maxYaw = 180f;
 
-    [Tooltip("Offset de rotación fijo aplicado sobre la rotación calculada, para ajustar el ángulo de visión sin afectar el resto del comportamiento")]
+    [Tooltip("Offset de rotación fijo aplicado sobre la rotación calculada")]
     public Vector3 rotationOffset = Vector3.zero;
 
     private float yaw;
@@ -87,7 +87,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
     #endregion
 
-    #region Modo Enemigo
+    #region Modos de seguimiento
 
     public enum FollowMode
     {
@@ -96,21 +96,21 @@ public class ThirdPersonCamera : MonoBehaviour
         Returning
     }
 
-    [Header("Modo Enemigo")]
-    [Tooltip("Velocidad de transición de posición y rotación al entrar o salir del modo de mirada de enemigo")]
-    public float enemyFollowTransitionSpeed = 8f;
+    [Header("Transiciones")]
+    [Tooltip("Velocidad de transición al entrar o salir de una cámara fija")]
+    public float customFollowTransitionSpeed = 8f;
 
-    [Tooltip("Ángulo en grados por debajo del cual se considera terminada la transición de regreso, retomando el control instantáneo del mouse")]
+    [Tooltip("Distancia necesaria para considerar terminada la transición de regreso")]
+    public float returnPositionThreshold = 0.05f;
+
+    [Tooltip("Ángulo necesario para considerar terminada la transición de regreso")]
     public float returnRotationThreshold = 1f;
 
     private FollowMode followMode = FollowMode.Normal;
-    private Transform customLookAt;
-    private Vector3 customPositionOffset;
-    private Vector3 customRotationOffset;
+    private CamaraStealthHolder customCameraHolder;
 
-    public Vector3 CurrentPivotPosition => followMode == FollowMode.Custom && customLookAt != null
-        ? customLookAt.position
-        : smoothedAnchorPosition;
+    public Vector3 CurrentPivotPosition => followMode == FollowMode.Custom && customCameraHolder != null ? customCameraHolder.Position : smoothedAnchorPosition;
+    public FollowMode CurrentFollowMode => followMode;
 
     #endregion
 
@@ -119,17 +119,21 @@ public class ThirdPersonCamera : MonoBehaviour
     private void Start()
     {
         Vector3 startAngles = transform.eulerAngles;
+
         yaw = startAngles.y;
         pitch = startAngles.x;
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        SyncSharedCameraPosition(transform.position);
     }
 
     private void Update()
     {
         if (Time.timeScale <= 0f) return;
 
-        HandleRotationInput();
+        if (followMode == FollowMode.Normal)
+            HandleRotationInput();
     }
 
     private void LateUpdate()
@@ -141,16 +145,17 @@ public class ThirdPersonCamera : MonoBehaviour
             case FollowMode.Custom:
                 ApplyCustomFollow();
                 break;
+
             case FollowMode.Returning:
                 ApplyReturningFollow();
                 break;
+
             default:
                 ApplyRotation();
                 FollowPosition();
+                SyncOrientation();
                 break;
         }
-
-        SyncOrientation();
     }
 
     #endregion
@@ -184,13 +189,14 @@ public class ThirdPersonCamera : MonoBehaviour
 
     #endregion
 
-    #region Seguimiento
+    #region Seguimiento normal
 
     private void FollowPosition()
     {
         Vector3 targetPosition = GetNormalTargetPosition();
 
         transform.position = targetPosition;
+
         SyncSharedCameraPosition(targetPosition);
     }
 
@@ -211,14 +217,10 @@ public class ThirdPersonCamera : MonoBehaviour
             positionVelocity = Vector3.zero;
         }
 
-        smoothedAnchorPosition = Vector3.SmoothDamp(
-            smoothedAnchorPosition,
-            anchorPosition,
-            ref positionVelocity,
-            positionSmoothTime
-        );
+        smoothedAnchorPosition = Vector3.SmoothDamp(smoothedAnchorPosition, anchorPosition, ref positionVelocity, positionSmoothTime);
 
         Vector3 rotatedOffset = GetNormalTargetRotation() * offset;
+
         return smoothedAnchorPosition + rotatedOffset + Vector3.up * GetBreathingOffset();
     }
 
@@ -263,51 +265,75 @@ public class ThirdPersonCamera : MonoBehaviour
 
     #endregion
 
-    #region Modo Enemigo
+    #region Cámara fija de sigilo
 
     private float GetCustomSmoothTime()
     {
-        return 1f / Mathf.Max(enemyFollowTransitionSpeed, 0.01f);
+        return 1f / Mathf.Max(customFollowTransitionSpeed, 0.01f);
     }
 
     private void ApplyCustomFollow()
     {
-        float t = Time.deltaTime * enemyFollowTransitionSpeed;
+        if (customCameraHolder == null)
+        {
+            ForceReturnToPlayer();
+            return;
+        }
 
-        Quaternion targetRotation = customLookAt.rotation * Quaternion.Euler(customRotationOffset);
-        Vector3 targetPosition = customLookAt.position + targetRotation * (offset + customPositionOffset);
+        float rotationStep = Time.deltaTime * customFollowTransitionSpeed;
+
+        Vector3 targetPosition = customCameraHolder.Position;
+        Quaternion targetRotation = customCameraHolder.Rotation;
 
         ApplySmoothedCameraPosition(targetPosition, GetCustomSmoothTime());
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, t);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationStep);
     }
 
     private void ApplyReturningFollow()
     {
-        float t = Time.deltaTime * enemyFollowTransitionSpeed;
+        float rotationStep = Time.deltaTime * customFollowTransitionSpeed;
 
-        Quaternion targetRotation = GetNormalTargetRotation();
         Vector3 targetPosition = GetNormalTargetPosition();
+        Quaternion targetRotation = GetNormalTargetRotation();
 
         ApplySmoothedCameraPosition(targetPosition, GetCustomSmoothTime());
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, t);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationStep);
 
-        if (Quaternion.Angle(transform.rotation, targetRotation) <= returnRotationThreshold)
+        float positionDistance = Vector3.Distance(transform.position, targetPosition);
+        float rotationDifference = Quaternion.Angle(transform.rotation, targetRotation);
+
+        if (positionDistance <= returnPositionThreshold && rotationDifference <= returnRotationThreshold)
         {
             followMode = FollowMode.Normal;
+            transform.position = targetPosition;
+            transform.rotation = targetRotation;
+
+            SyncSharedCameraPosition(targetPosition);
+            SyncOrientation();
         }
     }
 
-    public void EnterObstacleMode(Transform lookAt, Vector3 positionOffset, Vector3 rotationOffset)
+    public void EnterObstacleMode(CamaraStealthHolder cameraHolder)
     {
-        customLookAt = lookAt;
-        customPositionOffset = positionOffset;
-        customRotationOffset = rotationOffset;
+        if (cameraHolder == null)
+        {
+            Debug.LogWarning("ThirdPersonCamera: No se puede entrar al modo sigilo porque CameraStealthHolder es NULL.");
+            return;
+        }
+
+        customCameraHolder = cameraHolder;
+        cameraPositionVelocity = Vector3.zero;
+        smoothedCameraPosition = transform.position;
+        cameraPositionInitialized = true;
         followMode = FollowMode.Custom;
     }
 
     public void ForceReturnToPlayer()
     {
-        customLookAt = null;
+        customCameraHolder = null;
+        cameraPositionVelocity = Vector3.zero;
+        smoothedCameraPosition = transform.position;
+        cameraPositionInitialized = true;
         followMode = FollowMode.Returning;
     }
 
