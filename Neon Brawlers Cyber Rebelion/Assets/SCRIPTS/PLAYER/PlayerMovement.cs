@@ -111,7 +111,6 @@ public class PlayerMovement : MonoBehaviour
     Transform currentSnapPoint;
     float snapSpeed;
     bool inObstacle;
-
     public bool IsLocked { get; private set; }
 
     private bool onStairs;
@@ -150,15 +149,7 @@ public class PlayerMovement : MonoBehaviour
     private float pixelSizeActual = 900f;
     private bool fatigueFeatureActiva = false;
 
-    private enum EstadoFatiga
-    {
-        Inactivo,
-        ImpactoInicial,
-        PulsoSubiendo,
-        PulsoBajando,
-        RecuperacionFinal
-    }
-
+    private enum EstadoFatiga { Inactivo, ImpactoInicial, PulsoSubiendo, PulsoBajando, RecuperacionFinal }
     private EstadoFatiga estadoActualFatigue = EstadoFatiga.Inactivo;
     private int pulsosRestantes = 0;
 
@@ -201,12 +192,8 @@ public class PlayerMovement : MonoBehaviour
     {
         cc = GetComponent<CharacterController>();
         Playeranimator = GetComponentInChildren<Animator>();
-
-        if (Playeranimator != null)
-        {
-            Playeranimator.updateMode = AnimatorUpdateMode.UnscaledTime;
-            Playeranimator.applyRootMotion = false;
-        }
+        Playeranimator.updateMode = AnimatorUpdateMode.UnscaledTime;
+        Playeranimator.applyRootMotion = false;
 
         normalHeight = cc.height;
         normalCenter = cc.center;
@@ -215,7 +202,6 @@ public class PlayerMovement : MonoBehaviour
         currentSpeed = walkSpeed;
 
         idPropiedadPixel = Shader.PropertyToID("_PixelSize");
-
         if (materialFatigue != null)
         {
             pixelSizeActual = normalPixelSize;
@@ -223,7 +209,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         idPropiedadVignette = Shader.PropertyToID("_VignetteIntensity");
-
         if (materialVignette != null)
         {
             vignetteActual = normalVignette;
@@ -235,12 +220,6 @@ public class PlayerMovement : MonoBehaviour
             fatigueRenderFeature.SetActive(false);
             fatigueFeatureActiva = false;
         }
-
-        if (vignetteRenderFeature != null)
-        {
-            vignetteRenderFeature.SetActive(false);
-            vignetteFeatureActiva = false;
-        }
     }
 
     private void Update()
@@ -251,20 +230,12 @@ public class PlayerMovement : MonoBehaviour
         RunPlayer();
         UpdateAnimations();
         HandleFootsteps();
-
-        if (!IsLocked)
-            HandleGravity();
-        else
-            verticalVelocity = 0f;
+        HandleGravity();
 
         if (!inObstacle)
-        {
             MovePlayer();
-        }
-        else if (!IsLocked)
-        {
+        else
             HandleObstacleMovement();
-        }
 
         ActualizarTransicionFatigue();
     }
@@ -299,11 +270,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ReadInput()
     {
-        if (Keyboard.current == null)
-        {
-            moveInput = Vector2.zero;
-            return;
-        }
+        if (Keyboard.current == null) return;
 
         if (IsLocked || isStunnedByEnemy)
         {
@@ -311,8 +278,13 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        float horizontal = (Keyboard.current.dKey.isPressed ? 1 : 0) - (Keyboard.current.aKey.isPressed ? 1 : 0);
-        float vertical = (Keyboard.current.wKey.isPressed ? 1 : 0) - (Keyboard.current.sKey.isPressed ? 1 : 0);
+        float horizontal =
+            (Keyboard.current.dKey.isPressed ? 1 : 0) -
+            (Keyboard.current.aKey.isPressed ? 1 : 0);
+
+        float vertical =
+            (Keyboard.current.wKey.isPressed ? 1 : 0) -
+            (Keyboard.current.sKey.isPressed ? 1 : 0);
 
         moveInput = new Vector2(horizontal, vertical);
 
@@ -329,7 +301,8 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (inObstacle && currentSnapPoint != null && Vector3.Distance(transform.position, currentSnapPoint.position) > 1.2f)
+        if (inObstacle && currentSnapPoint != null &&
+            Vector3.Distance(transform.position, currentSnapPoint.position) > 1.2f)
         {
             ExitObstacleMode();
         }
@@ -347,7 +320,9 @@ public class PlayerMovement : MonoBehaviour
             verticalVelocity += gravity * Time.deltaTime;
 
         if (!IsMoving)
+        {
             Debug.Log($"PlayerMovement: grounded={grounded} verticalVelocity={verticalVelocity:F4} position={transform.position}");
+        }
     }
 
     private void MovePlayer()
@@ -375,12 +350,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (onStairs)
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit stairsHit, playerHeight * 0.6f, whatIsGround))
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit stairsHit,
+                playerHeight * 0.6f, whatIsGround))
             {
                 Vector3 slopeDir = Vector3.ProjectOnPlane(flatMove, stairsHit.normal).normalized;
 
                 float stairSpeed = walkSpeed;
-
                 if (slopeDir.y > 0.01f)
                     stairSpeed *= 2f;
 
@@ -402,11 +377,14 @@ public class PlayerMovement : MonoBehaviour
         cc.Move(motion * (isCrouching ? Time.unscaledDeltaTime : Time.deltaTime));
 
         Vector3 flatDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
-
         if (flatDirection.magnitude > 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.unscaledDeltaTime * 10f);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                Time.unscaledDeltaTime * 10f
+            );
         }
     }
 
@@ -416,14 +394,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void RunPlayer()
     {
-        if (IsLocked || Keyboard.current == null)
-        {
-            IsRunning = false;
-            currentSpeed = 0f;
-            wasRunningLastFrame = false;
-            return;
-        }
-
         bool isMoving = moveInput.magnitude > 0.1f;
         bool shiftHeld = Keyboard.current.leftShiftKey.isPressed;
 
@@ -443,11 +413,8 @@ public class PlayerMovement : MonoBehaviour
 
             recoveryTimer += Time.deltaTime;
 
-            if (HabilidadesManager.instance != null)
-            {
-                HabilidadesManager.instance.cooldown = staminaRecoveryTime;
-                HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime - recoveryTimer;
-            }
+            HabilidadesManager.instance.cooldown = staminaRecoveryTime;
+            HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime - recoveryTimer;
 
             if (recoveryTimer >= staminaRecoveryTime)
             {
@@ -455,24 +422,25 @@ public class PlayerMovement : MonoBehaviour
                 staminaDepleted = false;
                 isRecovering = false;
                 recoveryTimer = 0f;
-
-                if (HabilidadesManager.instance != null)
-                    HabilidadesManager.instance.cooldownTimer = 0f;
+                HabilidadesManager.instance.cooldownTimer = 0f;
             }
         }
 
         bool canRun = !staminaDepleted && currentStamina > 0f;
-        bool isRunning = !onStairs && !isCrouching && shiftHeld && isMoving && canRun;
-
+        bool isRunning = !onStairs &&
+                         !isCrouching &&
+                         shiftHeld &&
+                         isMoving &&
+                         canRun;
         IsRunning = isRunning;
 
         if (isRunning)
         {
             if (!wasRunningLastFrame)
             {
-                float oldMax = HabilidadesManager.instance != null ? HabilidadesManager.instance.cooldown : maxStamina;
-                float oldTimer = HabilidadesManager.instance != null ? HabilidadesManager.instance.cooldownTimer : 0f;
-                float startFraction = oldMax > 0f ? oldTimer / oldMax : 0f;
+                float oldMax = HabilidadesManager.instance.cooldown;
+                float oldTimer = HabilidadesManager.instance.cooldownTimer;
+                float startFraction = oldMax > 0f ? (oldTimer / oldMax) : 0f;
 
                 staminaCooldownOffset = startFraction * maxStamina;
             }
@@ -482,11 +450,8 @@ public class PlayerMovement : MonoBehaviour
             float staminaDamage = maxStamina - currentStamina;
             float adjustedTimer = Mathf.Min(maxStamina, staminaCooldownOffset + staminaDamage);
 
-            if (HabilidadesManager.instance != null)
-            {
-                HabilidadesManager.instance.cooldown = maxStamina;
-                HabilidadesManager.instance.cooldownTimer = adjustedTimer;
-            }
+            HabilidadesManager.instance.cooldown = maxStamina;
+            HabilidadesManager.instance.cooldownTimer = adjustedTimer;
 
             if (currentStamina <= 0f)
             {
@@ -496,11 +461,8 @@ public class PlayerMovement : MonoBehaviour
                 recoveryTimer = 0f;
                 staminaCooldownOffset = 0f;
 
-                if (HabilidadesManager.instance != null)
-                {
-                    HabilidadesManager.instance.cooldown = staminaRecoveryTime;
-                    HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime;
-                }
+                HabilidadesManager.instance.cooldown = staminaRecoveryTime;
+                HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime;
 
                 DispararEfectoFatiga();
             }
@@ -511,7 +473,8 @@ public class PlayerMovement : MonoBehaviour
             currentStamina = Mathf.Min(currentStamina, maxStamina);
         }
 
-        currentSpeed = isCrouching ? crouchWalkSpeed : isRunning ? runSpeed : walkSpeed;
+        currentSpeed = isCrouching ? crouchWalkSpeed : (isRunning ? runSpeed : walkSpeed);
+
         wasRunningLastFrame = isRunning;
 
         ReportMovementNoise(isMoving, isRunning);
@@ -555,10 +518,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Playeranimator == null) return;
 
-        bool isMoving = !IsLocked && moveInput.magnitude > 0.1f;
+        bool isMoving = moveInput.magnitude > 0.1f;
         bool shiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
-        bool isRunning = !IsLocked && !onStairs && !isCrouching && shiftHeld && isMoving && !staminaDepleted && currentStamina > 0f;
-        bool isUsingAbility = HabilidadesManager.instance != null && HabilidadesManager.instance.IsUsingAbility;
+        bool isRunning = !onStairs && !isCrouching && shiftHeld && isMoving && !staminaDepleted && currentStamina > 0f;
+        bool isUsingAbility = HabilidadesManager.instance != null &&
+                              HabilidadesManager.instance.IsUsingAbility;
 
         Playeranimator.SetBool("isMoving", isMoving);
         Playeranimator.SetBool("isRunning", isRunning);
@@ -587,18 +551,14 @@ public class PlayerMovement : MonoBehaviour
         cc.Move(slideMotion * snapSpeed * Time.unscaledDeltaTime);
     }
 
-    public void EnterHideMode(Transform snapPoint)
+    public void EnterHideMode(Transform snapPoint, float snapSpeed)
     {
         inObstacle = true;
-        IsLocked = true;
-        IsRunning = false;
-
+        IsLocked = false;
         currentSnapPoint = snapPoint;
-        currentSpeed = 0f;
+        this.snapSpeed = snapSpeed;
+        currentSpeed = crouchWalkSpeed;
         verticalVelocity = 0f;
-        moveInput = Vector2.zero;
-
-        SnapToPoint(snapPoint);
     }
 
     public void ExitHideMode()
@@ -607,8 +567,6 @@ public class PlayerMovement : MonoBehaviour
         IsLocked = false;
         currentSnapPoint = null;
         currentSpeed = walkSpeed;
-        verticalVelocity = 0f;
-        moveInput = Vector2.zero;
     }
 
     public void EnterObstacleMode(Transform snapPoint, float snapSpeed)
@@ -619,7 +577,6 @@ public class PlayerMovement : MonoBehaviour
         this.snapSpeed = snapSpeed;
         currentSpeed = walkSpeed;
         verticalVelocity = 0f;
-        moveInput = Vector2.zero;
     }
 
     public void ExitObstacleMode()
@@ -627,24 +584,6 @@ public class PlayerMovement : MonoBehaviour
         inObstacle = false;
         IsLocked = false;
         currentSnapPoint = null;
-        currentSpeed = walkSpeed;
-        verticalVelocity = 0f;
-        moveInput = Vector2.zero;
-    }
-
-    private void SnapToPoint(Transform snapPoint)
-    {
-        if (snapPoint == null) return;
-
-        bool characterControllerWasEnabled = cc != null && cc.enabled;
-
-        if (characterControllerWasEnabled)
-            cc.enabled = false;
-
-        transform.SetPositionAndRotation(snapPoint.position, snapPoint.rotation);
-
-        if (characterControllerWasEnabled)
-            cc.enabled = true;
     }
 
     #endregion
@@ -654,12 +593,8 @@ public class PlayerMovement : MonoBehaviour
     public void SetMovementLock(bool lockState)
     {
         isStunnedByEnemy = lockState;
-
         if (lockState)
-        {
             moveInput = Vector2.zero;
-            IsRunning = false;
-        }
     }
 
     #endregion
@@ -693,8 +628,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (estadoActualFatigue == EstadoFatiga.Inactivo) return;
 
-        float velPixel = estadoActualFatigue == EstadoFatiga.ImpactoInicial ? velocidadImpactoInicial : velocidadTransicionFatigue;
-        float velVignette = estadoActualFatigue == EstadoFatiga.ImpactoInicial ? velocidadVignetteInicial : velocidadTransicionVignette;
+        float velPixel = (estadoActualFatigue == EstadoFatiga.ImpactoInicial) ? velocidadImpactoInicial : velocidadTransicionFatigue;
+        float velVignette = (estadoActualFatigue == EstadoFatiga.ImpactoInicial) ? velocidadVignetteInicial : velocidadTransicionVignette;
 
         if (materialFatigue != null)
         {
@@ -708,8 +643,8 @@ public class PlayerMovement : MonoBehaviour
             materialVignette.SetFloat(idPropiedadVignette, vignetteActual);
         }
 
-        float valorControlActual = materialFatigue != null ? pixelSizeActual : vignetteActual;
-        float valorControlObjetivo = materialFatigue != null ? pixelSizeObjetivo : vignetteObjetivo;
+        float valorControlActual = (materialFatigue != null) ? pixelSizeActual : vignetteActual;
+        float valorControlObjetivo = (materialFatigue != null) ? pixelSizeObjetivo : vignetteObjetivo;
 
         if (Mathf.Approximately(valorControlActual, valorControlObjetivo))
         {
@@ -729,7 +664,6 @@ public class PlayerMovement : MonoBehaviour
 
                 case EstadoFatiga.PulsoBajando:
                     pulsosRestantes--;
-
                     if (pulsosRestantes > 0)
                     {
                         estadoActualFatigue = EstadoFatiga.PulsoSubiendo;
@@ -742,7 +676,6 @@ public class PlayerMovement : MonoBehaviour
                         pixelSizeObjetivo = normalPixelSize;
                         vignetteObjetivo = normalVignette;
                     }
-
                     break;
 
                 case EstadoFatiga.RecuperacionFinal:
@@ -759,7 +692,6 @@ public class PlayerMovement : MonoBehaviour
                         vignetteRenderFeature.SetActive(false);
                         vignetteFeatureActiva = false;
                     }
-
                     break;
             }
         }
@@ -773,7 +705,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (GameManager.Instance == null) return;
         if (isCrouching) return;
-        if (IsLocked) return;
 
         if (isRunning)
             GameManager.Instance.ReportNoiseB(transform.position, 0.3f);
@@ -814,7 +745,6 @@ public class PlayerMovement : MonoBehaviour
         float interval = IsRunning ? runStepInterval : walkStepInterval;
 
         stepTimer -= Time.deltaTime;
-
         if (stepTimer <= 0f)
         {
             PlayFootstep();
@@ -827,12 +757,10 @@ public class PlayerMovement : MonoBehaviour
         if (footstepSource == null) return;
 
         AudioClip[] clips = IsRunning ? runFootstepClips : walkFootstepClips;
-
         if (clips == null || clips.Length == 0) return;
 
         AudioClip clip = clips[Random.Range(0, clips.Length)];
-
-        footstepSource.pitch = Random.Range(0.95f, 1.05f);
+        footstepSource.pitch = Random.Range(0.95f, 1.05f); // variación sutil para que no suene repetitivo
         footstepSource.PlayOneShot(clip);
     }
 
