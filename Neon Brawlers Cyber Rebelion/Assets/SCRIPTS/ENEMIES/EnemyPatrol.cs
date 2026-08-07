@@ -57,6 +57,13 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private AudioClip generalSound;
     [SerializeField] private AudioClip chaseSound;
 
+    [Header("Audio - Pasos")]
+    [SerializeField] private AudioSource footstepSource;
+    [SerializeField] private AudioClip[] patrolFootstepClips;
+    [SerializeField] private AudioClip[] chaseFootstepClips;
+    [SerializeField] private float patrolStepInterval = 0.5f;
+    [SerializeField] private float chaseStepInterval = 0.3f;
+
     public bool isStunned /*{ get; private set; }*/ = false;
     public bool isChasing /*{ get; private set; }*/ = false;
     private bool isWaiting = false;
@@ -133,6 +140,7 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         HandleRotation();
+        HandleFootsteps();
     }
 
     void CheckChaseRange()
@@ -206,6 +214,9 @@ public class EnemyPatrol : MonoBehaviour
         ChaseSound();
         SetLedColor(ledColorChasing);
 
+        if (AudioManager.instance != null)
+            AudioManager.instance.EnemyStartedChasing();
+
         if (agent != null)
         {
             agent.speed = chaseSpeed;
@@ -231,6 +242,9 @@ public class EnemyPatrol : MonoBehaviour
         HideSymbol();
         NormalSound();
         SetLedColor(ledColorNormal);
+
+        if (AudioManager.instance != null)
+            AudioManager.instance.EnemyStoppedChasing();
 
         if (agent != null)
         {
@@ -592,6 +606,8 @@ public class EnemyPatrol : MonoBehaviour
     #endregion PararTelekinesis
 
     #region Audio
+
+    private float stepTimer = 0f;
     private void NormalSound()
     {
         if (audioSource == null || generalSound == null) return;
@@ -610,6 +626,36 @@ public class EnemyPatrol : MonoBehaviour
         audioSource.clip = chaseSound;
         audioSource.loop = true;
         audioSource.Play();
+    }
+
+    private void HandleFootsteps()
+    {
+        if (agent == null || agent.velocity.magnitude < 0.1f)
+        {
+            stepTimer = 0f;
+            return;
+        }
+
+        float interval = isChasing ? chaseStepInterval : patrolStepInterval;
+
+        stepTimer -= Time.deltaTime;
+        if (stepTimer <= 0f)
+        {
+            PlayFootstep();
+            stepTimer = interval;
+        }
+    }
+
+    private void PlayFootstep()
+    {
+        if (footstepSource == null) return;
+
+        AudioClip[] clips = isChasing ? chaseFootstepClips : patrolFootstepClips;
+        if (clips == null || clips.Length == 0) return;
+
+        AudioClip clip = clips[Random.Range(0, clips.Length)];
+        footstepSource.pitch = Random.Range(0.95f, 1.05f);
+        footstepSource.PlayOneShot(clip);
     }
     #endregion Audio
 

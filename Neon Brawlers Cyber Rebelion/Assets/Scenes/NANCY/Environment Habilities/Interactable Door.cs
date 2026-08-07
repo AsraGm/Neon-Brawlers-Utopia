@@ -16,6 +16,16 @@ public class InteractableDoor : MonoBehaviour
     private Coroutine stunCoroutine;
     private int defaultStateHash;
 
+
+    private bool wasSlowActiveLastFrame = false;
+
+    private void Update()
+    {
+        bool slowActive = SlowTime.IsSlowActive;
+
+        wasSlowActiveLastFrame = slowActive;
+    }
+
     private void Awake()
     {
         animator = GetComponent<Animator>();

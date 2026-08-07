@@ -10,6 +10,11 @@ public class AutomaticDoor : MonoBehaviour
     private Coroutine closeRoutine;
     private int playersInside = 0;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip closeSound;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -52,6 +57,9 @@ public class AutomaticDoor : MonoBehaviour
         animator.SetBool("Open", true);
         animator.SetBool("Close", false);
         interactableDoor.doorOpen = true;
+
+        if (audioSource != null && openSound != null)
+            audioSource.PlayOneShot(openSound);
     }
 
     private void CloseDoor()
@@ -60,6 +68,9 @@ public class AutomaticDoor : MonoBehaviour
         animator.SetBool("Close", true);
         animator.SetBool("Open", false);
         interactableDoor.doorOpen = false;
+
+        if (audioSource != null && closeSound != null)
+            audioSource.PlayOneShot(closeSound);
     }
 
     private IEnumerator AutomaticCloseAfterDelay()

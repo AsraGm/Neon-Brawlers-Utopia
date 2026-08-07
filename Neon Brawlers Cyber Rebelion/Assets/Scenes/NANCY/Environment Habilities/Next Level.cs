@@ -11,19 +11,32 @@ public class NextLevel : MonoBehaviour
     [SerializeField] private string item1;
     [SerializeField] private string item2;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip deniedSound;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player")) return;
+
+        bool tieneAmbos = InventoryUIManager.Instance.TieneItem(item1) &&
+                           InventoryUIManager.Instance.TieneItem(item2);
+
+        if (tieneAmbos)
         {
-            if (InventoryUIManager.Instance.TieneItem(item1) && (InventoryUIManager.Instance.TieneItem(item2)))
-            {
-                StartCoroutine(ScanearTarjetas());
-                WaveCollected?.Invoke();
-            }
+            if (audioSource != null && openSound != null)
+                audioSource.PlayOneShot(openSound);
+
+            StartCoroutine(ScanearTarjetas());
+            WaveCollected?.Invoke();
         }
         else
         {
-            Debug.Log("No se registraron esos objetos");
+            if (audioSource != null && deniedSound != null)
+                audioSource.PlayOneShot(deniedSound);
+
+            Debug.Log("No tienes los items necesarios");
         }
     }
 

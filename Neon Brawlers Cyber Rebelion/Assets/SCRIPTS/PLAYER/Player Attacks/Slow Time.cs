@@ -14,6 +14,10 @@ public class SlowTime : MonoBehaviour
     [SerializeField] private TRAIL trail;
     [SerializeField] private FootstepSpawner footstepSpawner;
 
+    [Header("Puertas averiadas (audio)")]
+    [Tooltip("GameObjects con el AudioSource de puertas averiadas que deben silenciarse durante el Slow Time")]
+    [SerializeField] private GameObject[] brokenDoorAudioObjects;
+
     private MaterialPropertyBlock _mpb;
     private bool isSlowMotionActive = false;
     private float slowMotionTimer = 0f;
@@ -67,22 +71,22 @@ public class SlowTime : MonoBehaviour
     private void ActivateSlowMotion()
     {
         IsSlowActive = true;
-
         isSlowMotionActive = true;
         slowMotionTimer = slowMotionDuration;
-
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
-
         AudioManager.instance.Play("slowMotion");
         HabilidadesManager.instance.Cooldown(cooldownTime);
-
         GameManager.Instance.ReportNoiseA(transform.position, 1.5f);
 
-        // Activar efectos visuales
+        foreach (GameObject doorAudio in brokenDoorAudioObjects)
+        {
+            if (doorAudio != null)
+                doorAudio.SetActive(false);
+        }
+
         trail?.StartTrail();
         footstepSpawner?.SetSlowMotionActive(true);
-
         Debug.Log("Slow Motion Activado");
     }
 
@@ -90,14 +94,17 @@ public class SlowTime : MonoBehaviour
     {
         IsSlowActive = false;
         isSlowMotionActive = false;
-
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
 
-        // Desactivar efectos visuales
+        foreach (GameObject doorAudio in brokenDoorAudioObjects)
+        {
+            if (doorAudio != null)
+                doorAudio.SetActive(true);
+        }
+
         trail?.StopTrail();
         footstepSpawner?.SetSlowMotionActive(false);
-
         Debug.Log("Slow Motion Desactivado");
     }
 }

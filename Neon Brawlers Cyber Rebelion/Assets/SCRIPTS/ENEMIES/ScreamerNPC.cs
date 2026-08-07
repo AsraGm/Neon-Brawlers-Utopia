@@ -14,6 +14,10 @@ public class ScreamerNPC : MonoBehaviour
     [Header("Ajustes")]
     public string screamerTrigger = "doScreamer";  // nombre del trigger en el Animator
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip screamerSound;
+
     [Header("=== EFECTO SHADER (Fullscreen Pass) ===")]
     [SerializeField] private ScriptableRendererFeature screamerRenderFeature;
     [SerializeField] private Material materialScreamer;
@@ -84,6 +88,9 @@ public class ScreamerNPC : MonoBehaviour
         screamerCamera.gameObject.SetActive(true);
         npcAnimator.SetTrigger(screamerTrigger);
 
+        if (audioSource != null && screamerSound != null)
+            audioSource.PlayOneShot(screamerSound);
+
         // Prender shader
         if (materialScreamer != null)
         {
@@ -123,6 +130,9 @@ public class ScreamerNPC : MonoBehaviour
         playerCamera.gameObject.SetActive(true);
         playerMesh?.SetActive(true);
         triggerCol.enabled = false;
+
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
 
         // Apagar shader (con fade, la feature se desactiva sola al llegar a 0)
         if (materialScreamer != null)

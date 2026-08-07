@@ -63,6 +63,13 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Cantidad máxima de stamina disponible")]
     public float maxStamina = 4f;
 
+    [Header("Audio - Cansancio")]
+    [Tooltip("AudioSource dedicado al sonido de cansancio (Spatial Blend = 0 recomendado, es un efecto del propio jugador)")]
+    public AudioSource fatigueAudioSource;
+
+    [Tooltip("Sonido en loop que suena mientras se recarga la stamina")]
+    public AudioClip fatigueSound;
+
     [Tooltip("Tiempo necesario para recuperar la stamina tras agotarla por completo")]
     public float staminaRecoveryTime = 5f;
 
@@ -423,6 +430,9 @@ public class PlayerMovement : MonoBehaviour
                 isRecovering = false;
                 recoveryTimer = 0f;
                 HabilidadesManager.instance.cooldownTimer = 0f;
+
+                if (fatigueAudioSource != null && fatigueAudioSource.isPlaying)
+                    fatigueAudioSource.Stop();
             }
         }
 
@@ -465,12 +475,20 @@ public class PlayerMovement : MonoBehaviour
                 HabilidadesManager.instance.cooldownTimer = staminaRecoveryTime;
 
                 DispararEfectoFatiga();
+
+                if (fatigueAudioSource != null && fatigueSound != null)
+                {
+                    fatigueAudioSource.clip = fatigueSound;
+                    fatigueAudioSource.loop = true;
+                    fatigueAudioSource.Play();
+                }
             }
         }
         else if (!shiftHeld && !staminaDepleted && currentStamina < maxStamina)
         {
             currentStamina += Time.deltaTime;
             currentStamina = Mathf.Min(currentStamina, maxStamina);
+
         }
 
         currentSpeed = isCrouching ? crouchWalkSpeed : (isRunning ? runSpeed : walkSpeed);
