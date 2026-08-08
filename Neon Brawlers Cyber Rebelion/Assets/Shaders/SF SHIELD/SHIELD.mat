@@ -8,15 +8,15 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SHIELD
-  m_Shader: {fileID: -6465566751694194690, guid: 94e86b077a1453240a97181f5f2f312b, type: 3}
-  m_Parent: {fileID: 0}
+  m_Shader: {fileID: -6465566751694194690, guid: 03f7f4b501df196429788a8460010e80, type: 3}
+  m_Parent: {fileID: 2100000, guid: a187f1e1a95199b48af214988e6fe9eb, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
-  m_LightmapFlags: 2
-  m_EnableInstancingVariants: 1
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap:
@@ -28,59 +28,23 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Emmi_Texture:
-        m_Texture: {fileID: 2800000, guid: 61bab09a131dfd04a90030ac2704e953, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Gradient:
-        m_Texture: {fileID: 2800000, guid: b2a8d2823ddd8e148a1717b614cfd884, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Gradient_Tex:
+    - _Base_Map:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Main_Texture:
-        m_Texture: {fileID: 2800000, guid: dba2fdee431589d4794389e8c79a12a4, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_Lightmaps:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_LightmapsInd:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_ShadowMasks:
+    - _Emissive_Map:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
+    - _Adjust: 0.1
     - _Blend: 2
-    - _BlendModePreserveSpecular: 1
-    - _CastShadows: 1
     - _Cull: 0
     - _DstBlend: 1
-    - _Gradient_Tile: 3
-    - _QueueControl: 0
-    - _QueueOffset: 0
-    - _ReceiveShadows: 1
-    - _Speed: 0.3
-    - _SrcBlend: 1
-    - _Surface: 1
-    - _WorkflowMode: 1
-    - _ZTest: 4
-    - _ZWrite: 0
-    - _ZWriteControl: 0
+    - _Noise_Simple: 0.1
     m_Colors:
-    - _Base_Color: {r: 0.7840026, g: 0.8207547, b: 0.21293166, a: 1}
-    - _Emissive_Color: {r: 0.99215686, g: 0.07843137, b: 0.8339888, a: 1}
-    - _Gradient_Color: {r: 5.2092156, g: 5.340315, b: 2.013103, a: 1}
-    - _Main_Tiling: {r: 3, g: 1.81, b: 0, a: 0}
+    - _Color_Emmisive: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1860403933030507849

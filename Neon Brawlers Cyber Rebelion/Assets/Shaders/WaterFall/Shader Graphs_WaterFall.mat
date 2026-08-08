@@ -21,74 +21,39 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Shader Graphs_WaterFall
-  m_Shader: {fileID: -6465566751694194690, guid: 7816fdb95f3a0414894924f3baadfb89, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_Shader: {fileID: -6465566751694194690, guid: 1ac476ccd3378bd44a505cfebeae397c, type: 3}
+  m_Parent: {fileID: 2100000, guid: e90b17cb1964b804280f2b2a65c0b91f, type: 2}
+  m_ModifiedSerializedProperties: 8
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - _ALPHAPREMULTIPLY_ON
   - _SURFACE_TYPE_TRANSPARENT
-  m_InvalidKeywords: []
-  m_LightmapFlags: 2
-  m_EnableInstancingVariants: 1
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3001
-  stringTagMap:
-    RenderType: Transparent
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - unity_Lightmaps:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_LightmapsInd:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_ShadowMasks:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Blend: 0
-    - _BlendModePreserveSpecular: 1
-    - _CastShadows: 1
     - _Cull: 0
+    - _CutoffHeight: 0
     - _DstBlend: 10
+    - _EdgeWidth: 0.05
     - _Metallic: 0.4
-    - _NormalStregth: 0.12
+    - _NoiseScale: 50
+    - _NoiseStrength: 1
     - _QueueControl: 1
-    - _QueueOffset: 0
-    - _ReceiveShadows: 1
     - _Smoothness: 1.4
-    - _SrcBlend: 1
     - _Surface: 1
-    - _Transparency: 0.15
-    - _TransparencyMask: 0.19
-    - _VoronoiAgitation: 1
-    - _VoronoiPower: 4.35
-    - _VoronoiScale: 10
-    - _WobbleAmount: 0.24
-    - _WobbleDistance: 1.1
-    - _WobbleFrequency: 1.27
-    - _WobbleSpeed: 2.09
-    - _WorkflowMode: 1
-    - _ZTest: 4
-    - _ZWrite: 1
-    - _ZWriteControl: 1
     m_Colors:
+    - _Albedo: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColor: {r: 0.50416183, g: 1.3955786, b: 0.2557343, a: 1}
-    - _Glow_Color: {r: 3.7553804, g: 0, b: 3.9999998, a: 1}
-    - _NormalSpeed: {r: 0, g: 0.2, b: 0, a: 0}
-    - _Vector3: {r: 0, g: 0, b: 0, a: 0}
-    - _VectorTiling: {r: 1, g: -1, b: 0, a: 0}
-    - _VoronoiColor: {r: 0.8839453, g: 1.7207953, b: 0.2753273, a: 1}
-    - _VoronoiSpeed: {r: 1, g: -0.42, b: 0, a: 0}
+    - _EdgeColor: {r: 0, g: 3.262745, b: 23.96863, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

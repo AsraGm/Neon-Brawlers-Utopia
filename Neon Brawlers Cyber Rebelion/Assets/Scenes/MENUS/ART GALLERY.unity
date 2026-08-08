@@ -155,7 +155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 39.899902, y: -21.313}
+  m_AnchoredPosition: {x: 85, y: -38}
   m_SizeDelta: {x: 160, y: 39.258}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &312775670
@@ -234,7 +234,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4932e7a1d250dc145bbf38ace9488df0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9fd93440c1621ad44a241fe50ddb3945, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -473,8 +473,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -790,7 +790,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -533.72754}
+  m_AnchoredPosition: {x: 270, y: -534}
   m_SizeDelta: {x: 120, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1173377046407825166
@@ -832,14 +832,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.056027032, g: 0.06988402, b: 0.16226411, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4c750333b02f22b45b432be0c2e87d7b, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1009,8 +1009,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4292664540
+  m_fontColor: {r: 0.86415094, g: 0.86415094, b: 0.86415094, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1336,34 +1336,18 @@ MonoBehaviour:
   contentParent: {fileID: 1050634547600021463}
   scrollRect: {fileID: 5215344363056904082}
   artCollection:
-  - artName: Comic "Prologue"
-    thumbnail: {fileID: 21300000, guid: 8d1e30fb5011b8649b25b2ae04ef9b53, type: 3}
-    fullImage: {fileID: 21300000, guid: 8d1e30fb5011b8649b25b2ae04ef9b53, type: 3}
+  - artName: Nira
+    thumbnail: {fileID: 21300000, guid: 6ae0fb2047f9f6844abb5c263e9c50e3, type: 3}
+    fullImage: {fileID: 21300000, guid: 6ae0fb2047f9f6844abb5c263e9c50e3, type: 3}
     description: Emilio Ayala
-  - artName: 'Comic "Chapter 1: Masked"'
-    thumbnail: {fileID: 21300000, guid: 1b13ddc8a07276146bebeee6141cdf0c, type: 3}
-    fullImage: {fileID: 21300000, guid: 1b13ddc8a07276146bebeee6141cdf0c, type: 3}
-    description: Emilio Ayala
-  - artName: 'Comic "Chapter 2: Revelations"'
-    thumbnail: {fileID: 21300000, guid: 632b0c4c05be98e48832259e7b1dc42d, type: 3}
-    fullImage: {fileID: 21300000, guid: 632b0c4c05be98e48832259e7b1dc42d, type: 3}
-    description: Emilio Ayala
-  - artName: 'Comic "Chapter 3: Finale"'
-    thumbnail: {fileID: 21300000, guid: 79cce8bcd868f0544887acc2abdc0989, type: 3}
-    fullImage: {fileID: 21300000, guid: 79cce8bcd868f0544887acc2abdc0989, type: 3}
-    description: Emilio Ayala
-  - artName: Concept "Scarecrow n Lytta"
-    thumbnail: {fileID: 21300000, guid: a67bf14d308555f4397c198ccae2c6d5, type: 3}
-    fullImage: {fileID: 21300000, guid: a67bf14d308555f4397c198ccae2c6d5, type: 3}
-    description: Emilio Ayala
-  - artName: Concept "Mephystoteles"
-    thumbnail: {fileID: 21300000, guid: 1626fe5782db56c47936a4c356d6e53b, type: 3}
-    fullImage: {fileID: 21300000, guid: 1626fe5782db56c47936a4c356d6e53b, type: 3}
-    description: Victoria Gaytan
   - artName: NPC's
     thumbnail: {fileID: 21300000, guid: 2da6c0c543b34a44096dd32502c4e908, type: 3}
     fullImage: {fileID: 21300000, guid: 2da6c0c543b34a44096dd32502c4e908, type: 3}
-    description: "Julio Le\xF3n"
+    description: NPC
+  - artName: Neon Brawlers
+    thumbnail: {fileID: 21300000, guid: 10a8a55a2875eff44ac302efc0cbd730, type: 3}
+    fullImage: {fileID: 21300000, guid: 10a8a55a2875eff44ac302efc0cbd730, type: 3}
+    description: Nancy Vasquez
   previewPanel: {fileID: 7671253004939456238}
   previewImage: {fileID: 7580119769782796584}
   previewTitle: {fileID: 4658367081712074430}
@@ -1511,8 +1495,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4292664540
+  m_fontColor: {r: 0.86415094, g: 0.86415094, b: 0.86415094, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1705,7 +1689,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.74838734, g: 0.74838734, b: 0.86415094, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
