@@ -3,44 +3,26 @@ using UnityEngine;
 public class CrouchObstacleInteraction : MonoBehaviour
 {
     [Header("Referencias")]
-    public Transform obstacleLookAt;
-
-    PlayerMovement playerMovement;
-    ThirdPersonCam cam;
-    EnemyInteraction enemyInteraction;
-    CameraPostFXController postFX;
-
-
-
+    public PlayerMovement playerMovement;
+    public CameraPostFXController postFX;
+    public EnemyInteraction enemyInteraction;
 
     bool playerInRange = false;
     bool isActive = false;
 
-    private void Awake()
-    {
-        enemyInteraction = GetComponent<EnemyInteraction>();
-        postFX = FindFirstObjectByType<CameraPostFXController>();
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-
-        playerMovement = other.GetComponentInParent<PlayerMovement>();
-        cam = FindFirstObjectByType<ThirdPersonCam>();
-
-        if (playerMovement == null || cam == null) return;
-
         playerInRange = true;
+        Debug.Log("Player entró al trigger");
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-
         playerInRange = false;
+        Debug.Log("Player salió del trigger");
 
-        // Si estaba activo, apagar efectos al salir
         if (isActive)
             DeactivateFX();
     }
@@ -60,8 +42,11 @@ public class CrouchObstacleInteraction : MonoBehaviour
     void ActivateFX()
     {
         isActive = true;
+        Debug.Log("ActivateFX");
 
-        cam.EnterObstacleMode(obstacleLookAt);
+        if (HabilidadesManager.instance != null)
+            HabilidadesManager.instance.playerIsHiding = true;
+
         postFX?.EnterObstacleFX();
         enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
     }
@@ -69,13 +54,15 @@ public class CrouchObstacleInteraction : MonoBehaviour
     void DeactivateFX()
     {
         isActive = false;
+        Debug.Log("DeactivateFX");
+
+        if (HabilidadesManager.instance != null)
+            HabilidadesManager.instance.playerIsHiding = false;
 
         enemyInteraction?.ForceCancel();
-        cam.ForceReturnToPlayer();
         postFX?.ExitObstacleFX();
         postFX?.StopEnemyFX();
     }
 
-    // Propiedad para que EnemyInteraction pueda consultarlo igual que en ObstacleInteraction
     public bool PlayerIsHidden => isActive;
 }

@@ -7,10 +7,6 @@ public class CameraPostFXController : MonoBehaviour
     [Header("Volume")]
     [SerializeField] private Volume globalVolume;
 
-    [Header("Lens Distortion")]
-    [SerializeField] private float lensTargetHidden = 0.76f;
-    [SerializeField] private float lensSpeed = 3f;
-
     [Header("Chromatic Aberration")]
     [SerializeField] private float chromaSpeed = 2f;
 
@@ -61,20 +57,8 @@ public class CameraPostFXController : MonoBehaviour
 
     void Update()
     {
-        UpdateLensDistortion();
         UpdateChromaticAberration();
         UpdateWhiteBalance();
-    }
-
-    void UpdateLensDistortion()
-    {
-        if (lens == null) return;
-
-        lens.intensity.value = Mathf.Lerp(
-            lens.intensity.value,
-            lensTarget,
-            Time.deltaTime * lensSpeed
-        );
     }
 
     void UpdateChromaticAberration()
@@ -114,7 +98,6 @@ public class CameraPostFXController : MonoBehaviour
 
     public void EnterObstacleFX()
     {
-        lensTarget = lensTargetHidden;
         temperatureTarget = hiddenTemperature;
     }
 
