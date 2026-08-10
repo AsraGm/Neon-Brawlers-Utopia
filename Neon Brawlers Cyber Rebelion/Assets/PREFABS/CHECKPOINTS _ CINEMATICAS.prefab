@@ -170,13 +170,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1098327980567675733}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -51.09, y: 13.526, z: -73.802}
+  m_LocalRotation: {x: -0, y: -0.70710707, z: -0, w: 0.70710653}
+  m_LocalPosition: {x: -51.233, y: 13.526, z: -80.78885}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6054646358545509237}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!65 &7999136178441110567
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   jugadorTag: Player
-  activarSoloUnaVez: 1
+  activarSoloUnaVez: 0
   mostrarDebugInfo: 1
   particulasActivacion: {fileID: 0}
   audioActivacion: {fileID: 0}
@@ -577,7 +577,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   jugadorTag: Player
-  activarSoloUnaVez: 1
+  activarSoloUnaVez: 0
   mostrarDebugInfo: 1
   particulasActivacion: {fileID: 0}
   audioActivacion: {fileID: 0}
