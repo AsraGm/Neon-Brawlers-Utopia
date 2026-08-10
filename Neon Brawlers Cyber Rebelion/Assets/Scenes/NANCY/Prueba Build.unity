@@ -17231,7 +17231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemRecolectable
   itemData: {fileID: 11400000, guid: f491f48e6b584d74bbc21d715fe01e87, type: 2}
   teclaRecolectar: 101
-  requiereSlowMo: 1
+  requiereSlowMo: 0
   ItemCollected:
     m_PersistentCalls:
       m_Calls: []
@@ -25543,7 +25543,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemRecolectable
   itemData: {fileID: 11400000, guid: f491f48e6b584d74bbc21d715fe01e87, type: 2}
   teclaRecolectar: 101
-  requiereSlowMo: 1
+  requiereSlowMo: 0
   ItemCollected:
     m_PersistentCalls:
       m_Calls: []
@@ -29855,7 +29855,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6197113994330546849, guid: 724c5f4e97388fb47b0c622a2d4a0ecd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 1.8520006
+      value: 1.8519999
       objectReference: {fileID: 0}
     - target: {fileID: 6401618122952471697, guid: 724c5f4e97388fb47b0c622a2d4a0ecd, type: 3}
       propertyPath: m_AnchorMax.y
@@ -30631,6 +30631,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 85854068560772784, guid: 62ed1496031ef8d49857532289c6723d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 747494519196839445, guid: 62ed1496031ef8d49857532289c6723d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 75.99745
@@ -30682,6 +30686,10 @@ PrefabInstance:
     - target: {fileID: 5944276012502074844, guid: 62ed1496031ef8d49857532289c6723d, type: 3}
       propertyPath: m_Name
       value: ---HABILIDADES AMBIENTALES
+      objectReference: {fileID: 0}
+    - target: {fileID: 8050841792061167712, guid: 62ed1496031ef8d49857532289c6723d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8428745781089098263, guid: 62ed1496031ef8d49857532289c6723d, type: 3}
       propertyPath: m_LocalPosition.z
