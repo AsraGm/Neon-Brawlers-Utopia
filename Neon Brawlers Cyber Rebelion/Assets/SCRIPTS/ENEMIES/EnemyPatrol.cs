@@ -122,6 +122,7 @@ public class EnemyPatrol : MonoBehaviour
         {
             animator.SetBool("IsWalking", !isWaiting && !isChasing && !isWaitingAtNoisePoint);
             animator.SetBool("IsChasing", isChasing);
+            animator.SetBool("IsWatching", isWaiting || isWaitingAtNoisePoint); // unificamos las 2 esperas en una variable para el animator
         }
 
         CheckChaseRange();
