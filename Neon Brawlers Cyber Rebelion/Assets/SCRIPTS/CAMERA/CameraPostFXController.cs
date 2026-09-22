@@ -11,9 +11,15 @@ public class CameraPostFXController : MonoBehaviour
     [SerializeField] private float chromaSpeed = 2f;
 
     [Header("White Balance")]
-    [SerializeField] private float hiddenTemperature = -32f;
-    [SerializeField] private float enemyTemperature = 50f;
+    [SerializeField] private float hiddenTemperature = -52f;
+    [SerializeField] private float enemyTemperature = 70f;
     [SerializeField] private float temperatureSpeed = 3f;
+
+    [Header("Lens Distortion")]
+    [SerializeField] private float baseLensIntensity = 0.21f;
+    [SerializeField] private float hiddenLensIntensity = 0.75f;
+    [SerializeField] private float lensSpeed = 3f;
+
 
     // declaramos a parte lens y chromatic para usarlos
     LensDistortion lens;
@@ -24,6 +30,9 @@ public class CameraPostFXController : MonoBehaviour
     float lensTarget = 0f;
     float temperatureTarget = 0f;
     bool chromaActive = false;
+
+    private bool isHidden = false;
+
 
     // lo PRIMERITO es que se asegure de encontrar el global volume con sus valores de lens y aberration
     void Awake()
@@ -50,7 +59,7 @@ public class CameraPostFXController : MonoBehaviour
             Debug.LogError("White Balance no está en el Volume Profile");
 
         // Seguridad inicial
-        lens.intensity.Override(0f);
+        lens.intensity.Override(baseLensIntensity);
         chroma.intensity.Override(0f);
         balance.temperature.Override(0f);
     }
@@ -59,6 +68,7 @@ public class CameraPostFXController : MonoBehaviour
     {
         UpdateChromaticAberration();
         UpdateWhiteBalance();
+        UpdateLensDistortion();
     }
 
     void UpdateChromaticAberration()
@@ -80,6 +90,19 @@ public class CameraPostFXController : MonoBehaviour
         }
     }
 
+    void UpdateLensDistortion()
+    {
+        if (lens == null) return;
+
+        lens.intensity.value = Mathf.Lerp
+        (
+            lens.intensity.value,
+            lensTarget,
+            Time.deltaTime * lensSpeed
+        );
+    }
+
+
     void UpdateWhiteBalance()
     {
         if (balance == null) return;
@@ -99,15 +122,14 @@ public class CameraPostFXController : MonoBehaviour
     public void EnterObstacleFX()
     {
         temperatureTarget = hiddenTemperature;
+        lensTarget = hiddenLensIntensity;
     }
-
 
     public void ExitObstacleFX()
     {
-        lensTarget = 0f;
+        lensTarget = baseLensIntensity; 
         temperatureTarget = 0f;
     }
-
     public void StartEnemyFX()
     {
         chromaActive = true;
@@ -118,12 +140,7 @@ public class CameraPostFXController : MonoBehaviour
     public void StopEnemyFX()
     {
         chromaActive = false;
-
-        // Si sigue en obstáculo, regresa a temp de escondido
-        if (lensTarget > 0f)
-            temperatureTarget = hiddenTemperature;
-        else
-            temperatureTarget = 0f;
+        temperatureTarget = isHidden ? hiddenTemperature : 0f;
     }
 
 }
