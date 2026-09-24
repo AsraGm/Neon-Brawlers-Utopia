@@ -27,7 +27,7 @@ public class MAINMENU : MonoBehaviour
     public void STARTGAME()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Prueba Build");
+        SceneManager.LoadScene("Normal Scene");
     }
 
 
