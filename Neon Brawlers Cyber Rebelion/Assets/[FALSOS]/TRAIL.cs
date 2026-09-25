@@ -5,15 +5,17 @@ using System.Collections.Generic;
 public class TRAIL : MonoBehaviour
 {
     #region Variables
-
     [Header("Mesh Part")]
+    [Tooltip("Cada cuántos segundos se genera una nueva copia de la malla mientras la estela está activa. Más bajo = estela más densa (más copias juntas), pero más costoso.")]
     public float meshRefreshRate = 0.1f;
     public Transform positionToSpawn;
 
     [Header("Shader Part")]
     public Material mat;
     public string shaderVarRef = "_Alpha";
+    [Tooltip("Cuánto baja el valor de alpha en cada paso del desvanecido. Junto con shaderVarRefreshRate determina cuánto dura el fade completo.")]
     public float shaderVarRate = 0.1f;
+    [Tooltip("Cada cuántos segundos se actualiza el valor de alpha durante el desvanecido. Más bajo = fade más suave/fluido.")]
     public float shaderVarRefreshRate = 0.05f;
 
     private bool isTrailActive = false;
@@ -59,6 +61,8 @@ public class TRAIL : MonoBehaviour
 
         for (int i = 0; i < skinnedMeshRenderers.Length; i++)
         {
+            SkinnedMeshRenderer smr = skinnedMeshRenderers[i];
+
             GameObject gObj = new GameObject($"TrailMesh_{i}");
             gObj.transform.SetPositionAndRotation(positionToSpawn.position, positionToSpawn.rotation);
 
@@ -66,28 +70,47 @@ public class TRAIL : MonoBehaviour
             MeshFilter mf = gObj.AddComponent<MeshFilter>();
 
             Mesh mesh = new Mesh();
-            skinnedMeshRenderers[i].BakeMesh(mesh);
+            smr.BakeMesh(mesh);
             mf.mesh = mesh;
 
-            Material matInstance = new Material(mat);
-            mr.material = matInstance;
+            Material[] originalMats = smr.sharedMaterials; // texturas reales del personaje
+            int subCount = mesh.subMeshCount;
+            Material[] matInstances = new Material[subCount];
 
-            StartCoroutine(FadeAndDestroy(mr, matInstance, mesh, gObj));
+            for (int s = 0; s < subCount; s++)
+            {
+                Material instance = new Material(mat); // tu shader holograma
+                Material original = originalMats[Mathf.Min(s, originalMats.Length - 1)];
+
+                if (original.HasProperty("_MainTex"))
+                    instance.SetTexture("_MainTex", original.GetTexture("_MainTex"));
+
+                matInstances[s] = instance;
+            }
+
+            mr.materials = matInstances; // ojo: "materials" (plural), no "material"
+
+            StartCoroutine(FadeAndDestroy(mr, matInstances, mesh, gObj));
         }
     }
 
-    private IEnumerator FadeAndDestroy(MeshRenderer mr, Material matInstance, Mesh mesh, GameObject gObj)
+    private IEnumerator FadeAndDestroy(MeshRenderer mr, Material[] matInstances, Mesh mesh, GameObject gObj)
     {
-        float alpha = matInstance.GetFloat(shaderVarRef);
+        float alpha = matInstances[0].GetFloat(shaderVarRef);
 
         while (alpha > 0f)
         {
             alpha -= shaderVarRate;
-            matInstance.SetFloat(shaderVarRef, Mathf.Max(alpha, 0f));
+            float clamped = Mathf.Max(alpha, 0f);
+            for (int i = 0; i < matInstances.Length; i++)
+                matInstances[i].SetFloat(shaderVarRef, clamped);
+
             yield return new WaitForSecondsRealtime(shaderVarRefreshRate);
         }
 
-        Destroy(matInstance);
+        for (int i = 0; i < matInstances.Length; i++)
+            Destroy(matInstances[i]);
+
         Destroy(mesh);
         Destroy(gObj);
     }
