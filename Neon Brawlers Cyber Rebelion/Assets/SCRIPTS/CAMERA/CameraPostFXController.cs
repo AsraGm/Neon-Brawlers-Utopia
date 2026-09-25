@@ -59,7 +59,7 @@ public class CameraPostFXController : MonoBehaviour
             Debug.LogError("White Balance no está en el Volume Profile");
 
         // Seguridad inicial
-        lens.intensity.Override(baseLensIntensity);
+        //lens.intensity.Override(baseLensIntensity);
         chroma.intensity.Override(0f);
         balance.temperature.Override(0f);
     }
@@ -68,7 +68,7 @@ public class CameraPostFXController : MonoBehaviour
     {
         UpdateChromaticAberration();
         UpdateWhiteBalance();
-        UpdateLensDistortion();
+        //UpdateLensDistortion();
     }
 
     void UpdateChromaticAberration()
