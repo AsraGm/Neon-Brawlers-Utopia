@@ -24,56 +24,60 @@ public class PauseMenu : MonoBehaviour
     {
         if (Keyboard.current.escapeKey.wasReleasedThisFrame)
         {
-            Pause();
+            if (pause) Reanudar();
+            else Pause();
         }
     }
 
     public void Pause()
     {
-        pause = !pause;
-        pauseMenu.SetActive(pause);
+        pause = true;
+        pauseMenu.SetActive(true);
 
-        if (pause)
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            camPlayer.gameObject.GetComponent<Camera>().enabled = false;
-            habilidadesManager.enabled = false;
-            animPlayer.speed = 0f;
-            InventoryUIManager.Instance.SetPausa(true);
-            AudioListener.pause = true;
-            Time.timeScale = 0;
-        }
-        else
-        {
-            Time.timeScale = 1;
-            camPlayer.gameObject.GetComponent<Camera>().enabled = true;
-            habilidadesManager.enabled = true;
-            animPlayer.speed = 1f;
-            configCanvas.SetActive(false);
-            InventoryUIManager.Instance.SetPausa(false);
-            AudioListener.pause = false;
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        camPlayer.GetComponent<Camera>().enabled = false;
+        habilidadesManager.enabled = false;
+        animPlayer.speed = 0f;
+        InventoryUIManager.Instance.SetPausa(true);
+        AudioListener.pause = true;
+        Time.timeScale = 0;
+    }
+
+    public void Reanudar()
+    {
+        pause = false;
+        pauseMenu.SetActive(false);
+        configCanvas.SetActive(false);
+
+        Time.timeScale = 1;
+        camPlayer.GetComponent<Camera>().enabled = true;
+        habilidadesManager.enabled = true;
+        animPlayer.speed = 1f;
+        InventoryUIManager.Instance.SetPausa(false);
+        AudioListener.pause = false;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void MENU()
     {
+        pause = false;
         Time.timeScale = 1;
-        SceneManager.LoadScene("MAIN MENU");
+        AudioListener.pause = false; 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        SceneManager.LoadScene("MAIN MENU");
     }
 
     //extra cambio de escenas
     public void CambioEscena(string escena)
     {
+        pause = false;
         Time.timeScale = 1f;
+        AudioListener.pause = false;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        pause = false;
-
         SceneManager.LoadScene(escena);
     }
 
