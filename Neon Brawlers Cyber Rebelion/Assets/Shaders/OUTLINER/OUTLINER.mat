@@ -7,19 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RADIO
-  m_Shader: {fileID: -6465566751694194690, guid: 6ad676e0b18e86949bef2b62c8673358, type: 3}
+  m_Name: OUTLINER
+  m_Shader: {fileID: -6465566751694194690, guid: 79efc2d2e2fc7d04a9c628fb9c743308, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _ALPHATEST_ON
+  m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 2
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: TransparentCutout
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -40,32 +38,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 1
-    - _AlphaToMask: 1
-    - _AlphaTres: 1
-    - _Blend: 0
-    - _BlendModePreserveSpecular: 1
-    - _Border: 0.9
-    - _CastShadows: 1
-    - _Cull: 2
-    - _DstBlend: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ReceiveShadows: 1
-    - _Size: 0.3
-    - _SrcBlend: 1
-    - _Surface: 0
-    - _TimeX: 2.5
-    - _WorkflowMode: 1
-    - _ZTest: 4
-    - _ZWrite: 1
-    - _ZWriteControl: 0
+    - _Scale: 1.04
     m_Colors:
-    - _Color: {r: 0, g: 0, b: 0, a: 1}
-    - _Glow: {r: 1.3381917, g: 1.4980394, b: 0, a: 1}
+    - _Color: {r: 2.4528303, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &274934650585783383
+--- !u!114 &7742109361269072580
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -76,5 +56,5 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  m_EditorClassIdentifier: 
   version: 10
