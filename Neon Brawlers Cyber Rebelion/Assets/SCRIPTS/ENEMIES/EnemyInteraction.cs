@@ -3,7 +3,6 @@ using UnityEngine;
 public class EnemyInteraction : MonoBehaviour
 {
     CameraPostFXController postFX;
-    ObstacleInteraction obstacleInteraction;
     CrouchObstacleInteraction crouchObstacle;
 
     bool enemyInside;
@@ -12,7 +11,6 @@ public class EnemyInteraction : MonoBehaviour
     void Awake()
     {
         postFX = FindFirstObjectByType<CameraPostFXController>();
-        obstacleInteraction = GetComponent<ObstacleInteraction>();
         crouchObstacle = GetComponent<CrouchObstacleInteraction>();
     }
 
@@ -71,7 +69,6 @@ public class EnemyInteraction : MonoBehaviour
 
     bool IsPlayerHidden()
     {
-        if (obstacleInteraction != null) return obstacleInteraction.PlayerIsHidden;
         if (crouchObstacle != null) return crouchObstacle.PlayerIsHidden;
         return false;
     }
