@@ -146345,10 +146345,15 @@ MonoBehaviour:
   detectionOffset: {x: 2, y: 3.31, z: 0.67}
   detectionBoxSize: {x: 2.65, y: 2, z: 0.5}
   playerLayer:
-    serializedVersion: 2
     m_Bits: 8
   hideWalkingZone: {fileID: 817032793397961933}
   snapSpeed: 10
+  <PlayerInObstacle>k__BackingField: 0
+  <PlayerIsHidden>k__BackingField: 0
+  playerMovement: {fileID: 0}
+  cam: {fileID: 0}
+  enemyInteraction: {fileID: 0}
+  postFX: {fileID: 0}
 --- !u!1001 &4119800400934919805
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -224139,7 +224144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8981493365370995882, guid: bcff3069a69f8c448afdfde41bc542cf, type: 3}
       propertyPath: m_Size.x
-      value: 1.036843
+      value: 3.3766353
       objectReference: {fileID: 0}
     - target: {fileID: 8981493365370995882, guid: bcff3069a69f8c448afdfde41bc542cf, type: 3}
       propertyPath: m_Size.z
@@ -224147,11 +224152,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8981493365370995882, guid: bcff3069a69f8c448afdfde41bc542cf, type: 3}
       propertyPath: m_Center.x
-      value: 0.018421546
+      value: -1.1514746
       objectReference: {fileID: 0}
     - target: {fileID: 8981493365370995882, guid: bcff3069a69f8c448afdfde41bc542cf, type: 3}
       propertyPath: m_Center.z
-      value: 0.122180134
+      value: 0.12218015
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
