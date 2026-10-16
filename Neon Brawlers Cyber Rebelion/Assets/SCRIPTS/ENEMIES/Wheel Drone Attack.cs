@@ -67,7 +67,7 @@ public class WheelDroneAttack : MonoBehaviour
                 if (player != null)
                 {
                     float damage = damageAreas[i].damagePerSecond;
-                    player.RecibirDanio(damage);
+                    player.RecibirDanioConJumpscare(damage, "Llanta");
                     currentTarget = player;
                 }
                 return; 

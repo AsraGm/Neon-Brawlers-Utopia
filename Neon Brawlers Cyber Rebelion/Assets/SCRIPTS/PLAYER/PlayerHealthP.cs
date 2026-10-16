@@ -109,6 +109,16 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    public void RecibirDanioConJumpscare(float cantidad, string nombreEnemigo)
+    {
+        if (estaMuerto) return;
+
+        ultimoEnemigo = nombreEnemigo;
+        RecibirDanio(cantidad);
+    }
+
+    private string ultimoEnemigo = "";
+
     public void Curar(float cantidad)
     {
         if (estaMuerto) return;
@@ -158,31 +168,34 @@ public class PlayerHealth : MonoBehaviour
         vidaActual = vidaMaxima;
         HabilidadesManager.instance.playerIsHiding = false;
 
-        TransitionDeath.Instance?.IniciarGlitchLuegoFade();
+        // Bloquear movimiento
+        PlayerMovement pm = GetComponent<PlayerMovement>();
+        pm?.SetMovementLock(true);
+
+        // Jumpscare primero, luego glitch y checkpoint
+        if (!string.IsNullOrEmpty(ultimoEnemigo) && JumpscareManager.instance != null)
+        {
+            JumpscareManager.instance.ActivarJumpscare(ultimoEnemigo, () =>
+            {
+                pm?.SetMovementLock(false);
+                TransitionDeath.Instance?.IniciarGlitchLuegoFade();
+                ActualizarObjetivoVignette();
+                Invoke(nameof(CargarCheckpoint), tiempoEsperaAntesDeCargarCheckpoint);
+            });
+        }
+        else
+        {
+            // Sin jumpscare, flujo normal
+            pm?.SetMovementLock(false);
+            TransitionDeath.Instance?.IniciarGlitchLuegoFade();
+            ActualizarObjetivoVignette();
+            Invoke(nameof(CargarCheckpoint), tiempoEsperaAntesDeCargarCheckpoint);
+        }
 
         if (mostrarLogs)
-        {
-            Debug.Log("[PlayerHealth] ☠️ Jugador muerto. Cargando checkpoint...");
-        }
+            Debug.Log($"[PlayerHealth] ☠️ Jugador muerto por: {ultimoEnemigo}");
 
-        // TODO: Integración con PostProcessManager (futuro)
-        /*
-        if (PostProcessManager.Instance != null)
-        {
-            PostProcessManager.Instance.ActivarVignetteMuerte();
-        }
-        */
-
-        ActualizarObjetivoVignette();
-
-        // Reproducir efectos de muerte
-        if (sonidoMuerte != null && audioSource != null)
-        {
-            audioSource.PlayOneShot(sonidoMuerte);
-        }
-
-        // Esperar un momento antes de cargar checkpoint (para que se vean efectos)
-        Invoke(nameof(CargarCheckpoint), tiempoEsperaAntesDeCargarCheckpoint);
+        ultimoEnemigo = "";
     }
 
     private void CargarCheckpoint()

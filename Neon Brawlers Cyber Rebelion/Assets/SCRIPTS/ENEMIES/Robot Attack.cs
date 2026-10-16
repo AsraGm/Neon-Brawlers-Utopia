@@ -7,6 +7,8 @@ public class RobotAttack : MonoBehaviour
     [SerializeField] private float delayTimeDamage = 3f;
     [SerializeField] private float attackDuration = 1.5f;
 
+    [SerializeField] private string nombreJumpscare = "Robot"; // cambia a "Hybrid" en el inspector
+
     private Collider attackTrigger;
     private EnemyPatrol enemyPatrol;
     private Animator animator;
@@ -65,7 +67,7 @@ public class RobotAttack : MonoBehaviour
         PlayerHealth playerDamage = playerObj.GetComponent<PlayerHealth>();
         if (playerDamage != null)
         {
-            playerDamage.RecibirDanio(damage);
+            playerDamage.RecibirDanioConJumpscare(damage, "Robot");
         }
 
         yield return new WaitForSeconds(attackDuration);
