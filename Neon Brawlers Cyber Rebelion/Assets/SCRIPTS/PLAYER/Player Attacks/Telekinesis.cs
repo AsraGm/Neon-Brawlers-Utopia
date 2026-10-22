@@ -73,7 +73,8 @@ public class Telekinesis : MonoBehaviour
         if (HabilidadesManager.instance.cooldownTimer <= 0 && !currentRb)
         {
             GrabNearestObject();
-            StartCoroutine(ForceDronRelease());
+            if (currentRb)
+                StartCoroutine(ForceDronRelease());
         }
     }
 
@@ -136,6 +137,8 @@ public class Telekinesis : MonoBehaviour
 
     void ThrowObject() // Lanza el objeto en la dirección de la cámara
     {
+        StopAllCoroutines();
+
         throwParticles.Play();
 
         Vector3 releasePosition = currentRb.position;
@@ -169,6 +172,20 @@ public class Telekinesis : MonoBehaviour
         {
             ThrowObject();
         }
+    }
+
+    public void CancelTelekinesis()
+    {
+        if (!currentRb) return;
+
+        StopAllCoroutines();
+
+        if (currentEnemy == null)
+            currentRb.useGravity = true;
+
+        currentRb = null;
+        currentEnemy = null;
+        AudioManager.instance.Stop("telekinesis");
     }
 
     void OnDrawGizmosSelected()

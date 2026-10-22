@@ -67,7 +67,7 @@ public class RobotAttack : MonoBehaviour
         PlayerHealth playerDamage = playerObj.GetComponent<PlayerHealth>();
         if (playerDamage != null)
         {
-            playerDamage.RecibirDanioConJumpscare(damage, "Robot");
+            playerDamage.RecibirDanioConJumpscare(damage, nombreJumpscare);
         }
 
         yield return new WaitForSeconds(attackDuration);
@@ -111,4 +111,9 @@ public class RobotAttack : MonoBehaviour
         attackTrigger.enabled = false;
     }
 
+    public void ResetAttack()
+    {
+        StopAllCoroutines();
+        DisableAttackTrigger();
+    }
 }

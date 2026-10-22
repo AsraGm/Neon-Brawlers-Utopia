@@ -7,6 +7,8 @@ public class EnemyPatrol : MonoBehaviour
 {
     private NavMeshAgent agent;
     private FieldOfView fieldOfView;
+    private Vector3 startPosition;
+    private Quaternion startRotation;
 
     [Header("Patrol")]
     [SerializeField] private Animator animator;
@@ -87,6 +89,9 @@ public class EnemyPatrol : MonoBehaviour
 
     void Start()
     {
+        startPosition = transform.position;
+        startRotation = transform.rotation;
+
         agent = GetComponent<NavMeshAgent>();
         fieldOfView = GetComponent<FieldOfView>();
         rb = GetComponent<Rigidbody>();
@@ -683,6 +688,67 @@ public class EnemyPatrol : MonoBehaviour
         ledRenderer.SetPropertyBlock(ledPropBlock);
     }
     #endregion Led
+
+    #region Reset
+    public static void ResetAll()
+    {
+        foreach (EnemyPatrol enemy in ActiveEnemies)
+            enemy.ResetEnemy();
+    }
+
+    public void ResetEnemy()
+    {
+        StopAllCoroutines();
+        idleCoroutine = null;
+        investigateCoroutine = null;
+        symbolCoroutine = null;
+        stunCoroutine = null;
+        delayedUnalertCoroutine = null;
+
+        if (isChasing && AudioManager.instance != null)
+            AudioManager.instance.EnemyStoppedChasing();
+
+        isChasing = false;
+        isStunned = false;
+        isWaiting = false;
+        isInvestigating = false;
+        isWaitingAtNoisePoint = false;
+        isAttacking = false;
+        isBeingManipulated = false;
+        alertedByDrone = false;
+        canAttack = true;
+        waypointIndex = 0;
+
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+
+        if (animator != null) animator.speed = 1f;
+
+        if (symbolRenderer != null) symbolRenderer.enabled = false;
+        if (symbolAnim != null) symbolAnim.gameObject.SetActive(false);
+        SetLedColor(ledColorNormal);
+        NormalSound();
+
+        if (fieldOfView != null) fieldOfView.ResetRadius(fovTransitionTime);
+
+        if (robotAttack != null) robotAttack.ResetAttack();
+
+        transform.rotation = startRotation;
+
+        if (agent != null)
+        {
+            agent.enabled = true;
+            agent.Warp(startPosition);
+            agent.isStopped = false;
+            agent.speed = patrolSpeed;
+            agent.stoppingDistance = patrolStoppingDistance;
+            UpdateDestination();
+        }
+    }
+    #endregion Reset
 
     private void OnDrawGizmos()
     {

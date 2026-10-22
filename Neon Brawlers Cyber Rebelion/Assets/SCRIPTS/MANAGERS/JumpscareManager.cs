@@ -20,6 +20,7 @@ public class JumpscareManager : MonoBehaviour
         public Animator animator;
         public string triggerAnimacion = "doJumpscare";
         public float duracion = 3f;
+        public float tiempoInicioFade = 1.5f;
     }
 
     private void Awake()
@@ -33,20 +34,21 @@ public class JumpscareManager : MonoBehaviour
                 j.camara.gameObject.SetActive(false);
     }
 
-    public void ActivarJumpscare(string nombreEnemigo, System.Action onFinish)
+    public void ActivarJumpscare(string nombreEnemigo, System.Action onFinish, System.Action onInicioFade = null)
     {
         JumpscareData data = System.Array.Find(jumpscares, j => j.nombre == nombreEnemigo);
         if (data == null)
         {
             Debug.LogWarning($"Jumpscare '{nombreEnemigo}' no encontrado");
+            onInicioFade?.Invoke();
             onFinish?.Invoke();
             return;
         }
 
-        StartCoroutine(SecuenciaJumpscare(data, onFinish));
+        StartCoroutine(SecuenciaJumpscare(data, onFinish, onInicioFade));
     }
 
-    private IEnumerator SecuenciaJumpscare(JumpscareData data, System.Action onFinish)
+    private IEnumerator SecuenciaJumpscare(JumpscareData data, System.Action onFinish, System.Action onInicioFade)
     {
         // Apagar cámara y mesh del jugador
         if (playerCamera != null) playerCamera.gameObject.SetActive(false);
@@ -59,8 +61,12 @@ public class JumpscareManager : MonoBehaviour
         if (data.animator != null)
             data.animator.SetTrigger(data.triggerAnimacion);
 
-        // Esperar duración
-        yield return new WaitForSecondsRealtime(data.duracion);
+        float inicioFade = Mathf.Min(data.tiempoInicioFade, data.duracion);
+
+        yield return new WaitForSecondsRealtime(inicioFade);
+        onInicioFade?.Invoke();
+
+        yield return new WaitForSecondsRealtime(data.duracion - inicioFade);
 
         // Restaurar
         data.camara.gameObject.SetActive(false);

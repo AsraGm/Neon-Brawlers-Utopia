@@ -175,13 +175,19 @@ public class PlayerHealth : MonoBehaviour
         // Jumpscare primero, luego glitch y checkpoint
         if (!string.IsNullOrEmpty(ultimoEnemigo) && JumpscareManager.instance != null)
         {
-            JumpscareManager.instance.ActivarJumpscare(ultimoEnemigo, () =>
-            {
-                pm?.SetMovementLock(false);
-                TransitionDeath.Instance?.IniciarGlitchLuegoFade();
-                ActualizarObjetivoVignette();
-                Invoke(nameof(CargarCheckpoint), tiempoEsperaAntesDeCargarCheckpoint);
-            });
+            JumpscareManager.instance.ActivarJumpscare(ultimoEnemigo,
+                  () =>
+                  {
+                      // Terminó el screamer: la pantalla ya está cubierta por el fade
+                      pm?.SetMovementLock(false);
+                      CargarCheckpoint();
+                  },
+                  () =>
+                  {
+                      // Empieza la transición mientras el screamer sigue visible
+                      TransitionDeath.Instance?.IniciarGlitchLuegoFade();
+                      ActualizarObjetivoVignette();
+                  });
         }
         else
         {
@@ -202,6 +208,8 @@ public class PlayerHealth : MonoBehaviour
     {
         if (GameManager.Instance != null)
         {
+            GetComponent<Telekinesis>()?.CancelTelekinesis();
+            EnemyPatrol.ResetAll();
             GameManager.Instance.CargarCheckpoint();
             ResetearEstadoMuerte();
             TransitionDeath.Instance?.TerminarFadeLuegoGlitch();
@@ -305,9 +313,12 @@ public class PlayerHealth : MonoBehaviour
         return vidaActual > 0 && !estaMuerto;
     }
 
-#if UNITY_EDITOR
+
     private void Update()
     {
+        ActualizarTransicionVignette();
+
+#if UNITY_EDITOR
         // K = Recibir 20 de daño
         if (Input.GetKeyDown(KeyCode.K))
         {
@@ -325,10 +336,11 @@ public class PlayerHealth : MonoBehaviour
         {
             Curar(vidaMaxima);
         }
+#endif
 
-        ActualizarTransicionVignette();
     }
 
+#if UNITY_EDITOR
     [ContextMenu("Recibir 10 de Daño")]
     private void TestDanio10()
     {
