@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using TMPro;
 
 /// <summary>
@@ -180,6 +181,8 @@ public class ObjetivoManager : MonoBehaviour
     /// <param name="indiceMision">Índice de la misión a cargar</param>
     public void CargarEstadoMision(int indiceMision)
     {
+        HudCardQueue.Instance?.Clear();
+
         if (indiceMision < 0 || indiceMision >= misiones.Length)
         {
             Debug.LogWarning($"[ObjetivoManager] Índice de misión inválido: {indiceMision}. Cargando misión 0");
@@ -211,7 +214,17 @@ public class ObjetivoManager : MonoBehaviour
 
     public void MostrarMensaje(string texto)
     {
-        missionText.text = texto;
-        animator.SetTrigger("trigger");
+        if (HudCardQueue.Instance == null)
+        {
+            Debug.LogWarning("[ObjetivoManager] No hay HudCardQueue en la escena");
+            return;
+        }
+
+        HudCardQueue.Instance.Enqueue(() =>
+        {
+            missionText.text = texto;
+            animator.SetTrigger("trigger");
+        });
     }
+
 }

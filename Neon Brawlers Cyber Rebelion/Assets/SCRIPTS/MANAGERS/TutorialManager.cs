@@ -22,7 +22,16 @@ public class TutorialManager : MonoBehaviour
 
     public void ShowMessage(string mensaje)
     {
-        tutorialText.text = mensaje;
-        animator.SetTrigger("trigger");
+        if (HudCardQueue.Instance == null)
+        {
+            Debug.LogWarning("[TutorialManager] No hay HudCardQueue en la escena");
+            return;
+        }
+
+        HudCardQueue.Instance.Enqueue(() =>
+        {
+            tutorialText.text = mensaje;
+            animator.SetTrigger("trigger");
+        });
     }
 }
