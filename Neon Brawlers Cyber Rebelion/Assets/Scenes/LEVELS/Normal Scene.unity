@@ -6256,6 +6256,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3581801275373903159, guid: cf2feec5a645b074d9174de5d5f005fa, type: 3}
   m_PrefabInstance: {fileID: 154057045}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &155263222 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8469515050104098562, guid: 4909f6de1733bb344abcdb4a8bfd0391, type: 3}
+  m_PrefabInstance: {fileID: 1800454115}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &163175535
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -41053,6 +41058,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1028423351}
+  - component: {fileID: 1028423352}
   m_Layer: 0
   m_Name: PUERTAS
   m_TagString: Untagged
@@ -41086,6 +41092,31 @@ Transform:
   - {fileID: 393659875}
   m_Father: {fileID: 1546320006}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1028423352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028423350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f3f502667b3fcc4ebe4f04ac4312007, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZonasCheckpoint
+  jugadorTag: Player
+  soloUnaVez: 0
+  zonas:
+  - nota: 
+    instanciaActual: {fileID: 155263222}
+    prefab: {fileID: 8469515050104098562, guid: 4909f6de1733bb344abcdb4a8bfd0391, type: 3}
+  objetosAReiniciar:
+  - {fileID: 1705299660}
+  alReiniciar:
+    m_PersistentCalls:
+      m_Calls: []
+  avisarAudioAlDestruir: 0
+  mostrarLogs: 0
 --- !u!1 &1030576227
 GameObject:
   m_ObjectHideFlags: 0
@@ -53846,6 +53877,10 @@ PrefabInstance:
     - target: {fileID: 1652703313600349662, guid: 8e1dd63e8bb51d642a381293c64ebf90, type: 3}
       propertyPath: activateOnlyOnce
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2602156578492115815, guid: 8e1dd63e8bb51d642a381293c64ebf90, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -10.161
       objectReference: {fileID: 0}
     - target: {fileID: 3661841905339746772, guid: 8e1dd63e8bb51d642a381293c64ebf90, type: 3}
       propertyPath: m_LocalPosition.x
