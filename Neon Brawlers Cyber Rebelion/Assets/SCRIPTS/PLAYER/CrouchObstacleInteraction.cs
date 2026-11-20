@@ -5,7 +5,8 @@ public class CrouchObstacleInteraction : MonoBehaviour
     [Header("Referencias")]
     public PlayerMovement playerMovement;
     public CameraPostFXController postFX;
-    public EnemyInteraction enemyInteraction;
+
+    private PlayerBreath playerBreath;
 
     bool playerInRange = false;
     bool isActive = false;
@@ -15,6 +16,9 @@ public class CrouchObstacleInteraction : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerInRange = true;
         Debug.Log("Player entró al trigger");
+
+        if (playerBreath == null)
+            playerBreath = other.GetComponentInParent<PlayerBreath>();
     }
 
     private void OnTriggerExit(Collider other)
@@ -48,7 +52,7 @@ public class CrouchObstacleInteraction : MonoBehaviour
             HabilidadesManager.instance.playerIsHiding = true;
 
         postFX?.EnterObstacleFX();
-        enemyInteraction?.CheckEnemyInsideOnPlayerEnter();
+        playerBreath?.StartBreath();
     }
 
     void DeactivateFX()
@@ -59,9 +63,9 @@ public class CrouchObstacleInteraction : MonoBehaviour
         if (HabilidadesManager.instance != null)
             HabilidadesManager.instance.playerIsHiding = false;
 
-        enemyInteraction?.ForceCancel();
         postFX?.ExitObstacleFX();
         postFX?.StopEnemyFX();
+        playerBreath?.StopBreath();
     }
 
     public bool PlayerIsHidden => isActive;

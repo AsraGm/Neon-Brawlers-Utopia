@@ -474,7 +474,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.77254903}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2296,6 +2296,7 @@ GameObject:
   - component: {fileID: 1331951977}
   - component: {fileID: 1331951976}
   - component: {fileID: 1331951981}
+  - component: {fileID: 1331951982}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2411,8 +2412,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: a93f56ffb2163ef419ed1a723e50f823, type: 3}
-  m_PlayOnAwake: 1
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -2497,6 +2498,48 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1331951982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1331951975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3844d8db22f871f488de13c21e04c541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuIntro
+  menuImage: {fileID: 890701387}
+  startScale: {x: 6, y: 6, z: 6}
+  left: 1151
+  right: -1151
+  top: 868
+  bottom: -868
+  holdTime: 0.5
+  zoomOutDuration: 2
+  buttonsFadeDuration: 2
+  audioSource: {fileID: 1331951981}
+  zoomOutClip: {fileID: 8300000, guid: 1cd4ce7fd91fd6747b441e5a28dc261d, type: 3}
+  menuMusicClip: {fileID: 8300000, guid: a93f56ffb2163ef419ed1a723e50f823, type: 3}
+  buttonImages:
+  - {fileID: 224185812}
+  - {fileID: 1938634907}
+  - {fileID: 1221595948}
+  - {fileID: 898544624}
+  - {fileID: 1005167462}
+  buttonTexts:
+  - {fileID: 1163777802}
+  - {fileID: 594892114}
+  - {fileID: 2136553448}
+  - {fileID: 898856760}
+  - {fileID: 1326993653}
+  buttons:
+  - {fileID: 224185811}
+  - {fileID: 1938634906}
+  - {fileID: 1221595947}
+  - {fileID: 898544623}
+  - {fileID: 1005167461}
 --- !u!1 &1861301466
 GameObject:
   m_ObjectHideFlags: 0
